@@ -1,0 +1,46 @@
+
+server:
+  port: 8080
+spring:
+  #数据源配置
+  datasource:
+    #德鲁伊数据源
+    type: com.alibaba.druid.pool.DruidDataSource
+    url: jdbc:mysql://localhost:3306/myblog?allowMultiQueries=true&serverTimezone=Asia/Shanghai&characterEncoding=utf8
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    #spring mvc
+  mvc:
+    view:
+      prefix: /WEB-INF/jsp
+      suffix: .jsp
+      #访问外部静态文件的映射
+    static-path-pattern: /**
+#自定义外部静态资源路径
+  resources:
+    #指定静态文件存放位置 因为这里需要添加外部路径，所以需要手动指定,包括static
+    #不指定则默认为 classpath:/static/
+    static-locations: classpath:/static/,file:ext_resources/
+#自定义的属性
+extStaticSourcesPath: ext_resources/
+
+ #mybatis
+mybatis:
+  #mapper
+  mapper-locations: classpath:mappers/*.xml
+  configuration:
+    #关闭二级缓存
+    cache-enabled: false
+    #开启驼峰命名
+    map-underscore-to-camel-case: true
+logging:
+  file:
+    #当前打包jar目录
+    path: log
+
+#每页显示的文章数
+home:
+  pageCommNum: 5
+#pdf转swf工具路径
+swfToolsPath: D:/SWFTools/pdf2swf.exe

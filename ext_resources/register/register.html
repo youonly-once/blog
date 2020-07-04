@@ -1,0 +1,139 @@
+
+
+<!-- 设置语言环境 -->
+
+<link href="css/pop.css" rel="stylesheet" type="text/css" />
+<link href="css/popload.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="js/jquery.js"></script>
+<!--<script type="text/javascript" src="${webPath}js/BaseUtils.js"></script>-->
+
+<script type="text/javascript">
+
+    //定义ctx变量，供js脚本使用
+    var jsCtx = '';
+    var loginId= '';
+    //var isLoginPage = false;
+
+/*    initPop(jsCtx);
+    initNewPop(jsCtx);*/
+
+    var jsEmail = '';
+
+    var errorMsg = "";
+</script>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>注册</title>
+    <meta name="Keywords" content="舒,新,胜,博客,舒新胜" />
+    <meta name="Description" content="舒新胜的博客。" />
+    <link rel="stylesheet" type="text/css" href="css/register.css">
+    <link rel="stylesheet" type="text/css" href="css/verify.css">
+    <script type="text/javascript" src="js/jquery.js"></script>
+    <script type="text/javascript" src="js/jquery.mail.js"></script>
+    <script type="text/javascript" src="js/aes.js"></script>
+    <script type="text/javascript" src="js/core-min.js"></script>
+    <script type="text/javascript" src="js/regreg.js?v=1"></script>
+   <script type="text/javascript" src="js/verify.min.js"></script>
+    <script type="text/javascript" src="js/jquery.cookie.min.js"></script>
+    <script type="text/javascript" src="js/fingerprint2.min.js"></script>
+    <script type="text/javascript" src="js/registerUser.js?v=4"></script>
+   <!--<script type="text/javascript" src="${webPath}js/xinnet_xa.js"></script>-->
+    <script>
+        var _hmt = _hmt || [];
+        (function() {
+            var hm = document.createElement("script");
+            hm.src = "https://hm.baidu.com/hm.js?f14c62aa0923dfebf6974bb7a433a904";
+            var s = document.getElementsByTagName("script")[0];
+            s.parentNode.insertBefore(hm, s);
+        })();
+    </script>
+    <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-21894657-1', 'auto');
+        ga('send', 'pageview');
+    </script>
+</head>
+<body>
+<div class = "register_main">
+    <div class = "login_head">
+        <div class = "login_head_con">
+            <div class = "logo_div login_float_l">
+               <!-- <img src="${webPath}/images/logo.png" alt = "" width = "245" height = "53">-->
+
+            </div>
+            <a href="/" class = "login_head_con_a">首页</a>
+        </div>
+    </div>
+    <div class="register_wrap">
+        <div class="slideshow">
+            <div class="slideshow-image" style="background-image: url('images/bg-01.jpg')"></div>
+            <div class="slideshow-image" style="background-image: url('images/bg-02.jpg')"></div>
+            <div class="slideshow-image" style="background-image: url('images/bg-03.jpg')"></div>
+        </div>
+        <div class = "register_con" style = "height:auto;">
+            <div class = "register_con_div">
+                <form id="userRegisterForm" method="post" action="/user/register.action">
+                    <input name="userType" type="hidden" value="T" />
+                    <input name="registerType" id="registerType" type="hidden"  />
+                   <!-- <input name="captcha" id="captcha" type="hidden" value=""/>-->
+                    <input name="refererUrl" type="hidden" value="http://www.xinnet.com/" />
+                    <h3>立即注册</h3>
+
+                    <p class = "txt_center pd10 fir_p"></p>
+
+                    <p class = "p_input_01">
+                        <input type="text" name="userName" placeholder="请输入用户名" id="userName"><span class = "error_txt" id="userName_error_txt"></span>
+                        <span class = "register_hint" id="userName_hint">
+							<span></span>
+                            用户名不能有特殊字符和中文。
+						</span>
+                    </p>
+                    <p class = "p_input_01">
+                        <input type="text" name="nickname" placeholder="请输入昵称" id="nickName"><span class = "error_txt" id="nickName_error_txt"></span>
+                        <span class = "register_hint" id="nickName_hint">
+							<span></span>
+                            用户名不能有特殊字符。
+						</span>
+                    </p>
+                    <p class = "p_input_01">
+                        <input type="password" name="password" placeholder="请设置登录密码" id="password"><span class="error_txt" style="right: 30px;" id="password_error_txt"></span>
+                        <span id="pwdeye" class="pwdeye_invisible" data-eye="password"></span>
+                        <span class = "register_hint" id="password_hint">
+							<span></span>
+							密码应为6-16位字母、数字及部分英文符号两种及以上组合，区分大小写。
+						</span>
+                    </p>
+                    <p class = "p_input_01">
+                        <input type="text" name="email" placeholder="请输入邮箱地址" id="userNameEmail" class="input_name input inputMailList"><span class = "error_txt" id="userNameEmail_error_txt"></span>
+                        <span class = "register_hint" id="userNameEmail_hint">
+							<span></span>
+
+						</span>
+                    </p>
+                    <p class = "p_input_01">
+                        <input type="text" name="captcha" placeholder="鼠标放入获取验证码" id="captcha"><span class="error_txt" style="right: 30px;" id="captcha_error_txt"></span>
+                        <span id="captchaImg" class="captcha_img" ></span>
+                        <span class = "register_hint" id="captcha_hint">
+							<span></span>
+
+						</span>
+                    </p>
+
+                    <p><a href="#" class="register_con_div_a2 register_opac" id="register_href" >注册</a></p>
+                    <p class="txt_center">已有账号？<a href="/index.action" class = "col_a">去登录</a></p>
+                </form>
+            </div>
+        </div>
+        <div class = "login_bot">
+            <p>Copyright&nbsp;&copy;&nbsp;2019  </p>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,258 @@
+/* CSS Document */
+.mydivSmall {
+
+background-color: #ffffff;
+
+border: 1px solid #ccc;
+
+text-align: left;
+
+line-height: 27px;
+
+font-size: 12px;
+z-index:999;
+
+width: 250px;
+
+height:125px;
+
+left:50%;/*FF IE7*/
+
+top:50%;/*FF IE7*/
+
+margin-left:-150px!important;/*FF IE7 ��ֵΪ������һ�� */
+
+margin-top:-60px!important;/*FF IE7 ��ֵΪ����ߵ�һ��*/
+
+margin-top:0px;
+position:fixed!important;/*FF IE7*/
+
+position:absolute;/*IE6*/
+
+_top:       expression(eval(document.compatMode &&
+
+            document.compatMode=='CSS1Compat') ?
+
+            documentElement.scrollTop + (document.documentElement.clientHeight-this.offsetHeight)/2 :/*IE6*/
+
+            document.body.scrollTop + (document.body.clientHeight - this.clientHeight)/2);/*IE5 IE5.5*/
+
+}
+.mydiv {
+
+background-color: #ffffff;
+
+border: 1px solid #ccc;
+
+text-align: left;
+
+line-height: 27px;
+
+font-size: 12px;
+z-index:999;
+
+width: 400px;
+
+height:250px;
+
+left:50%;/*FF IE7*/
+
+top:50%;/*FF IE7*/
+
+margin-left:-150px!important;/*FF IE7 ��ֵΪ������һ�� */
+
+margin-top:-60px!important;/*FF IE7 ��ֵΪ����ߵ�һ��*/
+
+margin-top:0px;
+position:fixed!important;/*FF IE7*/
+
+position:absolute;/*IE6*/
+
+_top:       expression(eval(document.compatMode &&
+
+            document.compatMode=='CSS1Compat') ?
+
+            documentElement.scrollTop + (document.documentElement.clientHeight-this.offsetHeight)/2 :/*IE6*/
+
+            document.body.scrollTop + (document.body.clientHeight - this.clientHeight)/2);/*IE5 IE5.5*/
+
+}
+
+.bg,.popIframe {
+
+background-color:#666; display:none;
+
+width: 100%;
+
+height: 120%;
+
+left:0;
+
+top:-100px;;/*FF IE7*/
+
+filter:alpha(opacity=50);/*IE*/
+
+opacity:0.5;/*FF*/
+
+z-index:1;
+
+position:fixed!important;/*FF IE7*/
+
+position:absolute;/*IE6*/
+
+_top:       expression(eval(document.compatMode &&
+
+            document.compatMode=='CSS1Compat') ?
+
+            documentElement.scrollTop + (document.documentElement.clientHeight-this.offsetHeight)/2 :/*IE6*/
+
+            document.body.scrollTop + (document.body.clientHeight - this.clientHeight)/2);/*IE5 IE5.5*/
+
+} 
+.mydivnew{
+
+background-color: #ffffff;
+
+border: 5px solid #ccc;
+
+text-align: left;
+
+line-height: 27px;
+
+font-size: 12px;
+z-index:999;
+
+
+width:67%;
+left:30%;/*FF IE7*/
+top:25%;/*FF IE7*/
+
+margin-left:-150px!important;/*FF IE7 该值为本身宽的一半 */
+
+margin-top:-60px!important;/*FF IE7 该值为本身高的一半*/
+
+margin-top:0px;
+position:fixed!important;/*FF IE7*/
+
+position:absolute;/*IE6*/
+
+_top:       expression(eval(document.compatMode &&
+
+            document.compatMode=='CSS1Compat') ?
+
+            documentElement.scrollTop + (document.documentElement.clientHeight-this.offsetHeight)/2 :/*IE6*/
+
+            document.body.scrollTop + (document.body.clientHeight - this.clientHeight)/2);/*IE5 IE5.5*/
+height:500px;
+overflow:auto;
+}
+
+
+.bg,.popIframe {
+
+background-color:#666; display:none;
+
+width: 100%;
+
+height: 120%;
+
+left:0;
+
+top:-100px;;/*FF IE7*/
+
+filter:alpha(opacity=50);/*IE*/
+
+opacity:0.5;/*FF*/
+
+z-index:100;
+
+position:fixed!important;/*FF IE7*/
+
+position:absolute;/*IE6*/
+
+_top:       expression(eval(document.compatMode &&
+
+            document.compatMode=='CSS1Compat') ?
+
+            documentElement.scrollTop + (document.documentElement.clientHeight-this.offsetHeight)/2 :/*IE6*/
+
+            document.body.scrollTop + (document.body.clientHeight - this.clientHeight)/2);/*IE5 IE5.5*/
+
+} 
+
+
+.popIframe {
+
+filter:alpha(opacity=0);/*IE*/
+
+opacity:0;/*FF*/
+
+}
+.pop_close{background-image:url(../images/thick_close.gif); width:22px; height:30px; background-repeat:no-repeat;  }
+.pop_bg{background-image:url(../images/popbg_03.jpg); background-repeat:x-repeat; background-position:top; height:30px;}
+.btncen{text-align:center;}
+.bgsmile{ background-image:url(../images/now_tips.gif); background-repeat:no-repeat; background-position:left 50px; padding-left:70px;!important;height:200px; padding-top:45px;}
+.bgcry{ background-image:url(../images/wrong6.gif); background-repeat:no-repeat; background-position:left 50px; padding-left:70px;!important;height:200px; padding-top:45px;}
+.wrongnew{ border: solid 1px #ccc; text-align:center; padding:50 0px; margin-top:10px; margin-left:auto; margin-right:auto; height:200px; padding-top:100px;}
+
+.mydivmid {
+
+background-color: #ffffff;
+
+border: 1px solid #ccc;
+
+text-align: left;
+
+line-height: 27px;
+
+font-size: 12px;
+z-index:999;
+
+width:30%;
+
+left:50%;/*FF IE7*/
+
+top:50%;/*FF IE7*/
+
+margin-left:-150px!important;/*FF IE7 该值为本身宽的一半 */
+
+margin-top:-60px!important;/*FF IE7 该值为本身高的一半*/
+
+margin-top:0px;
+position:fixed!important;/*FF IE7*/
+
+position:absolute;/*IE6*/
+
+_top:       expression(eval(document.compatMode &&
+
+            document.compatMode=='CSS1Compat') ?
+
+            documentElement.scrollTop + (document.documentElement.clientHeight-this.offsetHeight)/2 :/*IE6*/
+
+            document.body.scrollTop + (document.body.clientHeight - this.clientHeight)/2);/*IE5 IE5.5*/
+
+}
+
+.qx_pop {
+background-color: #ffffff;
+padding:0 0 15px;
+border: 1px solid #ccc;
+line-height: 28px;
+font-size: 12px;
+z-index:999;
+width: 480px;
+min-height:200px;
+left:50%;
+top:50%;
+margin:-100px 0 0 -240px;
+position:fixed!important;
+position:absolute;
+_top:       expression(eval(document.compatMode &&
+            document.compatMode=='CSS1Compat') ?
+            documentElement.scrollTop + (document.documentElement.clientHeight-this.offsetHeight)/2 :/*IE6*/
+            document.body.scrollTop + (document.body.clientHeight - this.clientHeight)/2);/*IE5 IE5.5*/
+}
+.qx_title{display:block;margin:28px auto 15px;}
+.qx_h2{line-height:32px;height:32px;background:#f3f3f3;color:#666;padding:0 0 0 10px;font-size:14px;font-weight:normal;}
+.qx_p{line-height:28px;color:#333;padding:0 20px;}
+.qx_p span{color:#c00;}

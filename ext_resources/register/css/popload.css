@@ -1,0 +1,131 @@
+/* CSS Document */
+#bg{ 
+	display: none;  
+	position: absolute;  
+	top: 0%;  
+	left: 0%;  
+	width: 100%;  
+	height: 100%;  
+	background-color: #cccccc;  
+	z-index:998;  
+	-moz-opacity: 0.7;
+	pacity:.70;  
+	filter: alpha(opacity=70);
+}
+.mydivload {
+
+/*background-color: #cccccc;*/
+
+/*border: 1px solid #999;*/
+
+text-align:left;
+
+line-height: 27px;
+
+font-size: 12px;
+z-index:999;
+
+
+width: 220px;!important;
+
+height:50px;
+
+left:50%;/*FF IE7*/
+
+top:50%;/*FF IE7*/
+
+margin-left:-150px!important;/*FF IE7 该值为本身宽的一半 */
+
+margin-top:-60px!important;/*FF IE7 该值为本身高的一半*/
+
+margin-top:0px;
+position:fixed!important;/*FF IE7*/
+
+position:absolute;/*IE6*/
+
+_top:       expression(eval(document.compatMode &&
+
+            document.compatMode=='CSS1Compat') ?
+
+            documentElement.scrollTop + (document.documentElement.clientHeight-this.offsetHeight)/2 :/*IE6*/
+
+            document.body.scrollTop + (document.body.clientHeight - this.clientHeight)/2);/*IE5 IE5.5*/
+			display:inline;
+
+}
+
+.bg,.popIframe {
+
+background-color:#666; display:none;
+
+width: 100%;
+
+height: 150%;
+
+left:0;
+
+top:-100px;;/*FF IE7*/
+
+filter:alpha(opacity=50);/*IE*/
+
+opacity:0.5;/*FF*/
+
+z-index:9998;
+
+position:fixed!important;/*FF IE7*/
+
+position:absolute;/*IE6*/
+
+_top:       expression(eval(document.compatMode &&
+
+            document.compatMode=='CSS1Compat') ?
+
+            documentElement.scrollTop + (document.documentElement.clientHeight-this.offsetHeight)/2 :/*IE6*/
+
+            document.body.scrollTop + (document.body.clientHeight - this.clientHeight)/2);/*IE5 IE5.5*/
+			
+
+} 
+
+
+.bg,.popIframe {
+	background-color:#666;
+	display:none;
+	width: 100%;
+	height: 150%;
+	left:0;
+	top:-100px;
+	;/*FF IE7*/
+	filter:alpha(opacity=70);/*IE*/
+	opacity:0.7;/*FF*/
+	z-index:1;
+	position:fixed!important;/*FF IE7*/
+	position:absolute;/*IE6*/
+
+_top:       expression(eval(document.compatMode &&
+
+            document.compatMode=='CSS1Compat') ?
+
+            documentElement.scrollTop + (document.documentElement.clientHeight-this.offsetHeight)/2 :/*IE6*/
+
+            document.body.scrollTop + (document.body.clientHeight - this.clientHeight)/2);/*IE5 IE5.5*/
+			
+
+} 
+
+
+.popIframe {
+
+filter:alpha(opacity=0);/*IE*/
+
+opacity:0;/*FF*/
+
+}
+.pop_close{background-image:url(../images/thick_close.gif); width:22px; height:30px; background-repeat:no-repeat;  }
+.pop_bg{background-image:url(../images/popbg_03.jpg); background-repeat:x-repeat; background-position:top; height:30px;}
+/*load*/	
+.loaddiv{ padding:5px; text-align:left; }
+.loadswf{ margin-top:5px; margin-left:4px; float:left; height:40px; }
+.loadfont{ float:left; height:45px; line-height:45px; margin-left:10px; }
+
+
