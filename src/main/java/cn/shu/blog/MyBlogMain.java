@@ -12,7 +12,7 @@ import org.springframework.boot.web.servlet.ServletComponentScan;
  */
 @SpringBootApplication
 @MapperScan("cn.shu.blog.dao")
-//开启监听器包扫描
+//开启监听器包扫描啊实打实的
 @ServletComponentScan(basePackages = "cn.shu.blog.listener.*")
 public class MyBlogMain {
     public static void main(String[] args) {
