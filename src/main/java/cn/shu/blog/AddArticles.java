@@ -38,8 +38,8 @@ public class AddArticles {
     public static void main(String[] args) {
         //System.out.println(sqlAll);
 
-        addFileInfor("E:\\JAVA\\eee\\ext_resources","/docx");
-        //addFileInfor("E:/JAVA/eee/ext_resources","/html");
+        //addFileInfor("E:\\JAVA\\eee\\ext_resources","/docx");
+       addFileInfor("E:/JAVA/eee/ext_resources","/html");
         //创建索引
         LuceneUtilForArticle.createIndex();
     }
