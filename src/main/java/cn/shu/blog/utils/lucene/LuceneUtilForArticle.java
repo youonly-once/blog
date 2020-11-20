@@ -37,7 +37,7 @@ public class LuceneUtilForArticle {
             st = conn.createStatement();
             rs = st.executeQuery("SELECT xx.id,title,createDate,updateDate,userId,visitors,fileType,targetFilePath,sourceFilePath,description,imagePath,commNum,categoryName" +
                     "                 FROM (SELECT *,CASE WHEN  num IS NULL THEN 0 ELSE num END AS commNum" +
-                    "                 FROM articles LEFT JOIN (SELECT COUNT(*)AS num,articleId FROM comments GROUP BY articleId) AS comments_count" +
+                    "                 FROM articles LEFT JOIN (SELECT COUNT(*)AS num,articleId FROM comment GROUP BY articleId) AS comments_count" +
                     "                 ON comments_count. articleId= articles.id" +
                     "                 ORDER BY updatedate DESC ) AS xx,category WHERE xx.categoryId=category.id;");
             return ResultSet2Bean.getList(rs,Article.class);

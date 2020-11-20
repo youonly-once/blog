@@ -1,13 +1,16 @@
 package cn.shu.blog.service;
 
-import cn.shu.blog.beans.Article;
-import cn.shu.blog.beans.Comment;
-import cn.shu.blog.beans.SearchArticle;
-import cn.shu.blog.beans.User;
-import cn.shu.blog.dao.ArticleDaoInter;
+import cn.shu.blog.beans.*;
+import cn.shu.blog.dao.ArticleMapper;
+import cn.shu.blog.dao.CategoryMapper;
+import cn.shu.blog.dao.CommentMapper;
+import cn.shu.blog.dao.UserMapper;
 import cn.shu.blog.utils.*;
 import cn.shu.blog.utils.lucene.LuceneIndexUntil;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.BooleanClause;
@@ -30,13 +33,24 @@ import java.util.*;
 @Lazy //懒加载
 @Slf4j
 public class ArticleService implements ArticleServiceInter {
-
-    @Autowired(required = false)
     //自动注入，首先寻找 ArticleDaoInter类型的(包括实现了的类)，找到唯一注入，
     //没找到或找到多个则按id(articleDaoInter)查找,查找到则注入
-    private ArticleDaoInter articleDaoInter = null;
+
+    @Autowired(required = false)
+
+    private ArticleMapper articleMapper = null;
+
+    @Autowired(required = false)
+    private UserMapper userMapper = null;
+
+    @Autowired(required = false)
+    private CategoryMapper categoryMapper = null;
+
+    @Autowired(required = false)
+    private CommentMapper commentMapper = null;
     //索引保存位置
-    private String savePath="/article_index";
+    private String savePath = "/article_index";
+
     @PostConstruct  //初始化方法
     public void init() {
 
@@ -52,12 +66,13 @@ public class ArticleService implements ArticleServiceInter {
      *
      * @param articleId 文章ID
      */
+    @Override
     @Transactional(rollbackFor = Throwable.class)
     public void addVisitRecord(String articleId) {
-        if (StringUtil.isEmpty(articleId)) {
+        if (StringUtils.isBlank(articleId)) {
             return;
         }
-        articleDaoInter.addVisitRecord(Integer.parseInt(articleId));
+        articleMapper.addVisitRecord(Integer.parseInt(articleId));
     }
 
     /**
@@ -66,48 +81,53 @@ public class ArticleService implements ArticleServiceInter {
      * @param articleId 文章ID
      * @return 文章对象列表
      */
+    @Override
     public Article getSingleArticle(String articleId) {
         if (StringUtil.isEmpty(articleId)) {
             return null;
         }
-
-        return articleDaoInter.getSingleArticle(Integer.parseInt(articleId));
+        Article article = articleMapper.selectByPrimaryKey(Integer.parseInt(articleId));
+        User user = userMapper.selectByPrimaryKey(article.getUserId());
+        Category category = categoryMapper.selectByPrimaryKey(article.getCategoryId());
+        Comment comment = new Comment();
+        comment.setArticleId(article.getId());
+        List<Comment> comments = commentMapper.selectByAll(comment);
+        article.setNickname(user.getNickname());
+        article.setCategoryName(category.getCategoryName());
+        article.setCommentList(comments);
+        return article;
     }
 
     /**
      * 获取热门文章
-     *
-     * @return
+     * @return 热门文章
      */
+    @Override
     public List<Article> getHotArticles() {
-        return articleDaoInter.getHotArticles();
+        PageHelper.startPage(1,5);
+        PageInfo<Article> articlePageInfo = new PageInfo<>(articleMapper.getHotArticles());
+        return articlePageInfo.getList();
     }
 
     /**
      * 获取文章数量
-     *
-     * @return
-     * @throws SQLException
+     * @return 文章数量
      */
-    public int getArticlesCount(String categoryId) throws SQLException {
+    @Override
+    public int getArticlesCount(String categoryId) {
         if (StringUtil.isEmpty(categoryId)) {
-            return articleDaoInter.getArticlesCount(-1);
+            return articleMapper.getArticlesCount(-1);
         } else {
-            return articleDaoInter.getArticlesCount(Integer.parseInt(categoryId));
+            return articleMapper.getArticlesCount(Integer.parseInt(categoryId));
 
         }
-
     }
 
     /**
      * 获取所有文章信息
-     *
-     * @param currPage 0
-     *                 5
-     *                 10
      * @return 查询
-     * @throws SQLException
      */
+    @Override
     public List<Article> getArticles(int currPage, String categoryId) {
         if (currPage < 1) {
             return null;
@@ -115,12 +135,14 @@ public class ArticleService implements ArticleServiceInter {
         //开始记录
         int recordFirst = ((currPage - 1) * 5);
         List<Article> articles = null;
-        if (StringUtil.isEmpty(categoryId)) {//显示全部分类
+        //显示全部分类
+        if (StringUtil.isEmpty(categoryId) || "-1".equals(categoryId)) {
             //-1为所有
-            articles = articleDaoInter.getArticles(recordFirst, 5, -1);
+            articles = articleMapper.getArticles(recordFirst, 5, null);
         } else {
-            articles = articleDaoInter.getArticles(recordFirst, 5, Integer.parseInt(categoryId));
+            articles = articleMapper.getArticles(recordFirst, 5, Integer.parseInt(categoryId));
         }
+
         if (articles != null && !articles.isEmpty()) {
             //下载文章封面图片
             downloadImg(articles);
@@ -151,18 +173,18 @@ public class ArticleService implements ArticleServiceInter {
                 try {
                     //文章展示图片文件完整路径
                     imgStr = SpringBootJarUtil.getExtStaticSources() + imgRelativePath;
-                    File imageFile= new File(imgStr);
+                    File imageFile = new File(imgStr);
                     //存放文件名，包括后缀
-                    fileNameAndExt=imageFile.getName();
+                    fileNameAndExt = imageFile.getName();
                     //文件名,没有后缀
-                    fileName=fileNameAndExt.substring(0,fileNameAndExt.lastIndexOf("."));
+                    fileName = fileNameAndExt.substring(0, fileNameAndExt.lastIndexOf("."));
 
                     //图片存放路径，不包括文件名
                     imageAbsolutePath = imageFile.getParent();
                     File imagePathFile = new File(imageAbsolutePath);
                     //保存图片的目录不存在
-                    if (!imagePathFile .exists()) {
-                        boolean mkdirs = imagePathFile .mkdirs();
+                    if (!imagePathFile.exists()) {
+                        boolean mkdirs = imagePathFile.mkdirs();
                         //创建失败
                         if (!mkdirs) {
                             log.warn("图片保存目录创建失败：" + imageAbsolutePath);
@@ -171,12 +193,12 @@ public class ArticleService implements ArticleServiceInter {
                     }
                     //内部和外部资源都不存在
                     if (!SpringBootJarUtil.sourceExists(File.separator + imgRelativePath) && !imageFile.exists()) {
-                            //1代表下载一页，一页一般有30张图片
-                            File imgFile = GetNetImage.getPictures(fileName, 20, imageAbsolutePath, fileNameAndExt);
-                           log.info("图片下载成功：" + imgFile.getAbsolutePath());
+                        //1代表下载一页，一页一般有30张图片
+                        File imgFile = GetNetImage.getPictures(fileName, 20, imageAbsolutePath, fileNameAndExt);
+                        log.info("图片下载成功：" + imgFile.getAbsolutePath());
                     }
                 } catch (FileNotFoundException e) {
-                    log.warn( e.getMessage());
+                    log.warn(e.getMessage());
                     e.printStackTrace();
                 }
 
@@ -193,7 +215,8 @@ public class ArticleService implements ArticleServiceInter {
      *
      * @return 匹配度最高的5篇文章
      */
-    public List<Article> getRecommendArticles(String currArticleId,String currArticleTitle) {
+    @Override
+    public List<Article> getRecommendArticles(String currArticleId, String currArticleTitle) {
         //Article currArticle = getSingleArticle(currArticleId);
         if (StringUtil.isEmpty(currArticleTitle) || StringUtil.isEmpty(currArticleId)) {
             return null;
@@ -210,83 +233,36 @@ public class ArticleService implements ArticleServiceInter {
             BooleanClause booleanClause1 = new BooleanClause(termQuery, BooleanClause.Occur.MUST_NOT);
 
             Query query = LuceneIndexUntil.newBooleanQuery(booleanClause, booleanClause1);
-            return LuceneIndexUntil.searchDocument(null,query, 1,10, SpringBootJarUtil.getExtStaticSources() + savePath,1).getArticles();
+            return LuceneIndexUntil.searchDocument(null, query, 1, 10, SpringBootJarUtil.getExtStaticSources() + savePath, 1).getArticles();
         } catch (ParseException | FileNotFoundException e) {
             e.printStackTrace();
         }
         return null;
 
     }
-    /**
-     * @param articleId 文章id
-     * @param currPage  马上显示第几页
-     * @param pageCount 每页显示数量
-     * @return 评论内容
-     */
-    @Override
-    public List<Comment> getArticleComments(String articleId, String currPage, int pageCount) {
-        if (StringUtil.isEmpty(articleId)) {
-            return null;
-        }
-        if (StringUtil.isEmpty(currPage)) {
-            return null;
-        }
 
-        if (Integer.parseInt(currPage) < 1 || pageCount < 1) {
-            return null;
-        }
-        int beginRecord = ((Integer.parseInt(currPage) - 1) * pageCount);
-        return articleDaoInter.getArticleComments(Integer.parseInt(articleId), beginRecord, pageCount);
-    }
+
+
+
 
     /**
-     * 用户评论
-     *
-     * @param comment 评论内容
-     * @param user    评论用户
-     * @return 提示信息
-     */
-    @Override
-    @Transactional(rollbackFor = Throwable.class)
-    public String articlesComment(Comment comment, Object user) {
-
-        if (StringUtil.isEmpty(comment.getComment())) {
-            return "不能评论空内容";
-        }
-        //1代表游客，默认值;
-        int userId = 1;
-        if (user != null) {
-            userId = ((User) user).getId();
-        }
-        //提交评论
-        int b = articleDaoInter.addArticlesComment(comment.getComment(), comment.getArticle().getId(), userId, DateUtil.getCurrDateAndTime());
-        if (b > 0) {
-            return "success";
-        } else {
-            return "评论失败、系统错误";
-        }
-
-    }
-
-    /**
-     *
      * @param searchStr 查询关键字
-     * @param currPage 当前第几页
-     * @param pageNum 一页几条数据
+     * @param currPage  当前第几页
+     * @param pageNum   一页几条数据
      * @return
      */
     @Override
     public SearchArticle searchArticle(String searchStr, Integer currPage, Integer pageNum) {
         //根据title、content搜索
-        String[] fields=new String[]{"title","description"};
+        String[] fields = new String[]{"title", "description"};
         try {
             //查询条件
             Query query = LuceneIndexUntil.newMultiQuery(fields, searchStr);
             //查询10条
             SearchArticle searchArticle = LuceneIndexUntil
-                    .searchDocument(searchStr,query, currPage, pageNum,SpringBootJarUtil.getExtStaticSources() + savePath,0);
+                    .searchDocument(searchStr, query, currPage, pageNum, SpringBootJarUtil.getExtStaticSources() + savePath, 0);
 
-            System.out.println("搜索结果:"+searchArticle.getArticles().size()+" "+searchArticle);
+            System.out.println("搜索结果:" + searchArticle.getArticles().size() + " " + searchArticle);
 
             return searchArticle;
         } catch (ParseException | FileNotFoundException e) {
@@ -295,4 +271,49 @@ public class ArticleService implements ArticleServiceInter {
 
         return null;
     }
+    @Override
+    public int deleteByPrimaryKey(Integer id) {
+        return articleMapper.deleteByPrimaryKey(id);
+    }
+    @Override
+    public int insert(Article record) {
+        return articleMapper.insert(record);
+    }
+    @Override
+    public int insertOrUpdate(Article record) {
+        return articleMapper.insertOrUpdate(record);
+    }
+    @Override
+    public int insertOrUpdateSelective(Article record) {
+        return articleMapper.insertOrUpdateSelective(record);
+    }
+    @Override
+    public int insertSelective(Article record) {
+        return articleMapper.insertSelective(record);
+    }
+    @Override
+    public Article selectByPrimaryKey(Integer id) {
+        return articleMapper.selectByPrimaryKey(id);
+    }
+    @Override
+    public int updateByPrimaryKeySelective(Article record) {
+        return articleMapper.updateByPrimaryKeySelective(record);
+    }
+    @Override
+    public int updateByPrimaryKey(Article record) {
+        return articleMapper.updateByPrimaryKey(record);
+    }
+    @Override
+    public int updateBatch(List<Article> list) {
+        return articleMapper.updateBatch(list);
+    }
+    @Override
+    public int updateBatchSelective(List<Article> list) {
+        return articleMapper.updateBatchSelective(list);
+    }
+    @Override
+    public int batchInsert(List<Article> list) {
+        return articleMapper.batchInsert(list);
+    }
 }
+

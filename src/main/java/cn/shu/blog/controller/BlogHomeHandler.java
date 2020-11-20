@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -60,7 +61,7 @@ public class BlogHomeHandler {
         }
         //第一页显示 分类信息
         if (currPage == 1) {
-            List<Category> categories = categoryServiceInter.getCategories();
+            List<Category> categories = categoryServiceInter.selectByAll(new HashMap<>(1));
             request.setAttribute("categories", categories);
         }
         if (articles != null && articles.size() > 0) {

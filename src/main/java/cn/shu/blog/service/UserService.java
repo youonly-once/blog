@@ -1,7 +1,7 @@
 package cn.shu.blog.service;
 
 import cn.shu.blog.beans.User;
-import cn.shu.blog.dao.UserDaoInter;
+import cn.shu.blog.dao.UserMapper;
 import cn.shu.blog.exception.UserException;
 import cn.shu.blog.utils.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,85 +11,91 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
-import java.sql.SQLException;
+import java.util.HashMap;import java.util.List;
 
 @Service("userServiceInter")
 @Lazy
 @Scope(value = "singleton")
 public class UserService implements UserServiceInter {
     @Autowired
-    //自动注入，首先寻找 ArticleDaoInter类型的(包括实现了的类)，找到唯一注入，
-    //没找到或找到多个则按id(articleDaoInter)查找,查找到则注入
-    private UserDaoInter userDaoInter;
+    /**
+     * 自动注入，首先寻找 ArticleDaoInter类型的(包括实现了的类)，找到唯一注入，
+    没找到或找到多个则按id(articleDaoInter)查找,查找到则注入*/
+    private UserMapper userMapper;
 
-   // private UserService() {}
+    // private UserService() {}
 
     @PostConstruct
-    public void init(){
+    public void init() {
         /*this.userDaoInter = (UserDao) ContextLoader.getCurrentWebApplicationContext().getBean("userDao");*/
     }
+
     /**
      * 根据用户名查询用户
+     *
      * @param userName 用户名
      * @return 用户不存在返回null
      */
+    @Override
     public User findUserByUsername(String userName) throws UserException {
-        if (StringUtil.isEmpty(userName)){
+        if (StringUtil.isEmpty(userName)) {
             throw new UserException("用户名不能为空");
         }
-        try {
-            return userDaoInter.findUserByUsername(userName);
-        } catch (SQLException e) {
-            throw new UserException("系统错误");
-        }
+
+        HashMap<String, Object> params = new HashMap<>(1);
+        params.put("account", userName);
+        return userMapper.selectByAll(params).get(0);
     }
 
     /**
      * 判断昵称是否存在
-     * @param nickName
-     * @return
+     *
+     * @param nickName 昵称
+     * @return 用户
      */
+    @Override
     public User findUserByNickname(String nickName) throws UserException {
-        if (StringUtil.isEmpty(nickName)){
+        if (StringUtil.isEmpty(nickName)) {
             throw new UserException("昵称不能为空");
         }
-        try {
-            return userDaoInter.findUserByNickname(nickName);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw new UserException("系统错误");
-        }
+
+        HashMap<String, Object> params = new HashMap<>(1);
+        params.put("nickName", nickName);
+        return userMapper.selectByAll(params).get(0);
     }
+
     /**
      * 判断邮箱是否存在
-     * @param mail
-     * @return
+     *
+     * @param email 邮箱地址
+     * @return 用户
      */
-    public User findUserByEmail(String mail) throws UserException {
-        if (StringUtil.isEmpty(mail)){
+    @Override
+    public User findUserByEmail(String email) throws UserException {
+        if (StringUtil.isEmpty(email)) {
             throw new UserException("邮箱不能为空");
         }
-        try {
-            return userDaoInter.findUserByEmail(mail);
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw new UserException("系统错误");
-        }
+
+        HashMap<String, Object> params = new HashMap<>(1);
+        params.put("email", email);
+        return userMapper.selectByAll(params).get(0);
     }
+
+
     /**
      * 添加用户
-     * @param newUser
+     *
+     * @param newUser 新用户
      */
-    //需要事务管理
-
-    @Transactional(rollbackFor = Throwable.class)//开启事务管理
+    @Override
+    @Transactional(rollbackFor = Throwable.class)
     public String registerUser(User newUser, String captcha, String serverCaptcha) {
         String s = dataCheck(newUser, captcha, serverCaptcha);
-        if (!"success".equals(s)){
+        if (!"success".equals(s)) {
             return s;
         }
         try {
-            User u = findUserByUsername(newUser.getUserName());
+            User u = findUserByUsername(newUser.getAccount());
             if (u != null) {
                 return "用户名已被注册";
             }
@@ -101,7 +107,7 @@ public class UserService implements UserServiceInter {
             if (u != null) {
                 return "邮箱已注册";
             }
-            if (userDaoInter.registerUser(newUser)>0){
+            if (userMapper.insert(newUser) > 0) {
                 //int i = 1 / 0;
                 return "success";
             }
@@ -111,13 +117,13 @@ public class UserService implements UserServiceInter {
         }
         return "注册失败,请稍后再试";
     }
+
     /**
      * 校验注册数据是否正常
-     *
      */
-    private String dataCheck(User user, String captcha, String serCaptcha)  {
+    private String dataCheck(User user, String captcha, String serCaptcha) {
 
-        if (StringUtil.isEmpty(user.getUserName())) {
+        if (StringUtil.isEmpty(user.getAccount())) {
             return "用户名不能为空";
         }
         if (StringUtil.isEmpty(user.getPassword())) {
@@ -133,7 +139,7 @@ public class UserService implements UserServiceInter {
             return "验证码不能为空";
         }
 
-        /**
+        /*
          * ^匹配字符开头
          *  \\w匹配数字 字母 下划线  +至少出现一次
          *  \\. 配置字符 .
@@ -143,51 +149,97 @@ public class UserService implements UserServiceInter {
         if (!user.getEmail().matches("^\\w+@\\w+(\\.\\w+)+$")) {
             return "邮箱格式不正确";
         }
-        /**
+        /*
          * 验证码判断
          */
-        if (!checkCaptcha(captcha,serCaptcha)) {
+        if (!checkCaptcha(captcha, serCaptcha)) {
             return "验证码错误";
         }
         return "success";
     }
+
     /**
      * 登录判断用户是否存在
      */
+    @Override
     public User isUserExists(User loginUser) {
-        if (StringUtil.isEmpty(loginUser.getUserName())){
+        if (StringUtil.isEmpty(loginUser.getAccount())) {
             return null;
         }
-        if (StringUtil.isEmpty(loginUser.getPassword())){
+        if (StringUtil.isEmpty(loginUser.getPassword())) {
             return null;
         }
-        return userDaoInter.userLogin(loginUser);
+        return userMapper.selectByAllWithObject(loginUser).get(0);
     }
 
     /**
      * 判断验证码是否正确
-     * @param captchaClient
-     * @param captchaServ
-     * @return
+     *
+     * @param captchaClient 客户端验证码
+     * @param captchaServe 服务端验证码
+     * @return 校验值
      */
-    public boolean checkCaptcha(String captchaClient,Object captchaServ) {
+    @Override
+    public boolean checkCaptcha(String captchaClient, Object captchaServe) {
         System.out.println(captchaClient);
-        System.out.println(captchaServ);
-        if (StringUtil.isEmpty(captchaClient)){
+        System.out.println(captchaServe);
+        if (StringUtil.isEmpty(captchaClient)) {
             return false;
         }
-        if (captchaServ==null){
+        if (captchaServe == null) {
             return false;
         }
-        if (StringUtil.isEmpty((String) captchaServ)){
+        if (StringUtil.isEmpty((String) captchaServe)) {
             return false;
         }
-        if (!captchaClient.equalsIgnoreCase(captchaServ.toString())){
+        if (!captchaClient.equalsIgnoreCase(captchaServe.toString())) {
             return false;
         }
-        if(captchaClient.trim().length()!=4){
-            return false;
-        }
-        return true;
+        return captchaClient.trim().length() == 4;
+    }
+
+    public int deleteByPrimaryKey(Integer id) {
+        return userMapper.deleteByPrimaryKey(id);
+    }
+
+    public int insert(User record) {
+        return userMapper.insert(record);
+    }
+
+    public int insertOrUpdate(User record) {
+        return userMapper.insertOrUpdate(record);
+    }
+
+    public int insertOrUpdateSelective(User record) {
+        return userMapper.insertOrUpdateSelective(record);
+    }
+
+    public int insertSelective(User record) {
+        return userMapper.insertSelective(record);
+    }
+
+    public User selectByPrimaryKey(Integer id) {
+        return userMapper.selectByPrimaryKey(id);
+    }
+
+    public int updateByPrimaryKeySelective(User record) {
+        return userMapper.updateByPrimaryKeySelective(record);
+    }
+
+    public int updateByPrimaryKey(User record) {
+        return userMapper.updateByPrimaryKey(record);
+    }
+
+    public int updateBatch(List<User> list) {
+        return userMapper.updateBatch(list);
+    }
+
+    public int updateBatchSelective(List<User> list) {
+        return userMapper.updateBatchSelective(list);
+    }
+
+    public int batchInsert(List<User> list) {
+        return userMapper.batchInsert(list);
     }
 }
+

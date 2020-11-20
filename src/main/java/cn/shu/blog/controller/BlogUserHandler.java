@@ -46,14 +46,14 @@ public class BlogUserHandler {
         if (user!=null){
             //自动登录
             if("true".equals(autoLogin)){
-                response.addCookie(CookiesUtil.setCookie("username",loginUser.getUserName(),request.getContextPath()+"/"));
+                response.addCookie(CookiesUtil.setCookie("username",loginUser.getAccount(),request.getContextPath()+"/"));
                 response.addCookie(CookiesUtil.setCookie("password", loginUser.getPassword(),request.getContextPath()+"/"));
             }else{//没有勾选//删除之前的
                 //记住用户名 设置cookie
                 if("true".equals(remName)){
-                    response.addCookie(CookiesUtil.setCookie("username",loginUser.getUserName(),request.getContextPath()+"/"));
+                    response.addCookie(CookiesUtil.setCookie("username",loginUser.getAccount(),request.getContextPath()+"/"));
                 }else{//没有勾选//删除之前的
-                    response.addCookie(CookiesUtil.delCookie("username",loginUser.getUserName(),request.getContextPath()+"/"));
+                    response.addCookie(CookiesUtil.delCookie("username",loginUser.getAccount(),request.getContextPath()+"/"));
                 }
                 response.addCookie(CookiesUtil.delCookie("password",loginUser.getPassword(),request.getContextPath()+"/"));
             }
