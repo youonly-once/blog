@@ -251,5 +251,14 @@ public class DateUtil {// 返回查询时间
 		}
 		return null;
 	}
+	public static Date stringToDateTime(String date){
+		SimpleDateFormat simpleDateFormat=new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+		try {
+			return simpleDateFormat.parse(date);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 
 }

@@ -39,7 +39,7 @@
   </insert>
   <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="cn.shu.blog.beans.User" useGeneratedKeys="true">
     <!--@mbg.generated-->
-    insert into "user"
+    insert into user
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="account != null">
         account,
@@ -83,7 +83,7 @@
   </insert>
   <update id="updateByPrimaryKeySelective" parameterType="cn.shu.blog.beans.User">
     <!--@mbg.generated-->
-    update "user"
+    update user
     <set>
       <if test="account != null">
         account = #{account,jdbcType=VARCHAR},
@@ -108,7 +108,7 @@
   </update>
   <update id="updateByPrimaryKey" parameterType="cn.shu.blog.beans.User">
     <!--@mbg.generated-->
-    update "user"
+    update user
     set account = #{account,jdbcType=VARCHAR},
       `password` = #{password,jdbcType=VARCHAR},
       createDate = #{createDate,jdbcType=TIMESTAMP},
@@ -119,7 +119,7 @@
   </update>
   <update id="updateBatch" parameterType="java.util.List">
     <!--@mbg.generated-->
-    update "user"
+    update user
     <trim prefix="set" suffixOverrides=",">
       <trim prefix="account = case" suffix="end,">
         <foreach collection="list" index="index" item="item">
@@ -159,7 +159,7 @@
   </update>
   <update id="updateBatchSelective" parameterType="java.util.List">
     <!--@mbg.generated-->
-    update "user"
+    update user
     <trim prefix="set" suffixOverrides=",">
       <trim prefix="account = case" suffix="end,">
         <foreach collection="list" index="index" item="item">
@@ -211,7 +211,7 @@
   </update>
   <insert id="batchInsert" keyColumn="id" keyProperty="id" parameterType="map" useGeneratedKeys="true">
     <!--@mbg.generated-->
-    insert into "user"
+    insert into user
     (account, `password`, createDate, nickname, email, permission)
     values
     <foreach collection="list" item="item" separator=",">
@@ -222,7 +222,7 @@
   </insert>
   <insert id="insertOrUpdate" keyColumn="id" keyProperty="id" parameterType="cn.shu.blog.beans.User" useGeneratedKeys="true">
     <!--@mbg.generated-->
-    insert into "user"
+    insert into user
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
         id,
@@ -261,7 +261,7 @@
   </insert>
   <insert id="insertOrUpdateSelective" keyColumn="id" keyProperty="id" parameterType="cn.shu.blog.beans.User" useGeneratedKeys="true">
     <!--@mbg.generated-->
-    insert into "user"
+    insert into user
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
         id,
@@ -336,7 +336,7 @@
   </insert>
   <select id="selectByAll" resultType="cn.shu.blog.beans.User">
   select <include refid="Base_Column_List"/>
-  from "user"
+  from user
   where 1 = 1
     <if test="id != null">
         and id = #{id,jdbcType=INTEGER}
@@ -362,7 +362,7 @@
 </select>
   <select id="selectByAllWithObject" resultType="cn.shu.blog.beans.User" parameterType="cn.shu.blog.beans.User">
   select <include refid="Base_Column_List"/>
-  from "user"
+  from user
   where 1 = 1
         <if test="id != null">
         and id = #{id,jdbcType=INTEGER}

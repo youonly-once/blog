@@ -1,6 +1,7 @@
 package cn.shu.blog.service;
 
 import cn.shu.blog.beans.User;
+import cn.shu.blog.dao.UserMapper;
 import cn.shu.blog.utils.DateUtil;
 import cn.shu.blog.utils.StringUtil;
 import com.github.pagehelper.PageHelper;
@@ -18,6 +19,9 @@ public class CommentService{
     @Resource
     private CommentMapper commentMapper;
 
+    @Resource
+    private UserMapper userMapper;
+
     /**
      * @param articleId 文章id
      * @param currPage  马上显示第几页
@@ -34,9 +38,16 @@ public class CommentService{
         }
         PageHelper.startPage(Integer.parseInt(currPage),pageCount);
         Comment comment = new Comment();
+
+
         comment.setArticleId(Integer.parseInt(articleId));
         PageInfo<Comment> pageInfo = new PageInfo<>(commentMapper.selectByAll(comment));
-        return pageInfo.getList();
+        List<Comment> list = pageInfo.getList();
+        for (Comment c : list) {
+            User user = userMapper.selectByPrimaryKey(c.getUserId());
+            c.setUser(user);
+        }
+        return list;
     }
 
     /**
@@ -58,6 +69,7 @@ public class CommentService{
         if (user != null) {
             userId = ((User) user).getId();
         }
+        comment.setCreateDate(DateUtil.stringToDateTime(DateUtil.getCurrDateAndTimeMil()));
         comment.setUserId(userId);
         //提交评论
         int b =commentMapper.insert(comment);

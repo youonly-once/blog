@@ -36,5 +36,9 @@ public class Comment {
     * 评论内容
     */
     private String comment;
+    /**
+     * 用户
+     */
+    private User user;
 
 }

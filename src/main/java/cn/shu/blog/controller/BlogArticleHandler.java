@@ -66,7 +66,7 @@ public class BlogArticleHandler {
         //增加访问次数
         articleServiceInter.addVisitRecord(articleId);
         Article article = articleServiceInter.getSingleArticle(articleId);
-
+        System.out.println(article);
         if (article != null) {
 
             request.setAttribute("recommendArticles", new ArrayList<>());
@@ -100,6 +100,7 @@ public class BlogArticleHandler {
 
     @RequestMapping("/comment.action")
     public String getComment(HttpServletRequest request, String currPage) {
+
         //获取每页加载的页数
         ServletContext servletContext = request.getServletContext();
         int pageCommNum = 5;
@@ -122,12 +123,11 @@ public class BlogArticleHandler {
 
     @ResponseBody
     @RequestMapping(value = "/addComment.action")
+    /**
+     * 前端提交articleId=" + articleId
+     * 封装参数到Comment的 articleId参数
+     */
     public String addComment(HttpServletRequest request, Comment comment) {
-       String commentStr=request.getParameter("commentContent");
-        String articleId=request.getParameter("articleId");
-        comment.setArticleId(Integer.parseInt(articleId));
-        comment.setComment(commentStr);
-        comment.setCreateDate(DateUtil.stringToDate(DateUtil.getCurrDate()));
         Object user = request.getSession().getAttribute("user");
         String s = commentService.articleComment(comment, user);
         return s;

@@ -93,6 +93,7 @@ public class ArticleService implements ArticleServiceInter {
         comment.setArticleId(article.getId());
         List<Comment> comments = commentMapper.selectByAll(comment);
         article.setNickname(user.getNickname());
+        article.setCommNum((long)comments.size());
         article.setCategoryName(category.getCategoryName());
         article.setCommentList(comments);
         return article;

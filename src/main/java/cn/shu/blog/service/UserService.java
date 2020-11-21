@@ -169,6 +169,7 @@ public class UserService implements UserServiceInter {
         if (StringUtil.isEmpty(loginUser.getPassword())) {
             return null;
         }
+        System.out.println(loginUser);
         return userMapper.selectByAllWithObject(loginUser).get(0);
     }
 

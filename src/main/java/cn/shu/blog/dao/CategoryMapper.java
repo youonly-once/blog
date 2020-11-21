@@ -5,7 +5,9 @@ import cn.shu.blog.beans.Category;
 import java.util.HashMap;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public interface CategoryMapper {
     /**
      * delete by primary key

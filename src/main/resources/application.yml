@@ -34,10 +34,14 @@ mybatis:
     cache-enabled: false
     #开启驼峰命名
     map-underscore-to-camel-case: true
+    #开启日志
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    log-prefix: xxx
 logging:
   file:
     #当前打包jar目录
     path: log
+
 
 #每页显示的文章数
 home:
