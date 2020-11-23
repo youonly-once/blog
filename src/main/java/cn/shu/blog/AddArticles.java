@@ -38,8 +38,8 @@ public class AddArticles {
     public static void main(String[] args) {
         //System.out.println(sqlAll);
 
-        //addFileInfor("E:\\JAVA\\eee\\ext_resources","/docx");
-       addFileInfor("E:/JAVA/eee/ext_resources","/html");
+        addFileInfor("E:\\JAVA\\eee\\ext_resources","/docx");
+        //addFileInfor("E:/JAVA/eee/ext_resources","/html");
         //创建索引
         LuceneUtilForArticle.createIndex();
     }
@@ -61,8 +61,8 @@ public class AddArticles {
     }
 
     private static void createSql(String path,File file){
-        String sql="insert into articles(id,TITLE,createDate,updateDate,categoryId,userId,visitors,fileType,targetFilePath,sourceFilePath,description,imagePath) " +
-                "values(null,'%s','%s','%s','%s',0,0,'%s','%s','%s','%s','%s');";
+        String sql="insert into article(id,TITLE,createDate,updateDate,categoryId,userId,visitors,fileType,targetFilePath,sourceFilePath,description,imagePath) " +
+                "values(null,'%s','%s','%s','%s',33,0,'%s','%s','%s','%s','%s');";
 
         /**2020-04-22_后端_JAVA_常用设计模式
          *按_分隔 第一部分为创建日期[0]
@@ -129,7 +129,7 @@ public class AddArticles {
         ResultSet res=null;
         try {
             conn = JDBCUtil.getConnection();
-            pre = conn.prepareStatement("select id from articles where sourceFilePath=?");
+            pre = conn.prepareStatement("select id from article where sourceFilePath=?");
             pre.setString(1,sourceFilePath);
             res = pre.executeQuery();
             return res.next();

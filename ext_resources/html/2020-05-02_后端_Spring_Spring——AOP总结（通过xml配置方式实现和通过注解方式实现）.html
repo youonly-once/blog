@@ -1,0 +1,689 @@
+<html>
+<head>
+	<title>ConnectionPool.java</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<style>
+		.s0 { color: #d73a49;}
+		.s1 { color: #6f42c1;}
+		.s2 { color: #808080;}
+		.s3 { color: #032f62;}
+		.s4 { color: #24292e;}
+		.s5 { color: #22863a;}
+		.s6 { color: #6a737d;}
+	</style>
+</head>
+<body bgcolor="#ffffff">
+<h1>一、AOP概念及相关术语</h1>
+<h2 >1、什么是AOP(面向切面编程)</h2>
+<h2 >在Java的分层设计中，分为Web、Service、Dao三层。一般情况我们需要在Dao层实现事务控制、Service中实现日志记录等功能，
+    那我们可能需要在每个方法中写重复的代码，像下面这样：</h2>
+<pre><span class="s0">package </span><span class="s1">cn.shu.blog.service</span><span class="s2">;</span>
+
+<span class="s3">/**</span>
+ <span class="s3">* </span><span class="s4">@作者 </span><span class="s3">舒新胜</span>
+ <span class="s3">* </span><span class="s4">@项目 </span><span class="s3">MyBlog</span>
+ <span class="s3">* </span><span class="s4">@创建时间 </span><span class="s3">2020/5/2 13:14</span>
+ <span class="s3">*/</span>
+<span class="s0">public class </span><span class="s1">Test {</span>
+    <span class="s0">private void </span><span class="s1">addUser(){</span>
+        <span class="s1">System.out.println(</span><span class="s5">&quot;记录调用日志&quot;</span><span class="s1">)</span><span class="s2">;</span>
+        <span class="s1">System.out.println(</span><span class="s5">&quot;事务控制&quot;</span><span class="s1">)</span><span class="s2">;</span>
+        <span class="s1">userDao.addUser()</span><span class="s2">;</span>
+        <span class="s1">System.out.println(</span><span class="s5">&quot;记录调用成功日志&quot;</span><span class="s1">)</span><span class="s2">;</span>
+        <span class="s1">System.out.println(</span><span class="s5">&quot;事务提交&quot;</span><span class="s1">)</span><span class="s2">;</span>
+    <span class="s1">}</span>
+    <span class="s0">private void </span><span class="s1">delUser(){</span>
+        <span class="s1">System.out.println(</span><span class="s5">&quot;记录调用日志&quot;</span><span class="s1">)</span><span class="s2">;</span>
+        <span class="s1">System.out.println(</span><span class="s5">&quot;事务控制&quot;</span><span class="s1">)</span><span class="s2">;</span>
+        <span class="s1">userDao.delUser()</span><span class="s2">;</span>
+        <span class="s1">System.out.println(</span><span class="s5">&quot;记录调用成功日志&quot;</span><span class="s1">)</span><span class="s2">;</span>
+        <span class="s1">System.out.println(</span><span class="s5">&quot;事务提交&quot;</span><span class="s1">)</span><span class="s2">;</span>
+
+    <span class="s1">}</span>
+
+
+<span class="s1">}</span>
+</pre>
+<h2 >假设有1000个方法，就需要写一千次重复的代码，或许我们可以把重复的代码提取到一个方法中：</h2>
+<pre><span class="s0">package </span><span class="s1">cn.shu.blog.service</span><span class="s2">;</span>
+
+<span class="s3">/**</span>
+ <span class="s3">* </span><span class="s4">@作者 </span><span class="s3">舒新胜</span>
+ <span class="s3">* </span><span class="s4">@项目 </span><span class="s3">MyBlog</span>
+ <span class="s3">* </span><span class="s4">@创建时间 </span><span class="s3">2020/5/2 13:14</span>
+ <span class="s3">*/</span>
+<span class="s0">public class </span><span class="s1">Test {</span>
+    <span class="s0">private void </span><span class="s1">addUser(){</span>
+       <span class="s1">repeat()</span><span class="s2">;</span>
+    <span class="s1">}</span>
+    <span class="s0">private void </span><span class="s1">delUser(){</span>
+        <span class="s1">repeat()</span><span class="s2">;</span>
+    <span class="s1">}</span>
+    <span class="s0">private void </span><span class="s1">repeat(){</span>
+        <span class="s1">System.out.println(</span><span class="s5">&quot;记录日志&quot;</span><span class="s1">)</span><span class="s2">;</span>
+        <span class="s1">System.out.println(</span><span class="s5">&quot;事务控制&quot;</span><span class="s1">)</span><span class="s2">;</span>
+    <span class="s1">}</span>
+
+<span class="s1">}</span>
+</pre>
+<br/>该办法虽然有一点优化，但是每个方法中依然需要调用提取出来的这个方法，同样有重复，而且像记录日志、事务控制本来与业务无关。
+<br/>所以就有人提出了面向切面编程的思想，将该部分重复的代码提取到另一个不属于某个层的类中，这个类就称为切面，这种编程方法称为面向切面编程。
+<h2 >2、连接点(JoinPoint)</h2>
+在Spring AOP中一个连接点总数表示一个方法的执行，通俗的讲就是方法之间的调用过程称为一个连接点。
+<h2 >3、切入点(Pointcut)</h2>
+在连接点的基础上，增加一个切入规则(Spring中的切入点表达式)，选择需要进行增强(需要在原有的方法上增加一些日志处理等增强的功能)的点，这些基于切入规则选出来的连接点称为切入点。
+<h2>4、切面(Aspect)</h2>
+其实就是共有功能的实现。如日志切面、权限切面、事务切面等。在实际应用中通常是一个存放共有功能实现的普通Java类，之所以能被AOP容器识别成切面，是在配置中指定的。
+<h2>5、通知(Advice)</h2>
+是切面的具体实现。以目标方法为参照点，根据放置的地方不同，可分为前置通知（Before）、后置通知（AfterReturning）、异常通知（AfterThrowing）、最终通知（After）与环绕通知（Around）5种。在实际应用中通知通常是切面类中的一个方法，具体属于哪类通知，同样是在配置中指定的。
+<h2>6、目标对象（Target Object）</h2>
+就是调用过程中真正希望被访问到的对象，代理模式中在完成共用功能的相关处理后会调用真正对象的方法
+<h2>7、代理对象（Proxy）</h2>
+将通知应用到目标对象之后被动态创建的对象。可以简单地理解为，代理对象的功能等于目标对象的核心业务逻辑功能加上共有功能。代理对象对于使用者而言是透明的，是程序运行过程中的产物。
+<h2 >8、织入（Weaving)</h2>
+将切面应用到目标对象从而创建一个新的代理对象的过程。
+<h1>二、准备工作</h1>
+Spring AOP的实现可以通过xml配置实现，或者通过注解方式实现(较简单、方便)，下面将以对比的方式看二者的实现
+<h2>1、导包(还需要导入IOC和DI注解方式的包)</h2>
+<img src="/html/images/AOP.png" alt=""/>
+<h2>2、创建配置文件(Src目录下applicationContext.xml)</h2>
+<pre><span class="s0">&lt;?</span><span class="s1">xml version</span><span class="s3">=&quot;1.0&quot; </span><span class="s1">encoding</span><span class="s3">=&quot;UTF-8&quot;</span><span class="s0">?&gt;</span>
+<span class="s2">&lt;</span><span class="s5">beans </span><span class="s1">xmlns</span><span class="s3">=&quot;http://www.springframework.org/schema/beans&quot;</span>
+       <span class="s1">xmlns:xsi</span><span class="s3">=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
+       <span class="s1">xmlns:context</span><span class="s3">=&quot;http://www.springframework.org/schema/context&quot;</span>
+       <span class="s1">xsi:schemaLocation</span><span class="s3">=&quot;http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/aop https://www.springframework.org/schema/aop/spring-aop.xsd&quot;</span><span class="s2">&gt;</span>
+    <span class="s0">//开启扫描包 扫描Service包下需要被Spring管理的类</span>
+    <span class="s2">&lt;</span><span class="s5">context:component-scan </span><span class="s1">base-package</span><span class="s3">=&quot;cn.shu.service&quot;</span><span class="s2">/&gt;</span>
+<span class="s2">&lt;/</span><span class="s5">beans</span><span class="s2">&gt;</span></pre>
+<h2>3、创建一个业务类(cn.shu.service包下user.java)和切面类(cn.shu.aspect包下aspect.java)</h2>
+<pre><span class="s0">package </span><span class="s1">cn.shu.service</span><span class="s2">;</span>
+
+<span class="s3">/**</span>
+ <span class="s3">* </span><span class="s4">@作者 </span><span class="s3">舒新胜</span>
+ <span class="s3">* </span><span class="s4">@项目 </span><span class="s3">MyBlog</span>
+ <span class="s3">* </span><span class="s4">@创建时间 </span><span class="s3">2020/5/2 14:40</span>
+ <span class="s3">*/</span>
+
+<span class="s0">import </span><span class="s1">org.springframework.stereotype.Service</span><span class="s2">;</span>
+
+<span class="s3">/**</span>
+ <span class="s3">* 添加用户</span>
+ <span class="s3">*/</span>
+<span class="s1">@Service</span>
+<span class="s0">public class </span><span class="s1">User {</span>
+    <span class="s3">/**</span>
+     <span class="s3">* 添加用户</span>
+     <span class="s3">*/</span>
+    <span class="s0">public void </span><span class="s1">addUser(){</span>
+        <span class="s1">System.out.println(</span><span class="s5">&quot;添加用户&quot;</span><span class="s1">)</span><span class="s2">;</span>
+    <span class="s1">}</span>
+
+    <span class="s3">/**</span>
+     <span class="s3">* 删除用户</span>
+     <span class="s3">*/</span>
+    <span class="s0">public void </span><span class="s1">delUser(){</span>
+        <span class="s1">System.out.println(</span><span class="s5">&quot;删除用户&quot;</span><span class="s1">)</span><span class="s2">;</span>
+    <span class="s1">}</span>
+<span class="s1">}</span>
+</pre>
+<pre><span class="s0">package </span><span class="s1">cn.shu.aspect</span><span class="s2">;</span>
+
+<span class="s0">import </span><span class="s1">org.springframework.stereotype.Component</span><span class="s2">;</span>
+
+<span class="s3">/**</span>
+ <span class="s3">* </span><span class="s4">@作者 </span><span class="s3">舒新胜</span>
+ <span class="s3">* </span><span class="s4">@项目 </span><span class="s3">MyBlog</span>
+ <span class="s3">* </span><span class="s4">@创建时间 </span><span class="s3">2020/5/2 14:43</span>
+ <span class="s3">*/</span>
+<span class="s1">@Component</span>
+<span class="s0">public class </span><span class="s1">Aspect {</span>
+    <span class="s3">/**</span>
+     <span class="s3">* 记录日志</span>
+     <span class="s3">*/</span>
+    <span class="s0">public void </span><span class="s1">addRecord(){</span>
+        <span class="s1">System.out.println(</span><span class="s5">&quot;记录日志&quot;</span><span class="s1">)</span><span class="s2">;</span>
+    <span class="s1">}</span>
+<span class="s1">}</span>
+</pre>
+<h1>三、配置切面类、通知、切入点规则</h1>
+<h2>1、xml配置方式</h2>
+<pre><span class="s0">&lt;?</span><span class="s1">xml version</span><span class="s3">=&quot;1.0&quot; </span><span class="s1">encoding</span><span class="s3">=&quot;UTF-8&quot;</span><span class="s0">?&gt;</span>
+<span class="s2">&lt;</span><span class="s5">beans </span><span class="s1">xmlns</span><span class="s3">=&quot;http://www.springframework.org/schema/beans&quot;</span>
+       <span class="s1">xmlns:xsi</span><span class="s3">=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
+
+       <span class="s1">xmlns:AOP</span><span class="s3">=&quot;http://www.springframework.org/schema/aop&quot;</span>
+       <span class="s1">xmlns:context</span><span class="s3">=&quot;http://www.springframework.org/schema/context&quot;</span>
+       <span class="s1">xsi:schemaLocation</span><span class="s3">=&quot;http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/aop
+       https://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd&quot;</span><span class="s2">&gt;</span>
+    <span class="s6">&lt;!&#45;&#45;开启扫描包 扫描service和aspect包下需要被Spring管理的类&#45;&#45;&gt;</span>
+    <span class="s2">&lt;</span><span class="s5">context:component-scan </span><span class="s1">base-package</span><span class="s3">=&quot;cn.shu.service&quot;</span><span class="s2">/&gt;</span>
+    <span class="s2">&lt;</span><span class="s5">context:component-scan </span><span class="s1">base-package</span><span class="s3">=&quot;cn.shu.aspect&quot;</span><span class="s2">/&gt;</span>
+    <span class="s2">&lt;</span><span class="s5">AOP:config</span><span class="s2">&gt;</span>
+        <span class="s6">&lt;!&#45;&#45;指定切面为 Aspect id生成规则为aspect&#45;&#45;&gt;</span>
+        <span class="s2">&lt;</span><span class="s5">AOP:aspect </span><span class="s1">ref</span><span class="s3">=&quot;aspect&quot;</span><span class="s2">&gt;</span>
+            <span class="s6">&lt;!&#45;&#45;定义通知 before为前置通知，在目标类中的方法执行前执行&#45;&#45;&gt;</span>
+            <span class="s2">&lt;</span><span class="s5">AOP:before </span><span class="s1">method</span><span class="s3">=&quot;addRecord&quot;</span>
+              <span class="s1">pointcut</span><span class="s3">=&quot;within(cn.shu.service.User)&quot;</span><span class="s2">/&gt;</span>
+            <span class="s6">&lt;!&#45;&#45;切入点规则 这里表示该类中的所有方法执行前都要先执行 切面类中的addRecord方法&#45;&#45;&gt;</span>
+        <span class="s2">&lt;/</span><span class="s5">AOP:aspect</span><span class="s2">&gt;</span>
+    <span class="s2">&lt;/</span><span class="s5">AOP:config</span><span class="s2">&gt;</span>
+<span class="s2">&lt;/</span><span class="s5">beans</span><span class="s2">&gt;</span></pre>
+<h2>2、注解方式配置</h2>
+配置文件
+<pre><span class="s0">&lt;?</span><span class="s1">xml version</span><span class="s3">=&quot;1.0&quot; </span><span class="s1">encoding</span><span class="s3">=&quot;UTF-8&quot;</span><span class="s0">?&gt;</span>
+<span class="s2">&lt;</span><span class="s5">beans </span><span class="s1">xmlns</span><span class="s3">=&quot;http://www.springframework.org/schema/beans&quot;</span>
+       <span class="s1">xmlns:xsi</span><span class="s3">=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
+
+       <span class="s1">xmlns:AOP</span><span class="s3">=&quot;http://www.springframework.org/schema/aop&quot;</span>
+       <span class="s1">xmlns:context</span><span class="s3">=&quot;http://www.springframework.org/schema/context&quot;</span>
+       <span class="s1">xsi:schemaLocation</span><span class="s3">=&quot;http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/aop
+       https://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd&quot;</span><span class="s2">&gt;</span>
+    <span class="s6">&lt;!&#45;&#45;开启扫描包 扫描service和aspect包下需要被Spring管理的类&#45;&#45;&gt;</span>
+    <span class="s2">&lt;</span><span class="s5">context:component-scan </span><span class="s1">base-package</span><span class="s3">=&quot;cn.shu.service&quot;</span><span class="s2">/&gt;</span>
+    <span class="s2">&lt;</span><span class="s5">context:component-scan </span><span class="s1">base-package</span><span class="s3">=&quot;cn.shu.aspect&quot;</span><span class="s2">/&gt;</span>
+<span class="s6">&lt;!&#45;&#45;    &lt;AOP:config&gt;
+        &amp;lt;!&amp;ndash;指定切面为 Aspect id生成规则为aspect&amp;ndash;&amp;gt;
+        &lt;AOP:aspect ref=&quot;aspect&quot;&gt;
+            &amp;lt;!&amp;ndash;定义通知 before为前置通知，在目标类中的方法执行前执行&amp;ndash;&amp;gt;
+            &lt;AOP:before method=&quot;addRecord&quot;
+              pointcut=&quot;within(cn.shu.service.User)&quot;/&gt;
+            &amp;lt;!&amp;ndash;切入点规则 这里表示该类中的所有方法执行前都要先执行 切面类中的addRecord方法&amp;ndash;&amp;gt;
+        &lt;/AOP:aspect&gt;
+    &lt;/AOP:config&gt;&#45;&#45;&gt;</span>
+    <span class="s6">&lt;!&#45;&#45;开启AOP注解配置&#45;&#45;&gt;</span>
+    <span class="s2">&lt;</span><span class="s5">AOP:aspectj-autoproxy</span><span class="s2">/&gt;</span>
+<span class="s2">&lt;/</span><span class="s5">beans</span><span class="s2">&gt;</span></pre>
+切面类
+<pre><span class="s0">package </span><span class="s1">cn.shu.aspect</span><span class="s2">;</span>
+
+<span class="s0">import </span><span class="s1">org.aspectj.lang.annotation.</span><span class="s0">*</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">org.springframework.stereotype.Component</span><span class="s2">;</span>
+
+<span class="s3">/**</span>
+ <span class="s3">* </span><span class="s4">@作者 </span><span class="s3">舒新胜</span>
+ <span class="s3">* </span><span class="s4">@项目 </span><span class="s3">MyBlog</span>
+ <span class="s3">* </span><span class="s4">@创建时间 </span><span class="s3">2020/5/2 14:43</span>
+ <span class="s3">*/</span>
+<span class="s1">@org.aspectj.lang.annotation.Aspect</span>
+<span class="s3">/*等同于&lt;AOP:aspect ref=&quot;aspect&quot;&gt;&lt;/AOP:aspect&gt;*/</span>
+<span class="s1">@Component</span>
+<span class="s0">public class </span><span class="s1">Aspect {</span>
+    <span class="s3">/**</span>
+     <span class="s3">* 记录日志</span>
+     <span class="s3">*/</span>
+    <span class="s1">@Before(</span><span class="s5">&quot;within(cn.shu.service.User)&quot;</span><span class="s1">)</span><span class="s6">//</span>
+   <span class="s3">/* 等同于&lt;AOP:before method=&quot;addRecord&quot; pointcut=&quot;within(cn.shu.service.User)&quot;/&gt;*/</span>
+    <span class="s0">public void </span><span class="s1">addRecord()</span>
+    <span class="s1">{</span>
+        <span class="s1">System.out.println(</span><span class="s5">&quot;记录日志&quot;</span><span class="s1">)</span><span class="s2">;</span>
+    <span class="s1">}</span>
+<span class="s1">}</span>
+</pre>
+<h2>3、执行效果</h2>
+<img src="/html/images/AOP01.png" alt=""/>
+<h1>四、通知的类型</h1>
+上面的例子中，定义了before通知(前置通知)即在目标方法真正执行前会执行的通知。
+<h2>1、前置通知(Before)</h2>
+在目标方法执行前会执行的通知。
+<h2>2、环绕通知(Around)</h2>
+在目标方法执行前会执行，如果有了环绕通知，必须手动调用目标方法，否则目标方法不会执行。目标方法执行后会执行。
+<h2>3、后置通知(AfterReturning)</h2>
+如果目标方法正常执行完成则执行该通知。
+<h2>4、异常通知(AfterThrowing)</h2>
+如果目标方法执行出现异常会执行该通知。
+<h2>5、最终通知(After)</h2>
+无论目标是否正常执行、执行时异常，最终通知都会执行。
+<h1>五、配置5种类型的通知</h1>
+<h2>1、创建切面类，定义方法</h2>
+<pre><span class="s0">package </span><span class="s1">cn.shu.aspect</span><span class="s2">;</span>
+
+<span class="s0">import </span><span class="s1">org.aspectj.lang.JoinPoint</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">org.aspectj.lang.ProceedingJoinPoint</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">org.springframework.stereotype.Component</span><span class="s2">;</span>
+
+<span class="s3">/**</span>
+ <span class="s3">* </span><span class="s4">@作者 </span><span class="s3">舒新胜</span>
+ <span class="s3">* </span><span class="s4">@项目 </span><span class="s3">MyBlog</span>
+ <span class="s3">* </span><span class="s4">@创建时间 </span><span class="s3">2020/5/2 14:43</span>
+ <span class="s3">*/</span>
+<span class="s1">@Component</span>
+<span class="s0">public class </span><span class="s1">Aspect {</span>
+
+    <span class="s0">public void </span><span class="s1">addRecord(JoinPoint joinPoint)</span>
+    <span class="s1">{</span>
+        <span class="s1">System.out.println(</span><span class="s5">&quot;调用目标方法前做一些事...&quot;</span><span class="s1">)</span><span class="s2">;</span>
+    <span class="s1">}</span>
+    <span class="s0">public </span><span class="s1">Object myAround(ProceedingJoinPoint pjp) </span><span class="s0">throws </span><span class="s1">Throwable {</span>
+        <span class="s1">System.out.println(</span><span class="s5">&quot;调用目标方法前做一些事...&quot;</span><span class="s1">)</span><span class="s2">;</span>
+
+        <span class="s6">//调用目标方法 并获取返回值</span>
+        <span class="s6">//如果不调用 则目标方法不会执行，该方法有编译时异常</span>
+        <span class="s1">Object returnObj </span><span class="s0">= </span><span class="s1">pjp.proceed()</span><span class="s2">;</span>
+
+        <span class="s1">System.out.println(</span><span class="s5">&quot;调用目标方法后做一些事...&quot;</span><span class="s1">)</span><span class="s2">;</span>
+        <span class="s6">//如果不返回，调用者得不到返回值</span>
+        <span class="s0">return </span><span class="s1">returnObj</span><span class="s2">;</span>
+
+    <span class="s1">}</span>
+    <span class="s0">public void </span><span class="s1">myAfterReturning(JoinPoint joinPoint</span><span class="s2">,</span><span class="s1">Object returnObj){</span>
+
+        <span class="s1">System.out.println(</span><span class="s5">&quot;目标方法执行成功,返回值:&quot;</span><span class="s0">+</span><span class="s1">returnObj)</span><span class="s2">;</span>
+        <span class="s1">System.out.println(</span><span class="s5">&quot;目标方法执行成功后做一些事...&quot;</span><span class="s1">)</span><span class="s2">;</span>
+    <span class="s1">}</span>
+    <span class="s0">public void </span><span class="s1">myAfterThrowing(JoinPoint joinPoint</span><span class="s2">,</span><span class="s1">Throwable e){</span>
+        <span class="s1">System.out.println(</span><span class="s5">&quot;目标方法执行失败,抛出异常:&quot;</span><span class="s0">+</span><span class="s1">e)</span><span class="s2">;</span>
+
+        <span class="s1">System.out.println(</span><span class="s5">&quot;目标方法抛出异常后做一些事...&quot;</span><span class="s1">)</span><span class="s2">;</span>
+    <span class="s1">}</span>
+
+    <span class="s0">public void </span><span class="s1">myAfter(JoinPoint joinPoint){</span>
+        <span class="s1">System.out.println(</span><span class="s5">&quot;目标方法无论是否执行成功，都会做一些事...&quot;</span><span class="s1">)</span><span class="s2">;</span>
+    <span class="s1">}</span>
+<span class="s1">}</span>
+</pre>
+<h2>2、xml配置方式</h2>
+
+<pre><span class="s0">&lt;?</span><span class="s1">xml version</span><span class="s3">=&quot;1.0&quot; </span><span class="s1">encoding</span><span class="s3">=&quot;UTF-8&quot;</span><span class="s0">?&gt;</span>
+<span class="s2">&lt;</span><span class="s5">beans </span><span class="s1">xmlns</span><span class="s3">=&quot;http://www.springframework.org/schema/beans&quot;</span>
+       <span class="s1">xmlns:xsi</span><span class="s3">=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
+
+       <span class="s1">xmlns:AOP</span><span class="s3">=&quot;http://www.springframework.org/schema/aop&quot;</span>
+       <span class="s1">xmlns:context</span><span class="s3">=&quot;http://www.springframework.org/schema/context&quot;</span>
+       <span class="s1">xsi:schemaLocation</span><span class="s3">=&quot;http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/aop
+       https://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd&quot;</span><span class="s2">&gt;</span>
+    <span class="s6">&lt;!--开启扫描包 扫描service和aspect包下需要被Spring管理的类--&gt;</span>
+    <span class="s2">&lt;</span><span class="s5">context:component-scan </span><span class="s1">base-package</span><span class="s3">=&quot;cn.shu.service&quot;</span><span class="s2">/&gt;</span>
+    <span class="s2">&lt;</span><span class="s5">context:component-scan </span><span class="s1">base-package</span><span class="s3">=&quot;cn.shu.aspect&quot;</span><span class="s2">/&gt;</span>
+    <span class="s2">&lt;</span><span class="s5">AOP:config</span><span class="s2">&gt;</span>
+        <span class="s6">&lt;!--指定切面为 Aspect id生成规则为aspect--&gt;</span>
+        <span class="s2">&lt;</span><span class="s5">AOP:aspect </span><span class="s1">ref</span><span class="s3">=&quot;aspect&quot;</span><span class="s2">&gt;</span>
+            <span class="s6">&lt;!--定义通知 before为前置通知，在目标类中的方法执行前执行--&gt;</span>
+            <span class="s2">&lt;</span><span class="s5">AOP:before </span><span class="s1">method</span><span class="s3">=&quot;addRecord&quot;</span>
+              <span class="s1">pointcut</span><span class="s3">=&quot;within(cn.shu.service.User)&quot;</span><span class="s2">/&gt;</span>
+            <span class="s6">&lt;!--切入点规则 这里表示该类中的所有方法执行前都要先执行 切面类中的addRecord方法--&gt;</span>
+        <span class="s2">&lt;/</span><span class="s5">AOP:aspect</span><span class="s2">&gt;</span>
+
+        <span class="s6">&lt;!--环绕通知--&gt;</span>
+        <span class="s2">&lt;</span><span class="s5">AOP:aspect </span><span class="s1">ref</span><span class="s3">=&quot;aspect&quot;</span><span class="s2">&gt;</span>
+            <span class="s2">&lt;</span><span class="s5">AOP:around </span><span class="s1">method</span><span class="s3">=&quot;myAround&quot;</span>
+                 <span class="s1">pointcut</span><span class="s3">=&quot;within(cn.shu.service.User)&quot;</span><span class="s2">/&gt;</span>
+        <span class="s2">&lt;/</span><span class="s5">AOP:aspect</span><span class="s2">&gt;</span>
+
+        <span class="s6">&lt;!--后置通知--&gt;</span>
+        <span class="s2">&lt;</span><span class="s5">AOP:aspect </span><span class="s1">ref</span><span class="s3">=&quot;aspect&quot;</span><span class="s2">&gt;</span>
+            <span class="s6">&lt;!----&gt;</span>
+            <span class="s2">&lt;</span><span class="s5">AOP:after-returning </span><span class="s1">method</span><span class="s3">=&quot;myAfterReturning&quot;</span>
+                  <span class="s1">pointcut</span><span class="s3">=&quot;within(cn.shu.service.User)&quot;</span>
+                  <span class="s1">returning</span><span class="s3">=&quot;returnObj&quot;</span><span class="s2">/&gt;</span><span class="s6">&lt;!--returning 表示用returnObj接收方法调用成功的返回值--&gt;</span>
+        <span class="s2">&lt;/</span><span class="s5">AOP:aspect</span><span class="s2">&gt;</span>
+
+        <span class="s6">&lt;!--异常通知--&gt;</span>
+        <span class="s2">&lt;</span><span class="s5">AOP:aspect </span><span class="s1">ref</span><span class="s3">=&quot;aspect&quot;</span><span class="s2">&gt;</span>
+            <span class="s2">&lt;</span><span class="s5">AOP:after-throwing </span><span class="s1">method</span><span class="s3">=&quot;myAfterThrowing&quot;</span>
+                 <span class="s1">pointcut</span><span class="s3">=&quot;within(cn.shu.service.User)&quot;</span>
+                <span class="s1">throwing</span><span class="s3">=&quot;e&quot;</span><span class="s2">/&gt;</span><span class="s6">&lt;!--throwing 表示用e接收方法调用成功的返回值--&gt;</span>
+        <span class="s2">&lt;/</span><span class="s5">AOP:aspect</span><span class="s2">&gt;</span>
+
+        <span class="s6">&lt;!--最终通知--&gt;</span>
+        <span class="s2">&lt;</span><span class="s5">AOP:aspect </span><span class="s1">ref</span><span class="s3">=&quot;aspect&quot;</span><span class="s2">&gt;</span>
+            <span class="s2">&lt;</span><span class="s5">AOP:after </span><span class="s1">method</span><span class="s3">=&quot;myAfter&quot;</span>
+                 <span class="s1">pointcut</span><span class="s3">=&quot;within(cn.shu.service.User)&quot;</span><span class="s2">/&gt;</span>
+        <span class="s2">&lt;/</span><span class="s5">AOP:aspect</span><span class="s2">&gt;</span>
+
+    <span class="s2">&lt;/</span><span class="s5">AOP:config</span><span class="s2">&gt;</span>
+    <span class="s6">&lt;!--开启AOP注解配置--&gt;</span>
+  <span class="s6">&lt;!--  &lt;AOP:aspectj-autoproxy/&gt;--&gt;</span>
+<span class="s2">&lt;/</span><span class="s5">beans</span><span class="s2">&gt;</span></pre>
+<h2>3、注解配置方式</h2>
+xml中开启注解配置功能
+<pre><span class="s0">&lt;?</span><span class="s1">xml version</span><span class="s3">=&quot;1.0&quot; </span><span class="s1">encoding</span><span class="s3">=&quot;UTF-8&quot;</span><span class="s0">?&gt;</span>
+<span class="s2">&lt;</span><span class="s5">beans </span><span class="s1">xmlns</span><span class="s3">=&quot;http://www.springframework.org/schema/beans&quot;</span>
+       <span class="s1">xmlns:xsi</span><span class="s3">=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
+
+       <span class="s1">xmlns:AOP</span><span class="s3">=&quot;http://www.springframework.org/schema/aop&quot;</span>
+       <span class="s1">xmlns:context</span><span class="s3">=&quot;http://www.springframework.org/schema/context&quot;</span>
+       <span class="s1">xsi:schemaLocation</span><span class="s3">=&quot;http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/aop
+       https://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd&quot;</span><span class="s2">&gt;</span>
+    <span class="s6">&lt;!--开启扫描包 扫描service和aspect包下需要被Spring管理的类--&gt;</span>
+    <span class="s2">&lt;</span><span class="s5">context:component-scan </span><span class="s1">base-package</span><span class="s3">=&quot;cn.shu.service&quot;</span><span class="s2">/&gt;</span>
+    <span class="s2">&lt;</span><span class="s5">context:component-scan </span><span class="s1">base-package</span><span class="s3">=&quot;cn.shu.aspect&quot;</span><span class="s2">/&gt;</span>
+
+    <span class="s6">&lt;!--开启AOP注解配置--&gt;</span>
+   <span class="s2">&lt;</span><span class="s5">AOP:aspectj-autoproxy</span><span class="s2">/&gt;</span>
+<span class="s2">&lt;/</span><span class="s5">beans</span><span class="s2">&gt;</span></pre>
+在切面类中配置注解
+<pre><span class="s0">package </span><span class="s1">cn.shu.aspect</span><span class="s2">;</span>
+
+<span class="s0">import </span><span class="s1">org.aspectj.lang.JoinPoint</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">org.aspectj.lang.ProceedingJoinPoint</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">org.aspectj.lang.annotation.</span><span class="s0">*</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">org.springframework.stereotype.Component</span><span class="s2">;</span>
+
+<span class="s3">/**</span>
+ <span class="s3">* </span><span class="s4">@作者 </span><span class="s3">舒新胜</span>
+ <span class="s3">* </span><span class="s4">@项目 </span><span class="s3">MyBlog</span>
+ <span class="s3">* </span><span class="s4">@创建时间 </span><span class="s3">2020/5/2 14:43</span>
+ <span class="s3">*/</span>
+<span class="s1">@Component</span>
+<span class="s1">@org.aspectj.lang.annotation.Aspect</span>
+<span class="s5">//等同于&lt;AOP:aspect ref=&quot;aspect&quot;&gt; &lt;/AOP:aspect&gt;</span>
+<span class="s0">public class </span><span class="s1">Aspect {</span>
+
+    <span class="s1">@Before(</span><span class="s6">&quot;within(cn.shu.service.User)&quot;</span><span class="s1">)</span>
+    <span class="s5">//前置通知</span>
+    <span class="s0">public void </span><span class="s1">addRecord(JoinPoint joinPoint)</span>
+    <span class="s1">{</span>
+        <span class="s1">System.out.println(</span><span class="s6">&quot;调用目标方法前做一些事...&quot;</span><span class="s1">)</span><span class="s2">;</span>
+    <span class="s1">}</span>
+
+
+    <span class="s1">@Around(</span><span class="s6">&quot;within(cn.shu.service.User)&quot;</span><span class="s1">)</span>
+    <span class="s5">//环绕通知</span>
+    <span class="s0">public </span><span class="s1">Object myAround(ProceedingJoinPoint pjp) </span><span class="s0">throws </span><span class="s1">Throwable {</span>
+        <span class="s1">System.out.println(</span><span class="s6">&quot;调用目标方法前做一些事...&quot;</span><span class="s1">)</span><span class="s2">;</span>
+
+        <span class="s5">//调用目标方法 并获取返回值</span>
+        <span class="s5">//如果不调用 则目标方法不会执行，该方法有编译时异常</span>
+        <span class="s1">Object returnObj </span><span class="s0">= </span><span class="s1">pjp.proceed()</span><span class="s2">;</span>
+
+        <span class="s1">System.out.println(</span><span class="s6">&quot;调用目标方法后做一些事...&quot;</span><span class="s1">)</span><span class="s2">;</span>
+        <span class="s5">//如果不返回，调用者得不到返回值</span>
+        <span class="s0">return </span><span class="s1">returnObj</span><span class="s2">;</span>
+
+    <span class="s1">}</span>
+
+    <span class="s1">@AfterReturning(value </span><span class="s0">= </span><span class="s6">&quot;within(cn.shu.service.User)&quot;</span><span class="s2">,</span><span class="s1">returning </span><span class="s0">= </span><span class="s6">&quot;returnObj&quot;</span><span class="s1">)</span>
+    <span class="s5">//环绕通知</span>
+    <span class="s0">public void </span><span class="s1">myAfterReturning(JoinPoint joinPoint</span><span class="s2">,</span><span class="s1">Object returnObj){</span>
+
+        <span class="s1">System.out.println(</span><span class="s6">&quot;目标方法执行成功,返回值:&quot;</span><span class="s0">+</span><span class="s1">returnObj)</span><span class="s2">;</span>
+        <span class="s1">System.out.println(</span><span class="s6">&quot;目标方法执行成功后做一些事...&quot;</span><span class="s1">)</span><span class="s2">;</span>
+    <span class="s1">}</span>
+
+    <span class="s1">@AfterThrowing(value </span><span class="s0">= </span><span class="s6">&quot;within(cn.shu.service.User)&quot;</span><span class="s2">,</span><span class="s1">throwing </span><span class="s0">= </span><span class="s6">&quot;e&quot;</span><span class="s1">)</span>
+    <span class="s5">//环绕通知</span>
+    <span class="s0">public void </span><span class="s1">myAfterThrowing(JoinPoint joinPoint</span><span class="s2">,</span><span class="s1">Throwable e){</span>
+        <span class="s1">System.out.println(</span><span class="s6">&quot;目标方法执行失败,抛出异常:&quot;</span><span class="s0">+</span><span class="s1">e)</span><span class="s2">;</span>
+
+        <span class="s1">System.out.println(</span><span class="s6">&quot;目标方法抛出异常后做一些事...&quot;</span><span class="s1">)</span><span class="s2">;</span>
+    <span class="s1">}</span>
+
+    <span class="s1">@After(</span><span class="s6">&quot;within(cn.shu.service.User)&quot;</span><span class="s1">)</span>
+    <span class="s5">//最终通知</span>
+    <span class="s0">public void </span><span class="s1">myAfter(JoinPoint joinPoint){</span>
+        <span class="s1">System.out.println(</span><span class="s6">&quot;目标方法无论是否执行成功，都会做一些事...&quot;</span><span class="s1">)</span><span class="s2">;</span>
+    <span class="s1">}</span>
+<span class="s1">}</span>
+</pre>
+<h1>六、各类通知配置的各种特点</h1>
+1、环绕通知中可以传递一个参数(ProceedingJoinPoint为JoinPoint的子类),其余每个方法中都可以传一个参数(JoinPoint)。
+<br/>2、方法中可以没有任何参数，但是一旦后那么ProceedingJoinPoint或JoinPoint必须为第一个，否则抛异常。
+<br/>3、环绕通知中如果没有调用 ProceedingJoinPoint的proceed()方法，则目标方法不会执行。
+<br/>4、环绕通知中如果调用 ProceedingJoinPoint的proceed()方法后得到的返回值(可以修改后返回)后没有返回，调用者获取不到返回值或为null。
+<br/>5、可以看到后置通知和异常通知可以多一个参数，因为后者通知是在方法执行成功后执行，所有可以接收返回值，同理异常通知可以接收目标方法抛出异常时的异常信息。
+<br/>6、可以注意到，如果后置通知和异常通知如果接收了另外一个参数，注解的配置方式略微不同
+<h1>七、通知中的参数(JoinPoint/ProceedingJoinPoint)</h1>
+JoinPoint代表当前的连接点，通过该对象可以获取目标对象 和 目标方法、传递的参数相关的信息，Spring会自动将该对象传入。
+<br/>ProceedingJoinPoint时JoinPoint的子类，要注意，只有环绕通知可以接收ProceedingJoinPoint，而其他通知只能接收JoinPoint，可以通过这个参数来调用目标方法，获取目标相关信息。
+<h1>八、五种通知的执行顺序</h1>
+1、可以肯定的一点是[前置通知]和[环绕通知]调用目标方法前一定在目标方法执行前执行，但这二者的执行顺序和配置顺序有关，而且没有规律。
+<br/>2、另外可以肯定的一点是[后置通知]、[异常通知]、[最终通知]、[环绕通知]调用目标方法之后 一定在目标方法执行后执行，但这二者的执行顺序和配置顺序有关，而且没有规律
+<br/>3、[异常通知]/[后置通知] 在同一次调用过程中，只有一个执行。
+<br/>4、如果存在多个切面的情况
+多切面执行时，采用了责任链设计模式。
+<br/>在第一个切面拦截后在执行真正方法前会执行前置通知、环绕前，在即将执行真正的方法时，又被第二个切面拦截...最后依次返回。
+<br/>优点类似递归犯法、栈的调用形式。
+<img src="/html/images/aopshunxu.png" alt=""/>
+<h1>九、五种通知的使用场景</h1>
+前置通知:记录日志(方法将被调用)
+<br/>环绕通知：控制事务 权限控制 记录方法执行时间
+<br/>后置通知：记录日志(方法已经成功调用)
+<br/>异常通知：异常处理 控制事务
+<br/>最终通知：记录日志(方法已经调用，但不一定成功)
+<h1>十、Spring AOP的原理</h1>
+<h2>1、原理</h2>
+Spring在创建bean时，除了创建目标对象bean之外，会根据aop的配置，生成目标对象的代理对象，将其存储，之后获取bean时得到的其实是代理对象，在代理对象中，根据配置的切入点规则，决定哪些方法不处理直接执行目标方法，哪些方法拦截后进行增强，需要增强的方法拦截后根据配置调用指定切面中的指定通知执行增强操作。
+<br/>Spring自动为目标对象生成代理对象，默认情况下，如果目标对象实现过接口，则采用java的动态代理机制，如果目标对象没有实现过接口，则采用cglib动态代理。
+<br/><a href="article?articleId=115">可点我参考三种代理方式</a>
+<br/>开发者可以可以在spring中进行配置，要求无论目标对象是否实现过接口，都强制使用cglib动态代理:
+<h2>xml方式中的配置</h2>
+<pre><span class="s0">&lt;?</span><span class="s1">xml version</span><span class="s3">=&quot;1.0&quot; </span><span class="s1">encoding</span><span class="s3">=&quot;UTF-8&quot;</span><span class="s0">?&gt;</span>
+<span class="s2">&lt;</span><span class="s5">beans </span><span class="s1">xmlns</span><span class="s3">=&quot;http://www.springframework.org/schema/beans&quot;</span>
+       <span class="s1">xmlns:xsi</span><span class="s3">=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
+
+       <span class="s1">xmlns:AOP</span><span class="s3">=&quot;http://www.springframework.org/schema/aop&quot;</span>
+       <span class="s1">xmlns:context</span><span class="s3">=&quot;http://www.springframework.org/schema/context&quot;</span>
+       <span class="s1">xsi:schemaLocation</span><span class="s3">=&quot;http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/aop
+       https://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd&quot;</span><span class="s2">&gt;</span>
+    <span class="s6">&lt;!--开启扫描包 扫描service和aspect包下需要被Spring管理的类--&gt;</span>
+    <span class="s2">&lt;</span><span class="s5">context:component-scan </span><span class="s1">base-package</span><span class="s3">=&quot;cn.shu.service&quot;</span><span class="s2">/&gt;</span>
+    <span class="s2">&lt;</span><span class="s5">context:component-scan </span><span class="s1">base-package</span><span class="s3">=&quot;cn.shu.aspect&quot;</span><span class="s2">/&gt;</span>
+
+    <span class="s6">&lt;!--开启AOP注解配置--&gt;</span>
+    <span class="s6">&lt;!--proxy-target-class=&quot;true&quot; 要求强制使用cglib代理模式--&gt;</span>
+   <span class="s2">&lt;</span><span class="s5">AOP:aspectj-autoproxy </span><span class="s1">proxy-target-class</span><span class="s3">=&quot;true&quot;</span><span class="s2">/&gt;</span>
+<span class="s2">&lt;/</span><span class="s5">beans</span><span class="s2">&gt;</span></pre>
+<h2>注解方式中配置</h2>
+<pre><span class="s0">&lt;?</span><span class="s1">xml version</span><span class="s3">=&quot;1.0&quot; </span><span class="s1">encoding</span><span class="s3">=&quot;UTF-8&quot;</span><span class="s0">?&gt;</span>
+<span class="s2">&lt;</span><span class="s5">beans </span><span class="s1">xmlns</span><span class="s3">=&quot;http://www.springframework.org/schema/beans&quot;</span>
+       <span class="s1">xmlns:xsi</span><span class="s3">=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
+
+       <span class="s1">xmlns:AOP</span><span class="s3">=&quot;http://www.springframework.org/schema/aop&quot;</span>
+       <span class="s1">xmlns:context</span><span class="s3">=&quot;http://www.springframework.org/schema/context&quot;</span>
+       <span class="s1">xsi:schemaLocation</span><span class="s3">=&quot;http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/aop
+       https://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd&quot;</span><span class="s2">&gt;</span>
+    <span class="s6">&lt;!--开启扫描包 扫描service和aspect包下需要被Spring管理的类--&gt;</span>
+    <span class="s2">&lt;</span><span class="s5">context:component-scan </span><span class="s1">base-package</span><span class="s3">=&quot;cn.shu.service&quot;</span><span class="s2">/&gt;</span>
+    <span class="s2">&lt;</span><span class="s5">context:component-scan </span><span class="s1">base-package</span><span class="s3">=&quot;cn.shu.aspect&quot;</span><span class="s2">/&gt;</span>
+
+    <span class="s6">&lt;!--proxy-target-class=&quot;true&quot; 要求强制使用cglib代理模式--&gt;</span>
+    <span class="s2">&lt;</span><span class="s5">AOP:config </span><span class="s1">proxy-target-class</span><span class="s3">=&quot;true&quot;</span><span class="s2">&gt;</span>
+
+    <span class="s2">&lt;/</span><span class="s5">AOP:config</span><span class="s2">&gt;</span>
+    <span class="s6">&lt;!--开启AOP注解配置--&gt;</span>
+  <span class="s6">&lt;!--  &lt;AOP:aspectj-autoproxy/&gt;--&gt;</span>
+<span class="s2">&lt;/</span><span class="s5">beans</span><span class="s2">&gt;</span></pre>
+<h1>十一、切入点表达式</h1>
+在以上的例子中，我们通过xml的expression字段指定了切入点表达式，或者是注解里的value值指定了切入点表达式表达式
+<pre>
+ <span class="s1">pointcut</span><span class="s3">=&quot;within(cn.shu.service.User)&quot;</span>
+</pre>
+<pre>
+<span class="s1">@Before(</span><span class="s5">&quot;within(cn.shu.service.User)&quot;</span><span class="s1">)</span><span class="s6">//</span>
+</pre>
+<h2>1、within表达式</h2>
+通过类名进行匹配，粗粒度的表达式，表示该类中的所有连接点都会被表达式匹配，成为切入点
+<br/>格式：within(包名.类名)，可以使用*通配符
+<br/>例：
+<pre><span class="s0">&lt;?</span><span class="s1">xml version</span><span class="s3">=&quot;1.0&quot; </span><span class="s1">encoding</span><span class="s3">=&quot;UTF-8&quot;</span><span class="s0">?&gt;</span>
+<span class="s2">&lt;</span><span class="s5">beans </span><span class="s1">xmlns</span><span class="s3">=&quot;http://www.springframework.org/schema/beans&quot;</span>
+       <span class="s1">xmlns:xsi</span><span class="s3">=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
+
+       <span class="s1">xmlns:AOP</span><span class="s3">=&quot;http://www.springframework.org/schema/aop&quot;</span>
+       <span class="s1">xmlns:context</span><span class="s3">=&quot;http://www.springframework.org/schema/context&quot;</span>
+       <span class="s1">xsi:schemaLocation</span><span class="s3">=&quot;http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/aop
+       https://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd&quot;</span><span class="s2">&gt;</span>
+    <span class="s6">&lt;!--开启扫描包 扫描service和aspect包下需要被Spring管理的类--&gt;</span>
+    <span class="s2">&lt;</span><span class="s5">context:component-scan </span><span class="s1">base-package</span><span class="s3">=&quot;cn.shu.service&quot;</span><span class="s2">/&gt;</span>
+    <span class="s2">&lt;</span><span class="s5">context:component-scan </span><span class="s1">base-package</span><span class="s3">=&quot;cn.shu.aspect&quot;</span><span class="s2">/&gt;</span>
+
+    <span class="s6">&lt;!--proxy-target-class=&quot;true&quot; 要求强制使用cglib代理模式--&gt;</span>
+    <span class="s2">&lt;</span><span class="s5">AOP:config </span><span class="s1">proxy-target-class</span><span class="s3">=&quot;true&quot;</span><span class="s2">&gt;</span>
+
+        <span class="s6">&lt;!--匹配User下的所有方法--&gt;</span>
+        <span class="s2">&lt;</span><span class="s5">AOP:pointcut </span><span class="s1">id</span><span class="s3">=&quot;1&quot; </span><span class="s1">expression</span><span class="s3">=&quot;within(cn.shu.service.User)&quot;</span><span class="s2">/&gt;</span>
+
+        <span class="s6">&lt;!--匹配service下的所有类的所有方法--&gt;</span>
+        <span class="s2">&lt;</span><span class="s5">AOP:pointcut </span><span class="s1">id</span><span class="s3">=&quot;2&quot; </span><span class="s1">expression</span><span class="s3">=&quot;within(cn.shu.service.*)&quot;</span><span class="s2">/&gt;</span>
+
+        <span class="s6">&lt;!-- 第一个*表示匹配service下的所有子包 第二个8表示匹配该子包下的所有类 同理可以 *.*.*.*等等--&gt;</span>
+        <span class="s2">&lt;</span><span class="s5">AOP:pointcut </span><span class="s1">id</span><span class="s3">=&quot;3&quot; </span><span class="s1">expression</span><span class="s3">=&quot;within(cn.shu.service.*.*)&quot;</span><span class="s2">/&gt;</span>
+
+        <span class="s6">&lt;!--  表示 service包下的类，及其子孙包下的所有类--&gt;</span>
+        <span class="s2">&lt;</span><span class="s5">AOP:pointcut </span><span class="s1">id</span><span class="s3">=&quot;4&quot; </span><span class="s1">expression</span><span class="s3">=&quot;within(cn.shu.service..*)&quot;</span><span class="s2">/&gt;</span>
+
+    <span class="s2">&lt;/</span><span class="s5">AOP:config</span><span class="s2">&gt;</span>
+
+<span class="s2">&lt;/</span><span class="s5">beans</span><span class="s2">&gt;</span></pre>
+<h2>2、execution表达式</h2>
+可以发现within最小只能匹配某个类，不能匹配到具体的方法、参数等
+<br/>execution是细粒度的表达式，可以匹配到具体的方法、参数、返回值
+<br/>格式：execution(返回值类型 包名.类名.方法名(参数类型,参数类型…))
+<br/>例：
+<pre><span class="s0">&lt;?</span><span class="s1">xml version</span><span class="s3">=&quot;1.0&quot; </span><span class="s1">encoding</span><span class="s3">=&quot;UTF-8&quot;</span><span class="s0">?&gt;</span>
+<span class="s2">&lt;</span><span class="s5">beans </span><span class="s1">xmlns</span><span class="s3">=&quot;http://www.springframework.org/schema/beans&quot;</span>
+       <span class="s1">xmlns:xsi</span><span class="s3">=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
+
+       <span class="s1">xmlns:aop</span><span class="s3">=&quot;http://www.springframework.org/schema/aop&quot;</span>
+       <span class="s1">xmlns:context</span><span class="s3">=&quot;http://www.springframework.org/schema/context&quot;</span>
+       <span class="s1">xsi:schemaLocation</span><span class="s3">=&quot;http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/aop
+       https://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd&quot;</span><span class="s2">&gt;</span>
+    <span class="s6">&lt;!--开启扫描包 扫描service和aspect包下需要被Spring管理的类--&gt;</span>
+    <span class="s2">&lt;</span><span class="s5">context:component-scan </span><span class="s1">base-package</span><span class="s3">=&quot;cn.shu.service&quot;</span><span class="s2">/&gt;</span>
+    <span class="s2">&lt;</span><span class="s5">context:component-scan </span><span class="s1">base-package</span><span class="s3">=&quot;cn.shu.aspect&quot;</span><span class="s2">/&gt;</span>
+
+    <span class="s6">&lt;!--proxy-target-class=&quot;true&quot; 要求强制使用cglib代理模式--&gt;</span>
+    <span class="s2">&lt;</span><span class="s5">aop:config </span><span class="s1">proxy-target-class</span><span class="s3">=&quot;true&quot;</span><span class="s2">&gt;</span>
+        <span class="s6">&lt;!--该切入点规则表示，切出指定包下指定类下指定名称指定参数指定返回值的方法。--&gt;</span>
+        <span class="s2">&lt;</span><span class="s5">aop:pointcut </span><span class="s1">expression</span><span class="s3">=&quot;execution(void cn.shu.service.UserServiceImpl.addUser(java.lang.String))&quot; </span><span class="s1">id</span><span class="s3">=&quot;pc1&quot;</span><span class="s2">/&gt;</span>
+
+        <span class="s6">&lt;!-- 该切入点规则表示，切出指定包下所有的类中的query方法，要求无参，但返回值类型不限。--&gt;</span>
+        <span class="s2">&lt;</span><span class="s5">aop:pointcut </span><span class="s1">expression</span><span class="s3">=&quot;execution(* cn.shu.service.*.query())&quot; </span><span class="s1">id</span><span class="s3">=&quot;pc1&quot;</span><span class="s2">/&gt;</span>
+
+        <span class="s6">&lt;!-- 该切入点规则表示，切出指定包及其子孙包下所有的类中的query方法，要求无参，但返回值类型不限。--&gt;</span>
+        <span class="s2">&lt;</span><span class="s5">aop:pointcut </span><span class="s1">expression</span><span class="s3">=&quot;execution(* cn.shu.service..*.query())&quot; </span><span class="s1">id</span><span class="s3">=&quot;pc1&quot;</span><span class="s2">/&gt;</span>
+
+        <span class="s6">&lt;!-- 该切入点规则表示，切出指定包及其子孙包下所有的类中的query方法，要求参数为int java.langString类型，但返回值类型不限。--&gt;</span>
+        <span class="s2">&lt;</span><span class="s5">aop:pointcut </span><span class="s1">expression</span><span class="s3">=&quot;execution(* cn.shu.service..*.query(int,java.lang.String))&quot; </span><span class="s1">id</span><span class="s3">=&quot;pc1&quot;</span><span class="s2">/&gt;</span>
+
+        <span class="s6">&lt;!--该切入点规则表示，切出指定包及其子孙包下所有的类中的query方法，参数数量及类型不限，返回值类型不限。--&gt;</span>
+        <span class="s2">&lt;</span><span class="s5">aop:pointcut </span><span class="s1">expression</span><span class="s3">=&quot;execution(* cn.shu.service..*.query(..))&quot; </span><span class="s1">id</span><span class="s3">=&quot;pc1&quot;</span><span class="s2">/&gt;</span>
+
+        <span class="s6">&lt;!--该切入点规则表示，切出指定包及其子孙包下所有的类中的任意方法，参数数量及类型不限，返回值类型不限。这种写法等价于within表达式的功能。--&gt;</span>
+        <span class="s2">&lt;</span><span class="s5">aop:pointcut </span><span class="s1">expression</span><span class="s3">=&quot;execution(* cn.shu.service..*.*(..))&quot; </span><span class="s1">id</span><span class="s3">=&quot;pc1&quot;</span><span class="s2">/&gt;</span>
+
+        <span class="s6">&lt;!--该切入点规则表示，切出指定包及其子孙包下所有的类中的任意方法，参数数量及类型不限，返回值类型不限。这种写法等价于within表达式的功能。--&gt;</span>
+        <span class="s2">&lt;</span><span class="s5">aop:pointcut </span><span class="s1">expression</span><span class="s3">=&quot;execution(* cn.shu.service..*(..))&quot; </span><span class="s1">id</span><span class="s3">=&quot;pc1&quot;</span><span class="s2">/&gt;</span>
+
+
+    <span class="s2">&lt;/</span><span class="s5">aop:config</span><span class="s2">&gt;</span>
+
+<span class="s2">&lt;/</span><span class="s5">beans</span><span class="s2">&gt;</span></pre>
+<h2>3、表达式优化</h2>
+在以上的例子中，不管是通过注解方式还是在使用xml的配置方式，同一切入点表达式都写了多次。
+<br/>可以将切入点表达式提取出来，使用时添加引用即可。
+<br/>示例：XML配置方式
+<pre><span class="s0">&lt;?</span><span class="s1">xml version</span><span class="s3">=&quot;1.0&quot; </span><span class="s1">encoding</span><span class="s3">=&quot;UTF-8&quot;</span><span class="s0">?&gt;</span>
+<span class="s2">&lt;</span><span class="s5">beans </span><span class="s1">xmlns</span><span class="s3">=&quot;http://www.springframework.org/schema/beans&quot;</span>
+       <span class="s1">xmlns:xsi</span><span class="s3">=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
+
+       <span class="s1">xmlns:aop</span><span class="s3">=&quot;http://www.springframework.org/schema/aop&quot;</span>
+       <span class="s1">xmlns:context</span><span class="s3">=&quot;http://www.springframework.org/schema/context&quot;</span>
+       <span class="s1">xsi:schemaLocation</span><span class="s3">=&quot;http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/aop
+       https://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd&quot;</span><span class="s2">&gt;</span>
+    <span class="s6">&lt;!--开启扫描包 扫描service和aspect包下需要被Spring管理的类--&gt;</span>
+    <span class="s2">&lt;</span><span class="s5">context:component-scan </span><span class="s1">base-package</span><span class="s3">=&quot;cn.shu.service&quot;</span><span class="s2">/&gt;</span>
+    <span class="s2">&lt;</span><span class="s5">context:component-scan </span><span class="s1">base-package</span><span class="s3">=&quot;cn.shu.aspect&quot;</span><span class="s2">/&gt;</span>
+
+    <span class="s6">&lt;!--proxy-target-class=&quot;true&quot; 要求强制使用cglib代理模式--&gt;</span>
+    <span class="s2">&lt;</span><span class="s5">aop:config </span><span class="s1">proxy-target-class</span><span class="s3">=&quot;true&quot;</span><span class="s2">&gt;</span>
+        <span class="s6">&lt;!--该切入点规则表示，切出指定包下指定类下指定名称指定参数指定返回值的方法。--&gt;</span>
+        <span class="s2">&lt;</span><span class="s5">aop:pointcut </span><span class="s1">expression</span><span class="s3">=&quot;within(cn.shu.service.User)&quot; </span><span class="s1">id</span><span class="s3">=&quot;pc1&quot;</span><span class="s2">/&gt;</span>
+
+        <span class="s2">&lt;</span><span class="s5">aop:aspect </span><span class="s1">ref</span><span class="s3">=&quot;aspect&quot;</span><span class="s2">&gt;</span>
+            <span class="s6">&lt;!--pointcut-ref=&quot;pc1&quot; 引用id为pc1的切入点表达式(pointcut)--&gt;</span>
+            <span class="s2">&lt;</span><span class="s5">aop:before </span><span class="s1">method</span><span class="s3">=&quot;addRecord&quot; </span><span class="s1">pointcut-ref</span><span class="s3">=&quot;pc1&quot;</span><span class="s2">/&gt;</span>
+            <span class="s2">&lt;</span><span class="s5">aop:after </span><span class="s1">method</span><span class="s3">=&quot;myAfter&quot; </span><span class="s1">pointcut-ref</span><span class="s3">=&quot;pc1&quot;</span><span class="s2">/&gt;</span>
+        <span class="s2">&lt;/</span><span class="s5">aop:aspect</span><span class="s2">&gt;</span>
+    <span class="s2">&lt;/</span><span class="s5">aop:config</span><span class="s2">&gt;</span>
+
+<span class="s2">&lt;/</span><span class="s5">beans</span><span class="s2">&gt;</span></pre>
+示例：注解方式
+<pre><span class="s0">package </span><span class="s1">cn.shu.aspect</span><span class="s2">;</span>
+
+<span class="s0">import </span><span class="s1">org.aspectj.lang.JoinPoint</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">org.aspectj.lang.ProceedingJoinPoint</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">org.aspectj.lang.annotation.</span><span class="s0">*</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">org.springframework.stereotype.Component</span><span class="s2">;</span>
+
+<span class="s3">/**</span>
+ <span class="s3">* </span><span class="s4">@作者 </span><span class="s3">舒新胜</span>
+ <span class="s3">* </span><span class="s4">@项目 </span><span class="s3">MyBlog</span>
+ <span class="s3">* </span><span class="s4">@创建时间 </span><span class="s3">2020/5/2 14:43</span>
+ <span class="s3">*/</span>
+<span class="s1">@Component</span>
+<span class="s1">@org.aspectj.lang.annotation.Aspect</span>
+<span class="s5">//等同于&lt;AOP:aspect ref=&quot;aspect&quot;&gt; &lt;/AOP:aspect&gt;</span>
+<span class="s0">public class </span><span class="s1">Aspect {</span>
+
+    <span class="s1">@Pointcut(</span><span class="s6">&quot;within(cn.shu.service.User)&quot;</span><span class="s1">)</span>
+    <span class="s0">public void </span><span class="s1">pc1(){</span>
+
+    <span class="s1">}</span>
+
+    <span class="s1">@Before(</span><span class="s6">&quot;pc1()&quot;</span><span class="s1">)</span>
+    <span class="s5">//前置通知</span>
+    <span class="s0">public void </span><span class="s1">addRecord(JoinPoint joinPoint)</span>
+    <span class="s1">{</span>
+        <span class="s1">System.out.println(</span><span class="s6">&quot;调用目标方法前做一些事...&quot;</span><span class="s1">)</span><span class="s2">;</span>
+    <span class="s1">}</span>
+
+
+    <span class="s1">@Around(</span><span class="s6">&quot;pc1()&quot;</span><span class="s1">)</span>
+    <span class="s5">//环绕通知</span>
+    <span class="s0">public </span><span class="s1">Object myAround(ProceedingJoinPoint pjp) </span><span class="s0">throws </span><span class="s1">Throwable {</span>
+        <span class="s1">System.out.println(</span><span class="s6">&quot;调用目标方法前做一些事...&quot;</span><span class="s1">)</span><span class="s2">;</span>
+
+        <span class="s5">//调用目标方法 并获取返回值</span>
+        <span class="s5">//如果不调用 则目标方法不会执行，该方法有编译时异常</span>
+        <span class="s1">Object returnObj </span><span class="s0">= </span><span class="s1">pjp.proceed()</span><span class="s2">;</span>
+
+        <span class="s1">System.out.println(</span><span class="s6">&quot;调用目标方法后做一些事...&quot;</span><span class="s1">)</span><span class="s2">;</span>
+        <span class="s5">//如果不返回，调用者得不到返回值</span>
+        <span class="s0">return </span><span class="s1">returnObj</span><span class="s2">;</span>
+
+    <span class="s1">}</span>
+
+    <span class="s1">@AfterReturning(value </span><span class="s0">= </span><span class="s6">&quot;pc1()&quot;</span><span class="s2">,</span><span class="s1">returning </span><span class="s0">= </span><span class="s6">&quot;returnObj&quot;</span><span class="s1">)</span>
+    <span class="s5">//环绕通知</span>
+    <span class="s0">public void </span><span class="s1">myAfterReturning(JoinPoint joinPoint</span><span class="s2">,</span><span class="s1">Object returnObj){</span>
+
+        <span class="s1">System.out.println(</span><span class="s6">&quot;目标方法执行成功,返回值:&quot;</span><span class="s0">+</span><span class="s1">returnObj)</span><span class="s2">;</span>
+        <span class="s1">System.out.println(</span><span class="s6">&quot;目标方法执行成功后做一些事...&quot;</span><span class="s1">)</span><span class="s2">;</span>
+    <span class="s1">}</span>
+
+    <span class="s1">@AfterThrowing(value </span><span class="s0">= </span><span class="s6">&quot;pc1()&quot;</span><span class="s2">,</span><span class="s1">throwing </span><span class="s0">= </span><span class="s6">&quot;e&quot;</span><span class="s1">)</span>
+    <span class="s5">//环绕通知</span>
+    <span class="s0">public void </span><span class="s1">myAfterThrowing(JoinPoint joinPoint</span><span class="s2">,</span><span class="s1">Throwable e){</span>
+        <span class="s1">System.out.println(</span><span class="s6">&quot;目标方法执行失败,抛出异常:&quot;</span><span class="s0">+</span><span class="s1">e)</span><span class="s2">;</span>
+
+        <span class="s1">System.out.println(</span><span class="s6">&quot;目标方法抛出异常后做一些事...&quot;</span><span class="s1">)</span><span class="s2">;</span>
+    <span class="s1">}</span>
+
+    <span class="s1">@After(</span><span class="s6">&quot;pc1()&quot;</span><span class="s1">)</span>
+    <span class="s5">//最终通知</span>
+    <span class="s0">public void </span><span class="s1">myAfter(JoinPoint joinPoint){</span>
+        <span class="s1">System.out.println(</span><span class="s6">&quot;目标方法无论是否执行成功，都会做一些事...&quot;</span><span class="s1">)</span><span class="s2">;</span>
+    <span class="s1">}</span>
+<span class="s1">}</span>
+</pre>
+</body>
+</html>

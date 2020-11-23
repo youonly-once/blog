@@ -1,0 +1,67 @@
+<html>
+<head>
+	<title>ConnectionPool.java</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+</head>
+<body bgcolor="#ffffff">
+<P>一、测试类 JDBCUtil</P>
+<pre><span class="s0">package </span><span class="s1">cn.shu.init</span><span class="s2">;</span>
+
+<span class="s0">public class </span><span class="s1">JDBCUtil {</span>
+    <span class="s3">/**</span>
+     <span class="s3">* JDBC初始化一些操作</span>
+     <span class="s3">*/</span>
+    <span class="s0">public void </span><span class="s1">init(){</span>
+        <span class="s1">System.out.println(</span><span class="s4">&quot;JDBC初始化&quot;</span><span class="s1">)</span><span class="s2">;</span>
+    <span class="s1">}</span>
+
+    <span class="s3">/**</span>
+     <span class="s3">* 数据库的一些操作</span>
+     <span class="s3">*/</span>
+    <span class="s0">public void </span><span class="s1">operator(){</span>
+        <span class="s1">System.out.println(</span><span class="s4">&quot;数据库操作&quot;</span><span class="s1">)</span><span class="s2">;</span>
+    <span class="s1">}</span>
+
+    <span class="s3">/**</span>
+     <span class="s3">* JDBC销毁，关闭连接</span>
+     <span class="s3">*/</span>
+    <span class="s0">public void </span><span class="s1">destroy(){</span>
+        <span class="s1">System.out.println(</span><span class="s4">&quot;JDBC销毁&quot;</span><span class="s1">)</span><span class="s2">;</span>
+    <span class="s1">}</span>
+<span class="s1">}</span>
+</pre>
+<P>二、配置xml</P>
+<P class="subTitle">1、init指定初始化的方法</P>
+<P class="subTitle">2、destroy指定销毁时调用的方法</P>
+<pre><span class="s0">&lt;?</span><span class="s1">xml version</span><span class="s3">=&quot;1.0&quot; </span><span class="s1">encoding</span><span class="s3">=&quot;UTF-8&quot;</span><span class="s0">?&gt;</span>
+<span class="s2">&lt;</span><span class="s5">beans </span><span class="s1">xmlns</span><span class="s3">=&quot;http://www.springframework.org/schema/beans&quot;</span>
+       <span class="s1">xmlns:xsi</span><span class="s3">=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
+       <span class="s1">xsi:schemaLocation</span><span class="s3">=&quot;http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd&quot;</span><span class="s2">&gt;</span>
+    <span class="s2">&lt;</span><span class="s5">bean </span><span class="s1">class</span><span class="s3">=&quot;cn.shu.init.JDBCUtil&quot; </span><span class="s1">id</span><span class="s3">=&quot;jdbcUtil&quot; </span><span class="s1">init-method</span><span class="s3">=&quot;init&quot; </span><span class="s1">destroy-method</span><span class="s3">=&quot;destroy&quot;</span><span class="s2">/&gt;</span>
+<span class="s2">&lt;/</span><span class="s5">beans</span><span class="s2">&gt;</span></pre>
+<p>三、使用</p>
+<pre><span class="s0">package </span><span class="s1">cn.shu.init</span><span class="s2">;</span>
+
+<span class="s0">import </span><span class="s1">org.springframework.context.ApplicationContext</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">org.springframework.context.support.ClassPathXmlApplicationContext</span><span class="s2">;</span>
+
+<span class="s0">public class </span><span class="s1">Test {</span>
+
+    <span class="s0">public static void </span><span class="s1">main(String[] args) {</span>
+        <span class="s3">//初始化容器时 调用init()方法</span>
+        <span class="s1">ApplicationContext context</span><span class="s0">=new </span><span class="s1">ClassPathXmlApplicationContext(</span><span class="s4">&quot;applicationContextInit.xml&quot;</span><span class="s1">)</span><span class="s2">;</span>
+        <span class="s1">JDBCUtil jdbcUtil </span><span class="s0">= </span><span class="s1">(JDBCUtil) context.getBean(</span><span class="s4">&quot;jdbcUtil&quot;</span><span class="s1">)</span><span class="s2">;</span>
+        <span class="s3">//做一些操作</span>
+        <span class="s1">jdbcUtil.operator()</span><span class="s2">;</span>
+        <span class="s3">//关闭容器时 调用destroy()方法</span>
+        <span class="s1">((ClassPathXmlApplicationContext)context).close()</span><span class="s2">;</span>
+    <span class="s1">}</span>
+<span class="s1">}</span>
+</pre>
+<p style="color:red;">四、注意点</p>
+<p class="subTitle">1、init和destroy方法只能为public，否则抛异常</p>
+<p class="subTitle">2、init和destroy方法返回值只能为void，否则抛异常</p>
+<p class="subTitle">3、init和destroy方法只能为无参，否则抛异常</p>
+</body>
+</html>

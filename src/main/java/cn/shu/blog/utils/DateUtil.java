@@ -223,6 +223,9 @@ public class DateUtil {// 返回查询时间
 	}
 
 	public static String formatDate(Date date,String formatStr){
+		if (formatStr == null){
+			formatStr="yyyy-MM-dd HH:mm:ss.SSS";
+		}
 		SimpleDateFormat simpleDateFormat=new SimpleDateFormat(formatStr);
 		return simpleDateFormat.format(date);
 	}
@@ -238,6 +241,24 @@ public class DateUtil {// 返回查询时间
 		long diffMillisecond=simpleDateFormat.parse(endDate).getTime()-simpleDateFormat.parse(begindate).getTime();
 		//Log.logChange(""+diffMillisecond);
 		return diffMillisecond;
+	}
+	public static Date stringToDate(String date){
+		SimpleDateFormat simpleDateFormat=new SimpleDateFormat("yyyy-MM-dd");
+		try {
+			return simpleDateFormat.parse(date);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	public static Date stringToDateTime(String date){
+		SimpleDateFormat simpleDateFormat=new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+		try {
+			return simpleDateFormat.parse(date);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 }

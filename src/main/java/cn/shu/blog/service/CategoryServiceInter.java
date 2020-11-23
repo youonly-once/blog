@@ -2,6 +2,7 @@ package cn.shu.blog.service;
 
 import cn.shu.blog.beans.Category;
 
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -11,5 +12,5 @@ import java.util.List;
  */
 
 public interface CategoryServiceInter {
-    List<Category> getCategories();
+    List<Category> selectByAll(HashMap<String,Object> params);
 }

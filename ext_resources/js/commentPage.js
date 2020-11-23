@@ -169,7 +169,7 @@ $(function(){
         promptText.text('正在提交...');
         $.ajax({
             type:"POST",
-            url:"/article/addComment.action?article.id=" + articleid,
+            url:"/article/addComment.action?articleId=" + articleid,
             data:"comment=" + replace_em(commentContent.val()),
             cache:false, //不缓存此页面
             success:function(data){

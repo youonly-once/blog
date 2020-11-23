@@ -8,7 +8,7 @@ spring:
     type: com.alibaba.druid.pool.DruidDataSource
     url: jdbc:mysql://localhost:3306/myblog?allowMultiQueries=true&serverTimezone=Asia/Shanghai&characterEncoding=utf8
     username: root
-    password: root
+    password: 123456
     driver-class-name: com.mysql.cj.jdbc.Driver
     #spring mvc
   mvc:
@@ -34,10 +34,14 @@ mybatis:
     cache-enabled: false
     #开启驼峰命名
     map-underscore-to-camel-case: true
+    #开启日志
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    log-prefix: xxx
 logging:
   file:
     #当前打包jar目录
     path: log
+
 
 #每页显示的文章数
 home:

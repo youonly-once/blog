@@ -1,7 +1,9 @@
 package cn.shu.blog.utils.lucene;
 
 import cn.shu.blog.beans.Article;
+import cn.shu.blog.beans.Comment;
 import cn.shu.blog.beans.SearchArticle;
+import cn.shu.blog.utils.DateUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
@@ -118,16 +120,17 @@ public class LuceneIndexUntil {
             //5、封装数据到document对象
             for (Article article : articles) {
                 Document doc = new Document();
-
+                //获取文章评论
+              //  List<Comment> comments = commentService.selectByAll(Comment.builder().articleId(article.getId()).build());
                 doc.add(new TextField("title", article.getTitle(), Field.Store.YES));
                 // doc.add(new StringField("content", "lucene是一种全文检索技术的工具包...", Field.Store.YES));
                 doc.add(new StringField("id", article.getId() + "", Field.Store.YES));
                 doc.add(new TextField("description", article.getDescription() + "", Field.Store.YES));
                 doc.add(new IntPoint("visitors", article.getVisitors()));
                 doc.add(new StringField("visitors", article.getVisitors() + "", Field.Store.YES));
-                doc.add(new StringField("updateDate", article.getUpdateDate(), Field.Store.YES));
-                doc.add(new StringField("commNum", article.getCommNum() + "", Field.Store.YES));
-                doc.add(new StringField("categoryName", article.getCategoryName(), Field.Store.YES));
+                doc.add(new StringField("updateDate", DateUtil.formatDate(article.getUpdateDate(),null), Field.Store.YES));
+               // doc.add(new StringField("commNum", article.getCommNum() + "", Field.Store.YES));
+                //doc.add(new StringField("categoryName", article.getCategoryName(), Field.Store.YES));
                 doc.add(new StringField("imagePath", article.getImagePath(), Field.Store.YES));
                 indexWriter.addDocument(doc);
             }
@@ -256,7 +259,7 @@ public class LuceneIndexUntil {
                 article.setId(Integer.parseInt(doc1.get("id")));
                 article.setCategoryName(doc1.get("categoryName"));
                 article.setCommNum(Long.parseLong(doc1.get("commNum")));
-                article.setUpdateDate(doc1.get("updateDate"));
+                article.setUpdateDate(DateUtil.stringToDate(doc1.get("updateDate")));
                 article.setDescription(term.get("description"));
                 article.setImagePath(doc1.get("imagePath"));
 

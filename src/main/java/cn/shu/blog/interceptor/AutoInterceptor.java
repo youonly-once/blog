@@ -28,13 +28,13 @@ public class AutoInterceptor implements HandlerInterceptor {
         User user=new User();
         for (Cookie cookie : cookies) {
             if ("username".equals(cookie.getName())){
-                user.setUserName(cookie.getValue());
+                user.setAccount(cookie.getValue());
                 if (user.getPassword()!=null){
                     break;
                 }
             }else if ("password".equals(cookie.getName())) {
                 user.setPassword(cookie.getValue());
-                if (user.getUserName()!=null){
+                if (user.getAccount()!=null){
                     break;
                 }
             }

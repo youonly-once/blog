@@ -12,7 +12,7 @@ public class JDBCUtil {
     static {
         druidDataSource.setUrl("jdbc:mysql://localhost:3306/myblog?allowMultiQueries=true&serverTimezone=Asia/Shanghai&characterEncoding=utf8");
         druidDataSource.setUsername("root");
-        druidDataSource.setPassword("root");
+        druidDataSource.setPassword("123456");
         druidDataSource.setDriverClassName("com.mysql.jdbc.Driver");
     }
     public static Connection getConnection() throws SQLException {
