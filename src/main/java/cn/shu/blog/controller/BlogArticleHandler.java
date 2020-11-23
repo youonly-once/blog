@@ -123,7 +123,7 @@ public class BlogArticleHandler {
 
     @ResponseBody
     @RequestMapping(value = "/addComment.action")
-    /**
+    /*
      * 前端提交articleId=" + articleId
      * 封装参数到Comment的 articleId参数
      */
