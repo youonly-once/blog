@@ -19,5 +19,4 @@ public class MyBlogMain {
     public static void main(String[] args) {
         SpringApplication.run(MyBlogMain.class,args);
     }
-
 }
