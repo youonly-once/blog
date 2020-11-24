@@ -1,0 +1,130 @@
+<html>
+<head>
+	<title>ConnectionPool.java</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<style type="text/css">
+		.s0 { color: #d73a49;}
+		.s2 { color: #808080;}
+		.s3 { color: #032f62;}
+		.s4 { color: #6a737d;}
+		.s5 { color: #000080; font-weight: bold;}
+		.s6 { color: #d73a49; font-style: italic;}
+		.s7 { color: #005cc5;}
+	</style>
+</head>
+<body bgcolor="#ffffff">
+<h2>通过学习教程中例子，你可以学会如何：</h2>
+<p>1、在一个 .proto 文件内定义服务。</p>
+<p>2、用 protocol buffer 编译器生成服务器和客户端代码。</p>
+<p>3、使用 gRPC 的 Java API 为你的服务实现一个简单的客户端和服务器。</p>
+<h2>为什么使用GRPC？</h2>
+<p>有了 gRPC， 我们可以一次性的在一个 .proto 文件中定义服务并使用任何支持它的语言去实现客户端
+和服务器(定义好服务，例如通过Java去实现它，可以理解为我在Java中实现Controller)—— gRPC 帮你解决了
+不同语言及环境间通信的复杂性。使用 protocol buffers 还能获得其他好处，包括高效的序
+列号，简单的 IDL 以及容易进行接口更新。</p>
+<h2>一、创建一个完整的.proto文件</h2>
+<h3>创建一个.proto文件</h3>
+<pre>
+<span class="s1">//使用proto3语法</span><br>
+syntax = <span class="s3">&quot;proto3&quot;</span>;
+</pre>
+<h3>定义包名</h3>
+<pre>
+<span class="s1">//生成java类时使用的包名</span>
+option java_package = <span class="s3">&quot;io.grpc.examples.helloworld&quot;</span>;
+<span class="s1">//默认包名</span>
+package helloworld;
+</pre>
+这个指定的包是为我们生成 Java 类使用的（生成的类的包为我们指定的）。如果在 .proto 文件中没有显示的 java_package 参数，
+那么就会使用缺省的 proto 包（通过 "package" 关键字指定）。但是，因为 proto 包一般不是以域名
+翻转的格式命名，所以它不是好的 Java 包。 如果我们用其它语言通过 .proto 文件生成代码，java_package 是不起任何作用的（例如go语言是用go_package）。
+<h3>定义服务及方法</h3>
+<pre>
+<span class="s1">// 定义一个Service</span>
+service Greeter {
+  <span class="s1">// 定义一个方法</span>
+  rpc SayHello (HelloRequest) returns (HelloReply) {}
+}
+<span class="s1">//方法的参数类型</span>
+message HelloRequest {
+  string name = <span class="s4">1</span>;
+}
+<span class="s1">//方法的响应类型</span>
+message HelloReply {
+  string message = <span class="s4">1</span>;
+}</pre>
+定义服务方法时需要指定他们的请求的和响应的类型，gRPC 允许你定义4种类型的
+service 方法。
+<br>类型通过message关键字指定，内部可定义该类型包括哪些参数，参数的数值值表示加载顺序（这里有点疑惑）
+<h2>二、生成客户端和服务器端代码</h2>
+接下来我们需要从 .proto 的服务定义中生成 gRPC 客户端和服务器端的接口。我们通过 protocol
+buffer 的编译器 protoc 以及一个特殊的 gRPC Java 插件来完成。为了生成 gRPC 服务，你必须
+使用proto3编译器（同时支持 proto2 和
+proto3 语法）。
+<h3>pom添加gRPC开发包</h3>
+<pre>
+	&lt;<span class="s5">dependencies</span>&gt;
+	        &lt;<span class="s5">dependency</span>&gt;
+	            &lt;<span class="s5">groupId</span>&gt;io.grpc&lt;/<span class="s5">groupId</span>&gt;
+	            &lt;<span class="s5">artifactId</span>&gt;grpc-netty-shaded&lt;/<span class="s5">artifactId</span>&gt;
+	            &lt;<span class="s5">version</span>&gt;1.30.2&lt;/<span class="s5">version</span>&gt;
+	        &lt;/<span class="s5">dependency</span>&gt;
+	        &lt;<span class="s5">dependency</span>&gt;
+	            &lt;<span class="s5">groupId</span>&gt;io.grpc&lt;/<span class="s5">groupId</span>&gt;
+	            &lt;<span class="s5">artifactId</span>&gt;grpc-protobuf&lt;/<span class="s5">artifactId</span>&gt;
+	            &lt;<span class="s5">version</span>&gt;1.30.2&lt;/<span class="s5">version</span>&gt;
+	        &lt;/<span class="s5">dependency</span>&gt;
+	        &lt;<span class="s5">dependency</span>&gt;
+	            &lt;<span class="s5">groupId</span>&gt;io.grpc&lt;/<span class="s5">groupId</span>&gt;
+	            &lt;<span class="s5">artifactId</span>&gt;grpc-stub&lt;/<span class="s5">artifactId</span>&gt;
+	            &lt;<span class="s5">version</span>&gt;1.30.2&lt;/<span class="s5">version</span>&gt;
+	        &lt;/<span class="s5">dependency</span>&gt;
+	&lt;/<span class="s5">dependencies</span>&gt;
+</pre>
+<h3>pom添加gRPC编译的Java插件</h3>
+<pre>
+ &lt;<span class="s5">build</span>&gt;
+        &lt;<span class="s5">extensions</span>&gt;
+            &lt;<span class="s5">extension</span>&gt;
+                &lt;<span class="s5">groupId</span>&gt;kr.motd.maven&lt;/<span class="s5">groupId</span>&gt;
+                &lt;<span class="s5">artifactId</span>&gt;os-maven-plugin&lt;/<span class="s5">artifactId</span>&gt;
+                &lt;<span class="s5">version</span>&gt;1.6.2&lt;/<span class="s5">version</span>&gt;
+            &lt;/<span class="s5">extension</span>&gt;
+        &lt;/<span class="s5">extensions</span>&gt;
+        &lt;<span class="s5">plugins</span>&gt;
+            &lt;<span class="s5">plugin</span>&gt;
+                &lt;<span class="s5">groupId</span>&gt;org.xolstice.maven.plugins&lt;/<span class="s5">groupId</span>&gt;
+                &lt;<span class="s5">artifactId</span>&gt;protobuf-maven-plugin&lt;/<span class="s5">artifactId</span>&gt;
+                &lt;<span class="s5">version</span>&gt;0.6.1&lt;/<span class="s5">version</span>&gt;
+                <span class="s7">&lt;!--添加.proto文件的编译工具--&gt;</span>
+                &lt;<span class="s5">configuration</span>&gt;
+                    <span class="s7">&lt;!--protoc工具通过.proto文件生成对应的java对应的类--&gt;</span>
+                    &lt;<span class="s5">protocArtifact</span>&gt;com.google.protobuf:protoc:3.12.0:exe:${os.detected.classifier}&lt;/<span class="s5">protocArtifact</span>&gt;
+                    <span class="s7">&lt;!--这是生成grpc工具类存放的文件夹的名字--&gt;</span>
+                    &lt;<span class="s5">pluginId</span>&gt;grpc-java&lt;/<span class="s5">pluginId</span>&gt;
+                    <span class="s7">&lt;!--protoc-gen-grpc-java工具通过.proto文件生成grpc工具类--&gt;</span>
+                    &lt;<span class="s5">pluginArtifact</span>&gt;io.grpc:protoc-gen-grpc-java:1.30.2:exe:${os.detected.classifier}&lt;/<span class="s5">pluginArtifact</span>&gt;
+                &lt;/<span class="s5">configuration</span>&gt;
+                &lt;<span class="s5">executions</span>&gt;
+                    <span class="s7">&lt;!--这是上面两个编译工具用到的命令--&gt;</span>
+                    &lt;<span class="s5">execution</span>&gt;
+                        &lt;<span class="s5">goals</span>&gt;
+                            &lt;<span class="s5">goal</span>&gt;compile&lt;/<span class="s5">goal</span>&gt;
+                            &lt;<span class="s5">goal</span>&gt;compile-custom&lt;/<span class="s5">goal</span>&gt;
+                        &lt;/<span class="s5">goals</span>&gt;
+                    &lt;/<span class="s5">execution</span>&gt;
+                &lt;/<span class="s5">executions</span>&gt;
+            &lt;/<span class="s5">plugin</span>&gt;
+        &lt;/<span class="s5">plugins</span>&gt;
+    &lt;/<span class="s5">build</span>&gt;
+</pre>
+<h3>编译生成java类</h3>
+maven->项目名->lifecycle->install
+<img src="image/protocol-install.png" />
+
+</br>可以在target中看到生成了一个服务类，该类的包名为.proto中定义的java_package
+类名
+<h2>三、创建服务器</h2>
+<h2>四、创建客户端</h2>
+</body>
+</html>
