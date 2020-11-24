@@ -1,0 +1,374 @@
+<html>
+<head>
+	<title>ConnectionPool.java</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<style>
+		.s0 { color: #d73a49;}
+		.s1 { color: #6f42c1;}
+		.s2 { color: #808080;}
+		.s3 { color: #032f62;}
+		.s4 { color: #24292e;}
+		.s5 { color: #22863a;}
+		.s6 { color: #6a737d;}
+	</style>
+</head>
+<body bgcolor="#ffffff">
+<div class="htmledit_views" id="content_views">
+	<h1>一、編碼發展歷史</h1>
+	<p style="color:rgb(85,85,85);font-family:'microsoft yahei';font-size:15px;line-height:35px;">
+		一直对字符的各种编码方式懵懵懂懂，什么ANSI UNICODE UTF-8 GB2312 GBK DBCS UCS……是不是看的很晕，假如您细细的阅读本文你一定可以清晰的理解他们。Let's go!</p>
+	<p style="color:rgb(85,85,85);font-family:'microsoft yahei';font-size:15px;line-height:35px;">
+		　　很久很久以前，有一群人，他们决定用8个可以开合的晶体管来组合成不同的状态，以表示世界上的万物。他们看到8个开关状态是好的，于是他们把这称为"字节"。</p>
+	<p style="color:rgb(85,85,85);font-family:'microsoft yahei';font-size:15px;line-height:35px;">
+		　　再后来，他们又做了一些可以处理这些字节的机器，机器开动了，可以用字节来组合出很多状态，状态开始变来变去。他们看到这样是好的，于是它们就这机器称为"计算机"。</p>
+	<p style="color:rgb(85,85,85);font-family:'microsoft yahei';font-size:15px;line-height:35px;">
+		　　开始计算机只在美国用。八位的字节一共可以组合出256(2的8次方)种不同的状态。</p>
+	<p style="color:rgb(85,85,85);font-family:'microsoft yahei';font-size:15px;line-height:35px;">
+		　　他们把其中的编号从0开始的32种状态分别规定了特殊的用途，一但终端、打印机遇上约定好的这些字节被传过来时，就要做一些约定的动作。遇上00x10, 终端就换行，遇上0x07, 终端就向人们嘟嘟叫，例好遇上0x1b, 打印机就打印反白的字，或者终端就用彩色显示字母。他们看到这样很好，于是就把这些0x20以下的字节状态称为"控制码"。</p>
+	<p style="color:rgb(85,85,85);font-family:'microsoft yahei';font-size:15px;line-height:35px;">
+		　　他们又把所有的空格、标点符号、数字、大小写字母分别用连续的字节状态表示，一直编到了第127号，这样计算机就可以用不同字节来存储英语的文字了。大家看到这样，都感觉很好，于是大家都把这个方案叫做 ANSI 的"Ascii"编码（American Standard Code for Information Interchange，美国信息互换标准代码）。当时世界上所有的计算机都用同样的ASCII方案来保存英文文字。</p>
+	<p style="color:rgb(85,85,85);font-family:'microsoft yahei';font-size:15px;line-height:35px;">
+		　　后来，就像建造巴比伦塔一样，世界各地的都开始使用计算机，但是很多国家用的不是英文，他们的字母里有许多是ASCII里没有的，为了可以在计算机保存他们的文字，他们决定采用127号之后的空位来表示这些新的字母、符号，还加入了很多画表格时需要用下到的横线、竖线、交叉等形状，一直把序号编到了最后一个状态255。从128到255这一页的字符集被称"扩展字符集"。从此之后，贪婪的人类再没有新的状态可以用了，美帝国主义可能没有想到还有第三世界国家的人们也希望可以用到计算机吧！</p>
+	<p style="color:rgb(85,85,85);font-family:'microsoft yahei';font-size:15px;line-height:35px;">
+		　　等中国人们得到计算机时，已经没有可以利用的字节状态来表示汉字，况且有6000多个常用汉字需要保存呢。但是这难不倒智慧的中国人民，我们不客气地把那些127号之后的奇异符号们直接取消掉, 规定：一个小于127的字符的意义与原来相同，但两个大于127的字符连在一起时，就表示一个汉字，前面的一个字节（他称之为高字节）从0xA1用到0xF7，后面一个字节（低字节）从0xA1到0xFE，这样我们就可以组合出大约7000多个简体汉字了。在这些编码里，我们还把数学符号、罗马希腊的字母、日文的假名们都编进去了，连在 ASCII
+		里本来就有的数字、标点、字母都统统重新编了两个字节长的编码，这就是常说的"全角"字符，而原来在127号以下的那些就叫"半角"字符了。</p>
+	<p style="color:rgb(85,85,85);font-family:'microsoft yahei';font-size:15px;line-height:35px;">
+		　　中国人民看到这样很不错，于是就把这种汉字方案叫做 "GB2312"。GB2312 是对 ASCII 的中文扩展。</p>
+	<p style="color:rgb(85,85,85);font-family:'microsoft yahei';font-size:15px;line-height:35px;">
+		　　但是中国的汉字太多了，我们很快就就发现有许多人的人名没有办法在这里打出来，特别是某些很会麻烦别人的国家领导人。于是我们不得不继续把 GB2312 没有用到的码位找出来老实不客气地用上。</p>
+	<p style="color:rgb(85,85,85);font-family:'microsoft yahei';font-size:15px;line-height:35px;">
+		　　后来还是不够用，于是干脆不再要求低字节一定是127号之后的内码，只要第一个字节是大于127就固定表示这是一个汉字的开始，不管后面跟的是不是扩展字符集里的内容。结果扩展之后的编码方案被称为 GBK 标准，GBK 包括了 GB2312 的所有内容，同时又增加了近20000个新的汉字（包括繁体字）和符号。</p>
+	<p style="color:rgb(85,85,85);font-family:'microsoft yahei';font-size:15px;line-height:35px;">
+		　　后来少数民族也要用电脑了，于是我们再扩展，又加了几千个新的少数民族的字，GBK 扩成了 GB18030。从此之后，中华民族的文化就可以在计算机时代中传承了。</p>
+	<p style="color:rgb(85,85,85);font-family:'microsoft yahei';font-size:15px;line-height:35px;">
+		　　中国的程序员们看到这一系列汉字编码的标准是好的，于是通称他们叫做 "DBCS"（Double Byte Charecter Set 双字节字符集）。在DBCS系列标准里，最大的特点是两字节长的汉字字符和一字节长的英文字符并存于同一套编码方案里，因此他们写的程序为了支持中文处理，必须要注意字串里的每一个字节的值，如果这个值是大于127的，那么就认为一个双字节字符集里的字符出现了。那时候凡是受过加持，会编程的计算机僧侣们都要每天念下面这个咒语数百遍：</p>
+	<p style="color:rgb(85,85,85);font-family:'microsoft yahei';font-size:15px;line-height:35px;">
+		　　"一个汉字算两个英文字符！一个汉字算两个英文字符……"</p>
+	<p style="color:rgb(85,85,85);font-family:'microsoft yahei';font-size:15px;line-height:35px;">
+		　　因为当时各个国家都像中国这样搞出一套自己的编码标准，结果互相之间谁也不懂谁的编码，谁也不支持别人的编码，连大陆和台湾这样只相隔了150海里，使用着同一种语言的兄弟地区，也分别采用了不同的 DBCS 编码方案——当时的中国人想让电脑显示汉字，就必须装上一个"汉字系统"，专门用来处理汉字的显示、输入的问题，但是那个台湾的愚昧封建人士写的算命程序就必须加装另一套支持 BIG5 编码的什么"倚天汉字系统"才可以用，装错了字符系统，显示就会乱了套！这怎么办？而且世界民族之林中还有那些一时用不上电脑的穷苦人民，他们的文字又怎么办？</p>
+	<p style="color:rgb(85,85,85);font-family:'microsoft yahei';font-size:15px;line-height:35px;">
+		　　真是计算机的巴比伦塔命题啊！</p>
+	<p style="color:rgb(85,85,85);font-family:'microsoft yahei';font-size:15px;line-height:35px;">
+		　　正在这时，大天使加百列及时出现了——一个叫 ISO （国际标谁化组织）的国际组织决定着手解决这个问题。他们采用的方法很简单：废了所有的地区性编码方案，重新搞一个包括了地球上所有文化、所有字母和符号的编码！他们打算叫它"Universal Multiple-Octet Coded Character Set"，简称 UCS, 俗称 "UNICODE"。</p>
+	<p style="color:rgb(85,85,85);font-family:'microsoft yahei';font-size:15px;line-height:35px;">
+		　　UNICODE 开始制订时，计算机的存储器容量极大地发展了，空间再也不成为问题了。于是 ISO 就直接规定必须用两个字节，也就是16位来统一表示所有的字符，对于ascii里的那些“半角”字符，UNICODE 包持其原编码不变，只是将其长度由原来的8位扩展为16位，而其他文化和语言的字符则全部重新统一编码。由于"半角"英文符号只需要用到低8位，所以其高8位永远是0，因此这种大气的方案在保存英文文本时会多浪费一倍的空间。</p>
+	<h1>二、编码简介</h1>
+
+	<p style="text-indent:50px;">在编程中经常会遇到的编码问题,例如乱码问题或者文本显示成??的形式.我们知道计算机是二进制的方式存储数据,要想将人类世界的文字和符号存储到计算机,就需要将数据”翻译”成计算机语言进行存储,显示的时候又”翻译”成人类可识的数据,那么中间是翻译的过程需要的”字典”就是编码表,也就是将计算机二进制和文字、符号映射.计算机中存储信息的最小单元是字节(byte),一个字节有<strong><span style="color:#f33b45;">8</span></strong>个二进制位(bit),每个二进制只有两种状态,<strong><span style="color:#f33b45;">0</span></strong>或者<span style="color:#f33b45;"><strong>1</strong></span>表示.那么8个二进制位就是2的8次幂,结果是<strong><span style="color:#f33b45;">256</span></strong>种状态,二进制范围是从<em><span style="color:#f33b45;"><strong>00000000</strong></span></em>到<em><span style="color:#f33b45;"><strong>11111111</strong></span></em>.</p>
+	<h1>三、ASCII码</h1>
+
+
+	<p style="text-indent:50px;">起初美国有关标准组织制定了一套编码叫ASCII码,用了一个字节低7位,最高位二进制位0,编码范围是<span style="color:#f33b45;"><strong><em>00000000</em></strong>-<em><strong>0xxxxxxx</strong></em></span>，总共有<strong><span style="color:#f33b45;">128</span></strong>状态,表示了大小写字母,数字,标点符号以及特殊的控制字符.</p>
+
+	<p style="margin-left:0cm;"><span style="color:#f33b45;">0~31</span>以及<span style="color:#f33b45;">127</span>(共33个)是控制字符,例如:LF(换行),CR(回车).</p>
+
+	<p style="margin-left:0cm;"><span style="color:#f33b45;">32~126</span>(共95个)是字符,48~57为0到9共十个阿拉伯数字,<span style="color:#f33b45;">65~122</span>是大小的英文字母,其余的是字符,运算符等.</p>
+
+	<p style="margin-left:0cm;">所以ACSII码编码的格式是<span style="color:#f33b45;"><strong>0xxxxxxx</strong></span>.一个字节中除了ASCII编码外,剩余的位置还有128个状态,对于一些西欧国家,文字比较少,这些编码位置已经够用,但是对于汉字个数远多余128个,所以出现了其他编码方式.</p>
+	<h1>四、ISO8859-1</h1>
+
+
+	<p style="text-indent:50px;">别名是Latin1,Iso-8859-1编码是属于单字节的编码,即编码的范围是0到255.总共能表示<strong>256</strong>个字符,向下兼容了ACSII,也就是在ASCII编码的基础上扩展了127-255之间位置。编码范围是0x00-0xFF,涵盖了部分西欧的语言字符.由于和计算机的存储单元一样,应用比较广泛,例如<span style="color:#86ca5e;">在网络传输协议中和Mysql数据库默认的编码</span>。</p>
+	<h1>五、GB2312</h1>
+
+
+	<p style="text-indent:50px;">GB2312是中国国家标准总局在1980年发布,用于汉字处理,汉字通信等系统之间信息,主要编码的字符是简化汉字,以及常用字母和符号,中国大陆地区和新加坡等地广泛使用.总共收录字符有<strong><span style="color:#f33b45;">7445</span></strong>个,其中简化的汉字是<strong><span style="color:#f33b45;">6763</span></strong>,以及包含拉丁字母,希腊字母,日文平假名及片假名字母,俄语西里尔字母在内的全角字符有<strong><span style="color:#f33b45;">682</span></strong>个.</p>
+
+	<p style="margin-left:0cm;">GB2312对收录的字符进行了分区处理,共有<strong><span style="color:#f33b45;">94</span></strong>个区,每个区有<strong><span style="color:#f33b45;">94</span></strong>个字符,这种表示字符的方式叫区位码.例如下面01区和02区.&nbsp;</p>
+
+	<p style="text-align:center;"><img alt="" class="has" height="341" src="https://img-blog.csdn.net/20180825171539259?watermark/2/text/aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2xpbGkxMzg5Nzc0MTU1NA==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70" width="384"></p>
+
+	<p style="margin-left:0cm;">每个区具体的分布的字符如下:</p>
+
+	<div class="table-box"><table align="center" border="1" cellspacing="0" style="width:435px;"><tbody><tr><td style="vertical-align:top;width:109px;">
+		<p style="margin-left:0cm;">区号</p>
+	</td>
+		<td style="vertical-align:top;width:109px;">
+			<p style="margin-left:0cm;">编码总数</p>
+		</td>
+		<td style="vertical-align:top;width:212px;">
+			<p style="margin-left:0cm;">表示的符号</p>
+		</td>
+	</tr><tr><td style="vertical-align:top;width:109px;">
+		<p style="margin-left:0cm;"><span style="color:#000000;">01</span></p>
+	</td>
+		<td style="vertical-align:top;width:109px;">
+			<p style="margin-left:0cm;"><span style="color:#000000;">94</span></p>
+		</td>
+		<td style="vertical-align:top;width:212px;">
+			<p style="margin-left:0cm;"><span style="color:#000000;">一般符号</span></p>
+		</td>
+	</tr><tr><td style="vertical-align:top;width:109px;">
+		<p style="margin-left:0cm;"><span style="color:#000000;">02</span></p>
+	</td>
+		<td style="vertical-align:top;width:109px;">
+			<p style="margin-left:0cm;"><span style="color:#000000;">72</span></p>
+		</td>
+		<td style="vertical-align:top;width:212px;">
+			<p style="margin-left:0cm;"><span style="color:#000000;">顺序号码</span></p>
+		</td>
+	</tr><tr><td style="vertical-align:top;width:109px;">
+		<p style="margin-left:0cm;"><span style="color:#000000;">03</span></p>
+	</td>
+		<td style="vertical-align:top;width:109px;">
+			<p style="margin-left:0cm;"><span style="color:#000000;">94</span></p>
+		</td>
+		<td style="vertical-align:top;width:212px;">
+			<p style="margin-left:0cm;"><span style="color:#000000;">拉丁字母</span></p>
+		</td>
+	</tr><tr><td style="vertical-align:top;width:109px;">
+		<p style="margin-left:0cm;"><span style="color:#000000;">04</span></p>
+	</td>
+		<td style="vertical-align:top;width:109px;">
+			<p style="margin-left:0cm;"><span style="color:#000000;">83</span></p>
+		</td>
+		<td style="vertical-align:top;width:212px;">
+			<p style="margin-left:0cm;"><span style="color:#000000;">日文假名</span></p>
+		</td>
+	</tr><tr><td style="vertical-align:top;width:109px;">
+		<p style="margin-left:0cm;"><span style="color:#000000;">05</span></p>
+	</td>
+		<td style="vertical-align:top;width:109px;">
+			<p style="margin-left:0cm;"><span style="color:#000000;">86</span></p>
+		</td>
+		<td style="vertical-align:top;width:212px;">
+			<p style="margin-left:0cm;"><span style="color:#000000;">Katakana</span></p>
+		</td>
+	</tr><tr><td style="vertical-align:top;width:109px;">
+		<p style="margin-left:0cm;"><span style="color:#000000;">06</span></p>
+	</td>
+		<td style="vertical-align:top;width:109px;">
+			<p style="margin-left:0cm;"><span style="color:#000000;">48</span></p>
+		</td>
+		<td style="vertical-align:top;width:212px;">
+			<p style="margin-left:0cm;"><span style="color:#000000;">希腊字母</span></p>
+		</td>
+	</tr><tr><td style="vertical-align:top;width:109px;">
+		<p style="margin-left:0cm;"><span style="color:#000000;">07</span></p>
+	</td>
+		<td style="vertical-align:top;width:109px;">
+			<p style="margin-left:0cm;"><span style="color:#000000;">66</span></p>
+		</td>
+		<td style="vertical-align:top;width:212px;">
+			<p style="margin-left:0cm;"><span style="color:#000000;">俄文字母</span></p>
+		</td>
+	</tr><tr><td style="vertical-align:top;width:109px;">
+		<p style="margin-left:0cm;"><span style="color:#000000;">08</span></p>
+	</td>
+		<td style="vertical-align:top;width:109px;">
+			<p style="margin-left:0cm;"><span style="color:#000000;">63</span></p>
+		</td>
+		<td style="vertical-align:top;width:212px;">
+			<p style="margin-left:0cm;"><span style="color:#000000;">汉语拼音符号</span></p>
+		</td>
+	</tr><tr><td style="vertical-align:top;width:109px;">
+		<p style="margin-left:0cm;"><span style="color:#000000;">09</span></p>
+	</td>
+		<td style="vertical-align:top;width:109px;">
+			<p style="margin-left:0cm;"><span style="color:#000000;">76</span></p>
+		</td>
+		<td style="vertical-align:top;width:212px;">
+			<p style="margin-left:0cm;"><span style="color:#000000;">图形符号</span></p>
+		</td>
+	</tr><tr><td style="vertical-align:top;width:109px;">
+		<p style="margin-left:0cm;"><span style="color:#000000;">10-15</span></p>
+	</td>
+		<td style="vertical-align:top;width:109px;">
+			<p style="margin-left:0cm;"><span style="color:#000000;">0</span></p>
+		</td>
+		<td style="vertical-align:top;width:212px;">
+			<p style="margin-left:0cm;"><span style="color:#000000;">没有编码</span></p>
+		</td>
+	</tr><tr><td style="vertical-align:top;width:109px;">
+		<p style="margin-left:0cm;"><strong><span style="color:#86ca5e;">16-55</span></strong></p>
+	</td>
+		<td style="vertical-align:top;width:109px;">
+			<p style="margin-left:0cm;">3755</p>
+		</td>
+		<td style="vertical-align:top;width:212px;">
+			<p style="margin-left:0cm;">一级汉字，以拼音为序</p>
+		</td>
+	</tr><tr><td style="vertical-align:top;width:109px;">
+		<p style="margin-left:0cm;"><strong><span style="color:#86ca5e;">56-87</span></strong></p>
+	</td>
+		<td style="vertical-align:top;width:109px;">
+			<p style="margin-left:0cm;">3008</p>
+		</td>
+		<td style="vertical-align:top;width:212px;">
+			<p style="margin-left:0cm;">二级汉字，以笔划为序</p>
+		</td>
+	</tr><tr><td style="vertical-align:top;width:109px;">
+		<p style="margin-left:0cm;"><span style="color:#000000;">88-94</span></p>
+	</td>
+		<td style="vertical-align:top;width:109px;">
+			<p style="margin-left:0cm;">0</p>
+		</td>
+		<td style="vertical-align:top;width:212px;">
+			<p style="margin-left:0cm;"><span style="color:#000000;">没有编码</span></p>
+		</td>
+	</tr></tbody></table></div><p style="margin-left:0cm;"><span style="color:#000000;">&nbsp; &nbsp; &nbsp;GB2312</span><span style="color:#000000;">编码以两个字节来表示汉字和符号</span><span style="color:#000000;">,</span><span style="color:#000000;">第一个字节是</span><strong><span style="color:#f33b45;">区码</span></strong><span style="color:#000000;">,</span><span style="color:#000000;">第二个字节是</span><strong><span style="color:#f33b45;">位码</span></strong><span style="color:#000000;">.</span><span style="color:#000000;">由于</span><span style="color:#000000;">GB2312</span><span style="color:#000000;">编码覆盖了</span><span style="color:#000000;">ACSII</span><span style="color:#000000;">编码中字母和符号的编码</span><span style="color:#000000;">,</span><span style="color:#000000;">对于</span><span style="color:#000000;">ASCII</span><span style="color:#000000;">中的</span><span style="color:#000000;">32</span><span style="color:#000000;">个控制字符继续沿用</span><span style="color:#000000;">,</span><span style="color:#000000;">所以需要将编码移动十六进制</span><span style="color:#000000;">20H(32)</span><span style="color:#000000;">得到国标码</span><span style="color:#000000;">,</span><span style="color:#000000;">在计算机的存储中</span><span style="color:#000000;">,</span><span style="color:#000000;">使用</span><span style="color:#000000;">GB2312</span><span style="color:#000000;">编码和</span><span style="color:#000000;">ASCII</span><span style="color:#000000;">编码会出现冲突的情况</span><span style="color:#000000;">,</span><span style="color:#000000;">比如说</span><span style="color:#000000;">”</span><span style="color:#000000;">大</span><span style="color:#000000;">”</span><span style="color:#000000;">字</span><span style="color:#000000;">,</span><span style="color:#000000;">国标码是</span><span style="color:#000000;">20H</span><span style="color:#000000;">和</span><span style="color:#000000;">83H,但是</span><span style="color:#000000;">在</span><span style="color:#000000;">ASCII</span><span style="color:#000000;">编码中表示成字符是控制符</span><span style="color:#000000;">”DC4”</span><span style="color:#000000;">（</span><span style="color:#000000;">20H</span><span style="color:#000000;">）和大写字母</span><span style="color:#000000;">”S”(80H).</span><span style="color:#000000;">如果遇到编码是</span><span style="color:#000000;">2083H,</span><span style="color:#000000;">解码成是汉字还是字符。</span><span style="color:#000000;">容易引起歧义</span><span style="color:#000000;">, </span><span style="color:#000000;">解决方式就是在计算机里面存储变形国标码</span><span style="color:#000000;">,</span><span style="color:#000000;">将区码和位码分别加上</span><span style="color:#000000;">128,</span><span style="color:#000000;">即每个字节的最高位将</span><span style="color:#000000;">0</span><span style="color:#000000;">改为</span><span style="color:#000000;">1.</span></p>
+
+	<p style="margin-left:0cm;"><span style="color:#000000;">那么对于区位码</span><span style="color:#000000;">.</span><span style="color:#000000;">国标码和机内码转换的方式</span><span style="color:#000000;">:</span></p>
+
+	<ol><li><span style="color:#000000;">区位码</span><span style="color:#000000;">(</span><span style="color:#000000;">十六进制</span><span style="color:#000000;">)+</span><strong><span style="color:#f33b45;">20 20H</span></strong><span style="color:#000000;">=</span><span style="color:#000000;">国标码</span></li>
+		<li><span style="color:#000000;">国标码</span><span style="color:#000000;">+</span><strong><span style="color:#f33b45;">80 80H</span></strong><span style="color:#000000;">=</span><span style="color:#000000;">机内码</span></li>
+	</ol><p style="margin-left:0cm;"><span style="color:#000000;">区位码转换成机内码</span><span style="color:#000000;">,</span><span style="color:#000000;">也可以直接区位码</span><span style="color:#000000;">(</span><span style="color:#000000;">十六进制</span><span style="color:#000000;">)+<strong>A0A0H</strong>=</span><span style="color:#000000;">机内码</span><span style="color:#000000;">,</span></p>
+
+	<p style="margin-left:0cm;"><span style="color:#000000;">2020</span><span style="color:#000000;">和</span><span style="color:#000000;">8080</span><span style="color:#000000;">等同</span><span style="color:#000000;">A0A0</span><span style="color:#000000;">的原因是</span><span style="color:#000000;">20(</span><span style="color:#000000;">十六进制</span><span style="color:#000000;">)</span><span style="color:#000000;">的十进制是</span><span style="color:#000000;">32,80(</span><span style="color:#000000;">十六进制</span><span style="color:#000000;">)</span><span style="color:#000000;">的十进制是</span><span style="color:#000000;">128,32+128=160(</span><span style="color:#000000;">十进制</span><span style="color:#000000;">)-&gt;A0(</span><span style="color:#000000;">十六进制</span><span style="color:#000000;">).</span></p>
+
+	<p style="margin-left:0cm;"><span style="color:#000000;">也就是说GB2312编码是以2个字节进行存储的，存到到计算机里面的编码就是将GB2312区位码+A0 A0H=</span><span style="color:#f33b45;"><strong>存储码（即机内码</strong></span><span style="color:#000000;">），此外计算机存储规则是此编码的补码，</span><span style="color:#86ca5e;"><strong>注意的是位码在前，区码在后面</strong></span><span style="color:#000000;">。</span></p>
+	<p>GB2312中1区到15区共682个字符或图形符号都是全角方式下的字符。即：
+		若byte[] bb＝"ｈｅｌｌｏ".getBytes("gb2312");(注意是全角方式下)，bb字节数组的长度就会是10了。
+		因此：gb2312中的所有字符都是用二个字节表示（是因为：它的字符都是全角方式）。gb2312中不会对半角方式下的字符编码的（这是ASCII码的事情），因此：在getBytes("gb2312");转换时，半角的字符都是一个字节，全角的同样字符才是两个字节。
+</p>
+	<h1>六、GBK/GBK18030</h1>
+
+
+	<p style="text-indent:50px;"><span style="color:#000000;">GBK</span><span style="color:#000000;">中的所有字符都是用二个字节表示，字符集是</span><span style="color:#000000;">GB2312</span><span style="color:#000000;">的扩展</span><span style="color:#000000;">,</span><span style="color:#000000;">兼容了</span><span style="color:#000000;">GB2312</span><span style="color:#000000;">字符编码</span><span style="color:#000000;">,</span><span style="color:#000000;">共包含了</span><span style="color:#f33b45;"><strong>21886</strong></span><span style="color:#000000;">个字符</span><span style="color:#000000;">,GBK</span><span style="color:#000000;">也支持希腊字母</span><span style="color:#000000;">,</span><span style="color:#000000;">日文假名字母</span><span style="color:#000000;">,</span><span style="color:#000000;">俄语字母等</span><span style="color:#000000;">.</span></p>
+
+	<p style="text-indent:50px;"><span style="color:#000000;">GB18030</span><span style="color:#000000;">编码向下兼容了</span><span style="color:#000000;">GBK</span><span style="color:#000000;">和</span><span style="color:#000000;">GB2312.GB18030</span><span style="color:#000000;">收录了所有的</span><span style="color:#000000;">Unicode3.1</span><span style="color:#000000;">中的字符</span><span style="color:#000000;">,</span><span style="color:#000000;">包含中国少数民族的字符</span><span style="color:#000000;">.</span><span style="color:#000000;">编码方式变长编码</span><span style="color:#000000;">,</span><span style="color:#000000;">有单字节</span><span style="color:#000000;">.</span><span style="color:#000000;">双字节和四字节三种方式.GB18030</span><span style="color:#000000;">的单字节编码范围是</span><span style="color:#000000;">0x00-0x7F</span><span style="color:#000000;">，完全等同于</span><span style="color:#000000;">ASCII码</span><span style="color:#000000;">；双字节编码的范围和</span><span style="color:#000000;">GBK</span><span style="color:#000000;">相同，高字节是</span><span style="color:#000000;">0x81-0xFE</span><span style="color:#000000;">，低字节的编</span> <span style="color:#000000;">码范围是</span><span style="color:#000000;">0x40-0x7E</span><span style="color:#000000;">和</span><span style="color:#000000;">0x80-FE</span><span style="color:#000000;">；四字节编码中第一、三字节的编码范围是</span><span style="color:#000000;">0x81-0xFE</span><span style="color:#000000;">，二、四字节是</span><span style="color:#000000;">0x30-0x39</span></p>
+	<h1>七、Unicode</h1>
+
+
+	<p style="margin-left:0cm;"><span style="color:#000000;">&nbsp; &nbsp; &nbsp;由于多种编码方式的存在</span><span style="color:#000000;">,</span><span style="color:#000000;">同一个二进制编码可以解释成不同的符号</span><span style="color:#000000;">,解码如果和解码方式不要一致，可能出现乱码的情况。</span><span style="color:#000000;">解决这种问题方式就是</span><span style="color:#000000;">Unicode</span><span style="color:#000000;">编码</span><span style="color:#000000;">,Unicode</span><span style="color:#000000;">是很大的字符集</span><span style="color:#000000;">,</span><span style="color:#000000;">可以理解成一部全世界上所有的文字和字符与数字对应的</span><span style="color:#000000;">”</span><span style="color:#000000;">字典</span><span style="color:#000000;">”, </span><span style="color:#000000;">容纳的字符达到了</span><span style="color:#000000;">100</span><span style="color:#000000;">多万，每一个字符对应一个数字，</span><span style="color:#000000;">但对于具体怎么存储到计算机中没有任何规定</span><span style="color:#000000;">.</span><span style="color:#000000;">如果将</span><span style="color:#000000;">Unicode</span><span style="color:#000000;">编码存直接储到计算里面会有什么结果呢</span><span style="color:#000000;">?</span><span style="color:#000000;">例如汉字</span><span style="color:#000000;">”</span><span style="color:#f33b45;"><strong>中</strong></span><span style="color:#000000;">”,Unicode</span><span style="color:#000000;">编码是</span><span style="color:#f33b45;"><strong>0x4e2d</strong></span><span style="color:#000000;">,</span><span style="color:#000000;">二进制是</span><span style="color:#f33b45;"><strong><em>100111000101101</em></strong></span><span style="color:#000000;">,</span><span style="color:#000000;">二进制数有</span><span style="color:#000000;">15位,</span><span style="color:#000000;">也就是最少要用两个字节表示.</span><span style="color:#000000;">可以想象</span><span style="color:#000000;">Unicode</span><span style="color:#000000;">字符集越往后面的字符编码</span><span style="color:#000000;">,</span><span style="color:#000000;">需要三到四个字节</span><span style="color:#000000;">,</span><span style="color:#000000;">甚至更多的字节来存储</span><span style="color:#000000;">.如果按照固定字节来存储，</span><span style="color:#000000;">那么就需要按照数值最大的字符所需要的字节为标准</span><span style="color:#000000;">,</span><span style="color:#000000;">例如规定四个字节表示一个字符</span><span style="color:#000000;">,</span><span style="color:#000000;">那么像英文字母仅仅只需一个字节可以表示的字符</span><span style="color:#000000;">(</span><span style="color:#000000;">如字母</span><span style="color:#000000;">”b”,</span><span style="color:#000000;">二进制是</span><span style="color:#000000;">1100010,</span><span style="color:#000000;">只需要一个字节可表示</span><span style="color:#000000;">),</span><span style="color:#000000;">依旧需要四个字节表示</span><span style="color:#000000;">,</span><span style="color:#000000;">就会造成极大的空间浪费</span><span style="color:#000000;">.</span></p>
+
+	<p style="margin-left:0cm;"><span style="color:#000000;">为了解决</span><span style="color:#000000;">Unicode</span><span style="color:#000000;">字符集在电脑中存储问题</span><span style="color:#000000;">,</span><span style="color:#000000;">出现了</span><span style="color:#000000;">UTF-8</span><span style="color:#000000;">和</span><span style="color:#000000;">UTF-16.UTF-32</span><span style="color:#000000;">等编码方式</span><span style="color:#000000;">.</span></p>
+
+	<p style="margin-left:0cm;"><span style="color:#86ca5e;">需要注意的是UTF-8和UTF-16,UTF-32编码就是Unicode字符集存储到电脑中实现的方式, </span></p>
+	<h1>八、UTF-8</h1>
+	<p>变长的码表</p>
+	<p>1Byte:表示最常用的字符</p>
+	<p>2Byte：表示仅次于上边的常用的字符</p>
+	<p>3Byte: 中文汉字占用</p>
+	<p>4Byte:表示最不常用的字符</p>
+
+
+	<p style="text-indent:50px;"><span style="color:#000000;">&nbsp;UTF-8</span><span style="color:#000000;">编码是</span><span style="color:#000000;">Unicode</span><span style="color:#000000;">字符集一种编码方式</span><span style="color:#000000;">,</span><span style="color:#000000;">被广泛使用</span><span style="color:#000000;">.</span><span style="color:#000000;">特点是使用变长的字节数来存储数据</span><span style="color:#000000;">, </span><span style="color:#000000;">一般都是</span><span style="color:#000000;">1</span><span style="color:#000000;">到</span><span style="color:#000000;">4</span><span style="color:#000000;">个字节</span><span style="color:#000000;">,</span><span style="color:#000000;">变长的方式指的是将</span><span style="color:#000000;">Unicode</span><span style="color:#000000;">编码按照规则进行编码</span><span style="color:#000000;">,</span><span style="color:#000000;">比如一个字节可表示所有的</span><span style="color:#000000;">ASCII</span><span style="color:#000000;">字符</span><span style="color:#000000;">,</span><span style="color:#000000;">就不需要用两个字节,即兼容ASCII</span><span style="color:#000000;">.</span></p>
+
+	<p style="margin-left:0cm;"><span style="color:#000000;">按照</span><span style="color:#000000;">UTF-8</span><span style="color:#000000;">编码规则</span><span style="color:#000000;">,</span><span style="color:#000000;">就是将</span><span style="color:#000000;">Unicode</span><span style="color:#000000;">字符集按照满足</span><span style="color:#000000;">UTF-8</span><span style="color:#000000;">编码规则存储</span><span style="color:#000000;">,</span><span style="color:#000000;">解码按照</span><span style="color:#000000;">UTF-8</span><span style="color:#000000;">编码规则进行解码</span><span style="color:#000000;">.</span><span style="color:#000000;">如下</span><span style="color:#000000;">:</span></p>
+
+	<div class="table-box"><table border="1" cellspacing="0"><tbody><tr><td style="vertical-align:top;width:63.55pt;">
+		<p style="margin-left:0cm;"><span style="color:#000000;">UTF-8</span><span style="color:#000000;">占用字节数</span></p>
+	</td>
+		<td style="width:5cm;">
+			<p style="margin-left:0cm;"><span style="color:#4f4f4f;">Unicode </span><span style="color:#4f4f4f;">十六进制编码范围</span></p>
+		</td>
+		<td style="width:191.35pt;">
+			<p style="margin-left:0cm;"><span style="color:#4f4f4f;">UTF-8</span><span style="color:#4f4f4f;">二进制编码方式</span></p>
+		</td>
+	</tr><tr><td style="vertical-align:top;width:63.55pt;">
+		<p style="margin-left:0cm;"><span style="color:#000000;">1个字节</span></p>
+	</td>
+		<td style="width:5cm;">
+			<p style="margin-left:0cm;"><span style="color:#4f4f4f;">0000 0000 - 0000 007F</span></p>
+		</td>
+		<td style="width:191.35pt;">
+			<p style="margin-left:0cm;"><span style="color:#4f4f4f;">0xxxxxxx</span></p>
+		</td>
+	</tr><tr><td style="vertical-align:top;width:63.55pt;">
+		<p style="margin-left:0cm;"><span style="color:#000000;">2个字节</span></p>
+	</td>
+		<td style="width:5cm;">
+			<p style="margin-left:0cm;"><span style="color:#4f4f4f;">0000 0080 - 0000 07FF</span></p>
+		</td>
+		<td style="width:191.35pt;">
+			<p style="margin-left:0cm;"><span style="color:#4f4f4f;">110xxxxx 10xxxxxx</span></p>
+		</td>
+	</tr><tr><td style="vertical-align:top;width:63.55pt;">
+		<p style="margin-left:0cm;"><span style="color:#000000;">3个字节</span></p>
+	</td>
+		<td style="width:5cm;">
+			<p style="margin-left:0cm;"><span style="color:#4f4f4f;">0000 0800 - 0000 FFFF</span></p>
+		</td>
+		<td style="width:191.35pt;">
+			<p style="margin-left:0cm;"><span style="color:#4f4f4f;">1110xxxx 10xxxxxx 10xxxxxx</span></p>
+		</td>
+	</tr><tr><td style="vertical-align:top;width:63.55pt;">
+		<p style="margin-left:0cm;"><span style="color:#000000;">4个字节</span></p>
+	</td>
+		<td style="width:5cm;">
+			<p style="margin-left:0cm;"><span style="color:#4f4f4f;">0001 0000 - 0010 FFFF</span></p>
+		</td>
+		<td style="width:191.35pt;">
+			<p style="margin-left:0cm;"><span style="color:#4f4f4f;">11110xxx 10xxxxxx 10xxxxxx 10xxxxxx</span></p>
+		</td>
+	</tr></tbody></table></div><p style="margin-left:0cm;"><span style="color:#000000;">比如汉字</span><span style="color:#000000;">”</span><span style="color:#f33b45;"><strong>中</strong></span><span style="color:#000000;">”,Unicode</span><span style="color:#000000;">的编码是</span><span style="color:#f33b45;"><strong>0x4e2d</strong></span><span style="color:#000000;">(<em><strong>100111000101101</strong></em>),</span><span style="color:#000000;">通过上面表对照可以知道</span><span style="color:#000000;">,0x4e2d</span><span style="color:#000000;">在Unicode十六进制编码</span><span style="color:#000000;">0000 0800-0000 FFFF</span><span style="color:#000000;">范围之间</span><span style="color:#000000;">,</span><span style="color:#000000;">那么</span><span style="color:#000000;">UTF-8</span><span style="color:#000000;">的编码方式应该时</span><em><strong>1110</strong><span style="color:#f33b45;"><strong>xxxx </strong></span><strong>10</strong><span style="color:#f33b45;"><strong>xxxxxx </strong></span><strong>10</strong><span style="color:#f33b45;"><strong>xxxxxx</strong></span></em><span style="color:#000000;">,</span><span style="color:#000000;">填充方式就是将</span><span style="color:#000000;">”</span><span style="color:#000000;">中</span><span style="color:#000000;">”</span><span style="color:#000000;">的二进制从后向前填充</span><span style="color:#000000;">,</span><span style="color:#000000;">多余的</span><span style="color:#000000;">x</span><span style="color:#000000;">使用</span><span style="color:#000000;">0</span><span style="color:#000000;">填充</span><span style="color:#000000;">,</span><span style="color:#000000;">那么</span><span style="color:#000000;">”</span><span style="color:#f33b45;"><strong>中</strong></span><span style="color:#000000;">”</span><span style="color:#000000;">的</span><span style="color:#000000;">UTF-8</span><span style="color:#000000;">编码就是</span><em><strong>1110<span style="color:#f33b45;">0100 </span>10<span style="color:#f33b45;">111000 </span>10<span style="color:#f33b45;">101101</span></strong></em><span style="color:#000000;">,</span><span style="color:#000000;">转换成十六进制就是</span><strong><span style="color:#f33b45;">E4B8AD</span><span style="color:#000000;">。</span></strong></p>
+
+	<p style="margin-left:0cm;"><span style="color:#000000;">解码的过程也是根据</span><span style="color:#000000;">UTF-8</span><span style="color:#000000;">编码规则进行解码</span><span style="color:#000000;">,</span><span style="color:#000000;">首字节的第一位是</span><span style="color:#000000;">0,</span><span style="color:#000000;">那么就是一个字节对应一个字符</span><span style="color:#000000;">,</span><span style="color:#000000;">首字节前两位是</span><span style="color:#000000;">11,</span><span style="color:#000000;">那么就是两个字节表示一个字符</span><span style="color:#000000;">,</span><span style="color:#000000;">即有几个</span><span style="color:#000000;">1,</span><span style="color:#000000;">就用几个字节表示一个字符</span><span style="color:#000000;">,</span><span style="color:#000000;">比如</span><span style="color:#000000;">”</span><span style="color:#000000;">中</span><span style="color:#000000;">”UTF-8</span><span style="color:#000000;">编码就是</span><span style="color:#f33b45;"><strong><em>11100100 10111000 10101101</em></strong></span><span style="color:#000000;">,首字节有3个1，就表示</span><span style="color:#000000;">是三个字节表示一个字符</span><span style="color:#000000;">,</span><span style="color:#000000;">会根据</span><span style="color:#4f4f4f;">1110xxxx 10xxxxxx 10xxxxxx</span><span style="color:#4f4f4f;">拿到</span><span style="color:#4f4f4f;">x</span><span style="color:#4f4f4f;">的部分</span><span style="color:#4f4f4f;">,</span><span style="color:#4f4f4f;">即</span><span style="color:#f33b45;"><em><strong>100111000101101</strong></em></span><span style="color:#000000;">,</span><span style="color:#000000;">十六进制是</span><span style="color:#f33b45;"><strong>0x4e2d</strong></span><span style="color:#000000;">,</span><span style="color:#000000;">在</span><span style="color:#000000;">Unicode</span><span style="color:#000000;">字符集对应的就是汉字</span><span style="color:#000000;">”</span><span style="color:#000000;">中</span><span style="color:#000000;">”.</span></p>
+
+	<p style="margin-left:0cm;"><span style="color:#000000;">变长编码的优点是节省空间，利于传输，适合字符串网络传输的编码方式。</span></p>
+
+	<h1>九、UTF-16（没有辅助平面字符情况下等同UCS-2编码）</h1>
+
+	<p style="text-indent:50px;"><span style="color:#000000;">&nbsp;UTF-16</span><span style="color:#000000;">用定长</span><span style="color:#000000;">2</span><span style="color:#000000;">个字节或者是两个</span><span style="color:#000000;">2</span><span style="color:#000000;">个字节（代理对的形式表示）来编码</span><span style="color:#000000;">Unicode字符，UTF-16</span><span style="color:#000000;">编码比起</span><span style="color:#000000;">UTF-8</span><span style="color:#000000;">字节，大部分的字符都是以固定两个字节存储，但是无法兼容</span><span style="color:#000000;">ASCII</span><span style="color:#000000;">编码。先对</span><span style="color:#000000;">Unicode</span><span style="color:#000000;">字符集的平面需要了解。</span></p>
+
+	<p style="margin-left:0cm;"><span style="color:#000000;">Unicode</span><span style="color:#000000;">字符集将世界上所有的文字和符号进行了编码，目前</span><span style="color:#000000;">Unicode</span><span style="color:#000000;">字符分成了</span><span style="color:#f33b45;"><strong>17</strong></span><span style="color:#000000;">个组（区）来编排，总的编码范围是</span><strong><span style="color:#000000;">0x0000-0x10FFFF</span></strong><span style="color:#000000;">（十进制是</span><strong>1114112</strong><span style="color:#000000;">，即能容纳的字符这么多）。每一个组又称为一个平面，每个平面有</span><span style="color:#000000;">65536</span><span style="color:#000000;">个码位，即每个平面能容纳字符65536个字符。</span></p>
+
+	<p style="text-indent:50px;"><span style="color:#000000;">第一个组，又称为第零平面或者基本平面（</span><span style="color:#000000;">BMP</span><span style="color:#000000;">）</span><span style="color:#000000;">,</span><span style="color:#000000;">编码范围是</span><span style="color:#000000;"><strong>0x0000-0xFFFF</strong>,</span><span style="color:#000000;">所有常见的文字和字符都在这个平面，其他的组或者区叫辅助平面</span><span style="color:#000000;">(SMP)</span><span style="color:#000000;">，编码的范围是</span><strong><span style="color:#000000;">0x10000-0x10FFFF</span></strong><span style="color:#000000;">。</span><span style="color:#000000;">UTF-16</span><span style="color:#000000;">编码的规则是：基本平面内的字符用</span><span style="color:#000000;">2</span><span style="color:#000000;">个字节表示，而辅助平面的字符要用</span><span style="color:#000000;">4</span><span style="color:#000000;">个字节表示</span><span style="color:#000000;">。</span></p>
+
+	<p style="text-indent:50px;"><span style="color:#000000;">在基本平面里面有个称为代理区的特殊区域，编码范围是</span><strong><span style="color:#000000;">0xD800-0xDFFF</span></strong><span style="color:#000000;">，共有</span><strong><span style="color:#000000;">2048</span></strong><span style="color:#000000;">个码位，此区间不对应任何字符，主要是用于映射辅助平面的字符。</span></p>
+
+	<div class="table-box"><table border="1" cellspacing="0"><tbody><tr><td style="vertical-align:top;width:98.3pt;">
+		<p style="margin-left:0cm;"><span style="color:#000000;">UTF-16</span><span style="color:#000000;">占用字节数</span></p>
+	</td>
+		<td style="vertical-align:top;width:124.25pt;">
+			<p style="margin-left:0cm;"><span style="color:#000000;">Unicode</span><span style="color:#000000;">十六进制编码范围</span></p>
+		</td>
+		<td style="vertical-align:top;width:121.35pt;">
+			<p style="margin-left:0cm;"><span style="color:#000000;">UTF-16</span><span style="color:#000000;">二进制编码方式</span></p>
+		</td>
+		<td style="vertical-align:top;width:82.2pt;">
+			<p style="margin-left:0cm;"><span style="color:#000000;">Unicode</span><span style="color:#000000;">字符范围</span></p>
+		</td>
+	</tr><tr><td style="vertical-align:top;width:98.3pt;">
+		<p style="margin-left:0cm;"><span style="color:#000000;">2</span><span style="color:#000000;">个字节</span></p>
+	</td>
+		<td style="vertical-align:top;width:124.25pt;">
+			<p style="margin-left:0cm;"><span style="color:#000000;">0x0000-0xFFFF</span></p>
+		</td>
+		<td style="vertical-align:top;width:121.35pt;">
+			<p style="margin-left:0cm;"><span style="color:#000000;">xxxxxxxx xxxxxxxx</span></p>
+		</td>
+		<td style="vertical-align:top;width:82.2pt;">
+			<p style="margin-left:0cm;"><span style="color:#000000;">0-65535</span></p>
+		</td>
+	</tr><tr><td style="vertical-align:top;width:98.3pt;">
+		<p style="margin-left:0cm;"><span style="color:#000000;">4</span><span style="color:#000000;">个字节</span></p>
+	</td>
+		<td style="vertical-align:top;width:124.25pt;">
+			<p style="margin-left:0cm;"><span style="color:#000000;">0x10000-0x10FFFF</span></p>
+		</td>
+		<td style="vertical-align:top;width:121.35pt;">
+			<p style="margin-left:0cm;"><span style="color:#000000;">110110yyyyyyyyyy 110111xxxxxxxxxx</span></p>
+		</td>
+		<td style="vertical-align:top;width:82.2pt;">
+			<p style="margin-left:0cm;"><span style="color:#000000;">65536-1114111</span></p>
+		</td>
+	</tr></tbody></table></div><p style="margin-left:0cm;"><span style="color:#000000;">具体编码如下：</span></p>
+
+	<ul><li style="margin-left:0cm;"><span style="color:#000000;">1.Unicode</span><span style="color:#000000;">编码范围是</span><span style="color:#000000;"><strong>0x0000-0xFFFF</strong>,</span><span style="color:#000000;">即编码</span><span style="color:#000000;">&lt;0x10000,UTF-16</span><span style="color:#000000;">编码与</span><span style="color:#000000;">Uncode字符的</span><span style="color:#000000;">值保持一致。</span><span style="color:#000000;">比如汉字“</span><span style="color:#f33b45;"><strong>中</strong></span><span style="color:#000000;">”，</span><span style="color:#000000;">Unicode</span><span style="color:#000000;">十六进制是</span><strong><span style="color:#000000;">0x554A</span></strong><span style="color:#000000;">，是上表中</span><span style="color:#000000;">Unicode</span><span style="color:#000000;">十六进制编码<strong>0x0000-0xFFFF</strong>范围，</span><span style="color:#000000;">UTF-16</span><span style="color:#000000;">占用两个字节，是基本平面内的字符，</span><span style="color:#000000;">UTF-16</span><span style="color:#000000;">编码方式是</span><strong><span style="color:#000000;">0x554A</span></strong><span style="color:#000000;">（二进制是</span><span style="color:#f33b45;"><strong><em>101010101001010</em></strong></span><span style="color:#000000;">）</span></li>
+	</ul><p style="margin-left:0cm;"><span style="color:#000000;">2.Unicode</span><span style="color:#000000;">编码范围是</span><span style="color:#000000;"><strong>0x10000-0x10FFFF</strong>,</span><span style="color:#000000;">即编码</span><span style="color:#000000;">&gt;=0x10000.</span><span style="color:#000000;">如</span><span style="color:#000000;">Unicode</span><span style="color:#000000;">编码值是</span><span style="color:#000000;">U,</span><span style="color:#000000;">计算编码值=</span><span style="color:#000000;">U-0x10000</span><span style="color:#000000;">转换成二进制就是</span><span style="color:#000000;">yyyyyyyyyy xxxxxxxxxx,</span><span style="color:#000000;">其中二进制位不存在的补</span><span style="color:#000000;">0.</span><span style="color:#000000;">那么</span><span style="color:#000000;">UTF-16</span><span style="color:#000000;">编码就是</span><strong><em>110110</em></strong><span style="color:#f33b45;"><strong><em>yyyyyyyyyy </em></strong></span><strong><em>110111</em></strong><span style="color:#f33b45;"><strong><em>xxxxxxxxxx</em></strong></span><span style="color:#000000;">.</span></p>
+
+	<p style="margin-left:0cm;"><span style="color:#000000;">从</span><span style="color:#000000;">UTF-16</span><span style="color:#000000;">的</span><span style="color:#000000;">4</span><span style="color:#000000;">个字节编码方式看，第一个2个字节，即</span><em><strong>110110</strong><span style="color:#f33b45;"><strong>yyyyyyyyyy</strong></span></em><span style="color:#000000;">，取值范围是</span><span style="color:#000000;"><em><strong>110110</strong></em></span><span style="color:#f33b45;"><em>0000000000</em></span><span style="color:#000000;"><em>-<strong>110110</strong></em></span><span style="color:#f33b45;"><em><strong>1111111111</strong></em></span><span style="color:#000000;">，转换成十六进制就是</span><strong>0xD800-0xDBFF</strong>,<span style="color:#333333;">此区间称为高位替代。</span></p>
+
+	<p style="margin-left:0cm;"><span style="color:#000000;">对于</span><span style="color:#000000;">Unicode</span><span style="color:#000000;">编码范围大于</span><span style="color:#000000;">0x10000</span><span style="color:#000000;">的字符。第二个2个字节是</span><em><strong>110111</strong></em><span style="color:#f33b45;"><strong><em>xxxxxxxxxx</em></strong></span><span style="color:#000000;">，取值范围是</span><span style="color:#000000;"><em><strong>110111</strong></em></span><span style="color:#f33b45;"><em><strong>0000000000</strong></em></span><span style="color:#000000;">-<strong><em>110111</em></strong></span><span style="color:#f33b45;"><strong><em>1111111111</em></strong></span><span style="color:#000000;">，转换成十六机制就是</span><strong><span style="color:#333333;">0xDC00-0xDFFF</span></strong><span style="color:#333333;">。此区间称为低位替代。</span></p>
+
+	<div class="table-box"><table border="1" cellspacing="0"><tbody><tr><td style="vertical-align:top;width:213.05pt;">
+		<p style="margin-left:0cm;"><span style="color:#000000;">0xD800-0xDBFF</span></p>
+	</td>
+		<td style="vertical-align:top;width:213.05pt;">
+			<p style="margin-left:0cm;"><span style="color:#000000;">高位替代</span></p>
+		</td>
+	</tr><tr><td style="vertical-align:top;width:213.05pt;">
+		<p style="margin-left:0cm;"><span style="color:#000000;">0xDC00-0xDFFF</span></p>
+	</td>
+		<td style="vertical-align:top;width:213.05pt;">
+			<p style="margin-left:0cm;"><span style="color:#000000;">低位替代</span></p>
+		</td>
+	</tr></tbody></table></div><p style="margin-left:0cm;"><span style="color:#000000;">&nbsp; &nbsp; &nbsp; 可以看到</span><span style="color:#000000;">Unicode</span><span style="color:#000000;">字符集中</span><span style="color:#000000;">&gt;0x10000</span><span style="color:#000000;">的字符，也就是辅助平面内的字符，通过</span><span style="color:#000000;">UTF-16</span><span style="color:#000000;">编码规则将每两个字节映射到</span><span style="color:#000000;">0xD800-0xDBFF</span><span style="color:#000000;">之间，所以当一篇文档使用</span><span style="color:#000000;">UTF-16</span><span style="color:#000000;">编码，两个字节编码范围是</span><span style="color:#000000;">0xD800-0xDBFF</span><span style="color:#000000;">之间，说明解码需要前后四个字节才能解码出一个完整字符。</span></p>
+
+	<p style="margin-left:0cm;"><span style="color:#000000;">例如：汉字“</span></p>                                    </div>
+<p class="article-copyright hidden-xs">
+	<a target="_blank" href="https://blog.csdn.net/lili13897741554/article/details/82053351" draggable="false">参考原文(在原文基礎上修改了一些内容)： »&nbsp; https://blog.csdn.net/lili13897741554/article/details/82053351</a></p>
+</body>
+</html>

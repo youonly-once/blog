@@ -1,0 +1,54 @@
+<html>
+<head>
+	<title>ConnectionPool.java</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+</head>
+<body bgcolor="#ffffff">
+<P>一、测试Bean类 Hero</P>
+<pre><span class="s0">package </span><span class="s1">cn.shu.bean</span><span class="s2">;</span>
+
+<span class="s0">public class </span><span class="s1">Hero {</span>
+    <span class="s0">private </span><span class="s1">String name</span><span class="s2">;</span>
+    <span class="s0">private int </span><span class="s1">age</span><span class="s2">;</span>
+
+    <span class="s0">public void </span><span class="s1">setSex(String str){</span>
+
+    <span class="s1">}</span>
+    <span class="s0">public </span><span class="s1">String getName() {</span>
+        <span class="s0">return </span><span class="s1">name</span><span class="s2">;</span>
+    <span class="s1">}</span>
+
+    <span class="s0">public void </span><span class="s1">setName(String name) {</span>
+        <span class="s0">this</span><span class="s1">.name </span><span class="s0">= </span><span class="s1">name</span><span class="s2">;</span>
+    <span class="s1">}</span>
+
+<span class="s1">}</span>
+</pre>
+<p>二、类属性有二个</p>
+<p class="subTitle">1、name</p>
+<p class="subTitle">2、age</p>
+<p>三、Bean属性有二个</p>
+<p class="subTitle">1、name</p>
+<p class="subTitle">2、sex</p>
+<p>四、注意点：</p>
+<p class="subTitle">1、Bean属性是指有get或set方法的属性，无论类属性是否有</p>
+<p class="subTitle">2、类属性是指类的成员属性，和get、set无关</p>
+<p class="subTitle">3、Spring中设置的是Bean属性</p>
+<p>五、xml中的配置初始化属性，如果未配置，对象创建后为默认值</p>
+<pre><span class="s0">&lt;?</span><span class="s1">xml version</span><span class="s3">=&quot;1.0&quot; </span><span class="s1">encoding</span><span class="s3">=&quot;UTF-8&quot;</span><span class="s0">?&gt;</span>
+<span class="s2">&lt;</span><span class="s5">beans </span><span class="s1">xmlns</span><span class="s3">=&quot;http://www.springframework.org/schema/beans&quot;</span>
+       <span class="s1">xmlns:xsi</span><span class="s3">=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
+       <span class="s1">xsi:schemaLocation</span><span class="s3">=&quot;http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd&quot;</span>
+    <span class="s1">default-lazy-init</span><span class="s3">=&quot;true&quot;</span>
+<span class="s2">&gt;</span>
+    <span class="s2">&lt;</span><span class="s5">bean </span><span class="s1">id</span><span class="s3">=&quot;person&quot; </span><span class="s1">class</span><span class="s3">=&quot;cn.shu.bean.Hero&quot; </span><span class="s2">&gt;</span>
+        <span class="s2">&lt;</span><span class="s5">property </span><span class="s1">name</span><span class="s3">=&quot;sex&quot; </span><span class="s1">value</span><span class="s3">=&quot;女&quot;</span><span class="s2">/&gt;</span>
+        <span class="s2">&lt;</span><span class="s5">property </span><span class="s1">name</span><span class="s3">=&quot;name&quot; </span><span class="s1">value</span><span class="s3">=&quot;舒新胜&quot;</span><span class="s2">/&gt;</span>
+        <span class="s6">&lt;!--这里age会报错，因为Hero中没有age的set或者get方法--&gt;</span>
+        <span class="s2">&lt;</span><span class="s5">property </span><span class="s1">name</span><span class="s3">=&quot;age&quot; </span><span class="s1">value</span><span class="s3">=&quot;18&quot;</span><span class="s2">/&gt;</span>
+    <span class="s2">&lt;/</span><span class="s5">bean</span><span class="s2">&gt;</span>
+
+<span class="s2">&lt;/</span><span class="s5">beans</span><span class="s2">&gt;</span></pre>
+</body>
+</html>
