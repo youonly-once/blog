@@ -17,15 +17,11 @@ import java.util.List;
  * @创建时间 2020/6/7 14:05
  */
 public class LuceneUtilForArticle {
-    public static void main(String[] args) {
-       createIndex();
-
-    }
-    public static void createIndex(){
+    public static void createIndex(String rootPath){
         List<Article> articles = getArticles();
         if (articles!=null){
             System.out.println(articles);
-            LuceneIndexUntil.createIndex(getArticles(),"E:\\JAVA\\eee\\ext_resources\\article_index");
+            LuceneIndexUntil.createIndex(getArticles(),rootPath+"\\article_index");
         }
     }
     private static List<Article> getArticles(){

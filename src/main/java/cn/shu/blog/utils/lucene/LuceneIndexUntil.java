@@ -258,7 +258,7 @@ public class LuceneIndexUntil {
                 article.setTitle(term.get("title"));
                 article.setId(Integer.parseInt(doc1.get("id")));
                 article.setCategoryName(doc1.get("categoryName"));
-                article.setCommNum(Long.parseLong(doc1.get("commNum")));
+                article.setCommNum(doc1.get("commNum")== null?0:Long.parseLong( doc1.get("commNum")));
                 article.setUpdateDate(DateUtil.stringToDate(doc1.get("updateDate")));
                 article.setDescription(term.get("description"));
                 article.setImagePath(doc1.get("imagePath"));

@@ -1,6 +1,6 @@
 package cn.shu.blog.controller;
 
-import cn.shu.blog.AddArticles;
+import cn.shu.blog.AddArticle;
 import cn.shu.blog.beans.Article;
 import cn.shu.blog.beans.Category;
 import cn.shu.blog.beans.Comment;
@@ -8,7 +8,6 @@ import cn.shu.blog.beans.SearchArticle;
 import cn.shu.blog.dao.CategoryMapper;
 import cn.shu.blog.service.ArticleServiceInter;
 import cn.shu.blog.service.CommentService;
-import cn.shu.blog.utils.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,7 +17,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -75,7 +73,7 @@ public class BlogArticleHandler {
             //swf文件
             if (".swf".equalsIgnoreCase(article.getFileType())) {
                 //转换为swf方便显示 转换失败
-                if (!AddArticles.turnSwfJar(article.getSourceFilePath(), article.getTargetFilePath())) {
+                if (!AddArticle.turnSwfJar(article.getSourceFilePath(), article.getTargetFilePath())) {
                     return "forward:/WEB-INF/jsp/404.jsp";
                 }
                 return "forward:/WEB-INF/jsp/article.jsp";
