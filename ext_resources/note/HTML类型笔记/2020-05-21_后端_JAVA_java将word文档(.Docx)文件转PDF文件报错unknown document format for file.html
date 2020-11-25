@@ -1,0 +1,55 @@
+
+<html>
+<head>
+    <title>ResultSet2Bean.java</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <style type="text/css">
+        .s0 { color: #24292e;}
+        .s1 { color: #d73a49;}
+        .s2 { color: #22863a;}
+        .s3 { color: #24292e;}
+        .s4 { color: #6a737d;}
+    </style>
+</head>
+<body bgcolor="#ffffff">
+
+<p>最近学习了maven项目，所以将博客项目转为maven项目，在maven中添加依赖</p>
+<h1>word文档(.docx)转pdf报错</h1>
+项目转为maven项目后表面运行没问题，后面增加几篇文章然后需要转为pdf时报错：
+<pre style="color:red;">
+Exception in thread "main" java.lang.IllegalArgumentException: unknown document format for file: E:\kaifa\JAVA\project_idea\MyBlog\src\main\webapp\docx\2020-04-03_前端_CSS_123.docx
+	at com.artofsolving.jodconverter.openoffice.converter.AbstractOpenOfficeDocumentConverter.guessDocumentFormat(AbstractOpenOfficeDocumentConverter.java:121)
+	at com.artofsolving.jodconverter.openoffice.converter.AbstractOpenOfficeDocumentConverter.convert(AbstractOpenOfficeDocumentConverter.java:93)
+	at com.artofsolving.jodconverter.openoffice.converter.AbstractOpenOfficeDocumentConverter.convert(AbstractOpenOfficeDocumentConverter.java:74)
+	at com.artofsolving.jodconverter.openoffice.converter.AbstractOpenOfficeDocumentConverter.convert(AbstractOpenOfficeDocumentConverter.java:70)
+	at cn.shu.blog.utils.Doc2Pdf.turn(Doc2Pdf.java:37)
+	at cn.shu.blog.utils.CreateFileInfo.turnSwf(CreateFileInfo.java:279)
+	at cn.shu.blog.utils.CreateFileInfo.createSql(CreateFileInfo.java:94)
+	at cn.shu.blog.utils.CreateFileInfo.addFileInfor(CreateFileInfo.java:43)
+	at cn.shu.blog.utils.CreateFileInfo.main(CreateFileInfo.java:28)
+</pre>
+关键信息：
+<pre style="color:red;">
+java.lang.IllegalArgumentException: unknown document format for file: E:\kaifa\JAVA\project_idea\MyBlog\src\main\webapp\docx\2020-04-03_前端_CSS_123.docx
+</pre>
+查阅各种资料，最后发现引入的依赖版本不对：
+java利用openOffice转pdf需要用jodconverter这个包，这里导入的是2.2.1，最后查阅资料发现，该版本只能转doc，而docx需要用2.2.2版本
+
+<pre>
+        <span class="s1">&lt;</span><span class="s2">dependency</span><span class="s1">&gt;</span>
+            <span class="s1">&lt;</span><span class="s2">groupId</span><span class="s1">&gt;</span><span class="s3">com.artofsolving</span><span class="s1">&lt;/</span><span class="s2">groupId</span><span class="s1">&gt;</span>
+            <span class="s1">&lt;</span><span class="s2">artifactId</span><span class="s1">&gt;</span><span class="s3">jodconverter</span><span class="s1">&lt;/</span><span class="s2">artifactId</span><span class="s1">&gt;</span>
+            <span class="s1">&lt;</span><span class="s2">version</span><span class="s1">&gt;</span><span class="s3">2.2.1</span><span class="s1">&lt;/</span><span class="s2">version</span><span class="s1">&gt;</span>
+        <span class="s1">&lt;/</span><span class="s2">dependency</span><span class="s1">&gt;</span></pre>
+
+那么为什么我在将我的博客项目转maven项目之前能用呢？
+经过仔细回忆，因为当时maven添加不了2.2.2的依赖(这里用的阿里云镜像)，但有2.2.1的，所以当时手贱改为2.2.1版本了
+<h1>最终解决办法：</h1>
+将jodconverter2.2.2的jar包安装到maven本地库中:
+cmd执行命令
+<pre style="color: white;background: black;">
+  mvn install:install-file -DgroupId=com.artofsolving -DartifactId=jodconverter -Dversion=2.2.2 -Dpackaging=jar -Dfile=E:\kaifa\JAVA\maven_localrepository\com\artofsolving\jodconverter\jodconverter-2.2.2.jar
+</pre>
+然后把2.2.1的.pom文件复制一份粘贴过来(主要为了添加相关依赖)，并修改.pom文件版本号为2.2.2
+</body>
+</html>
