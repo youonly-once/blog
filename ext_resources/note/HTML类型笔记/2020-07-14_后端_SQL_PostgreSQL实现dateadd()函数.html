@@ -1,0 +1,37 @@
+<html>
+<head>
+	<title>ConnectionPool.java</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<style type="text/css">
+		.s0 { color: #d73a49;}
+		.s2 { color: #808080;}
+		.s3 { color: #032f62;}
+		.s4 { color: #6a737d;}
+		.s5 { color: #6a737d; font-style: italic;}
+		.s6 { color: #d73a49; font-style: italic;}
+		.s7 { color: #005cc5;}
+	</style>
+</head>
+<body bgcolor="#ffffff">
+<h2>PostgreSql获取过去或未来的某个时间点</h2>
+<pre>
+	<span class="s7">select</span> <span class="s0">now()</span> + <span class="s7">interval</span> <span class="s4">'2 years'</span>;//二年后的时间
+	
+	<span class="s7">select</span> <span class="s0">now()</span> + <span class="s7">interval</span> <span class="s4">'2 years'</span>;//二年后的时间
+	
+	<span class="s7">select</span> <span class="s0">now()</span> + <span class="s7">interval</span> <span class="s4">'2 year'</span>;//二年后的时间
+	
+	<span class="s7">select</span> <span class="s0">now()</span> + <span class="s7">interval</span> <span class="s4">'2 y'</span>;//二年后的时间
+	
+	<span class="s7">select</span> <span class="s0">now()</span> + <span class="s7">interval</span> <span class="s4">'2 Y'</span>;//二年后的时间
+	
+	<span class="s7">select</span> <span class="s0">now()</span> + <span class="s7">interval</span> <span class="s4">'2Y'</span>;//二年后的时间
+	
+	<span class="s7">select</span> <span class="s0">now()</span> + <span class="s7">interval</span> <span class="s4">'1 month'</span>;//1月后
+	
+	<span class="s7">select</span> <span class="s0">now()</span> - <span class="s7">interval</span> <span class="s4">'-3 week'</span>;//三周前
+	
+	<span class="s7">select</span> <span class="s0">now()</span> + <span class="s4">'10 min'</span>;//10分钟后
+</pre>
+</body>
+</html>
