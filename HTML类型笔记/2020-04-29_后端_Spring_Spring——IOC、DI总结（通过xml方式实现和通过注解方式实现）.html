@@ -1,0 +1,403 @@
+<html>
+<head>
+	<title>ConnectionPool.java</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<style>
+		.s0 { color: #d73a49;}
+		.s1 { color: #6f42c1;}
+		.s2 { color: #808080;}
+		.s3 { color: #032f62;}
+		.s4 { color: #24292e;}
+		.s5 { color: #22863a;}
+		.s6 { color: #6a737d;}
+	</style>
+</head>
+<body bgcolor="#ffffff">
+<h1>一、导包</h1>
+<h2 >1、xml配置方式</h2>
+<img src="html/images/xml_import.png" alt=""/>
+
+<h2 >2、注解方式(注意比xml方式多导一个包)</h2>
+<img src="html/images/aop_import.png" alt=""/>
+<h1>二、src目录下创建配置文件</h1>
+<h2>1、xml配置方式</h2>
+<pre><span class="s0">&lt;?</span><span class="s1">xml version</span><span class="s3">=&quot;1.0&quot; </span><span class="s1">encoding</span><span class="s3">=&quot;UTF-8&quot;</span><span class="s0">?&gt;</span>
+<span class="s2">&lt;</span><span class="s5">beans </span><span class="s1">xmlns</span><span class="s3">=&quot;http://www.springframework.org/schema/beans&quot;</span>
+       <span class="s1">xmlns:xsi</span><span class="s3">=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
+       <span class="s1">xsi:schemaLocation</span><span class="s3">=&quot;http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd&quot;</span>
+    <span class="s2">&lt;/</span><span class="s5">beans</span><span class="s2">&gt;</span></pre>
+    </pre>
+<h2>2、如果需要通过注解方式管理类，需要在xml中做如下配置</h2>
+<pre><span class="s0">&lt;?</span><span class="s1">xml version</span><span class="s3">=&quot;1.0&quot; </span><span class="s1">encoding</span><span class="s3">=&quot;UTF-8&quot;</span><span class="s0">?&gt;</span>
+<span class="s2">&lt;</span><span class="s5">beans </span><span class="s1">xmlns</span><span class="s3">=&quot;http://www.springframework.org/schema/beans&quot;</span>
+       <span class="s1">xmlns:xsi</span><span class="s3">=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
+       <span class="s1">xmlns:context</span><span class="s3">=&quot;http://www.springframework.org/schema/context&quot;</span>
+       <span class="s1">xsi:schemaLocation</span><span class="s3">=&quot;http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd&quot;</span>
+
+    <span class="s2">&lt;</span><span class="s5">context:component-scan </span><span class="s1">base-package</span><span class="s3">=&quot;cn.shu&quot;</span><span class="s2">/&gt;</span>
+<span class="s2">&lt;/</span><span class="s5">beans</span><span class="s2">&gt;</span></pre>
+<h1>三、将类交给Spring管理</h1>
+<h2 >1、xml配置方式</h2>
+<pre><span class="s0">&lt;?</span><span class="s1">xml version</span><span class="s3">=&quot;1.0&quot; </span><span class="s1">encoding</span><span class="s3">=&quot;UTF-8&quot;</span><span class="s0">?&gt;</span>
+<span class="s2">&lt;</span><span class="s5">beans </span><span class="s1">xmlns</span><span class="s3">=&quot;http://www.springframework.org/schema/beans&quot;</span>
+       <span class="s1">xmlns:xsi</span><span class="s3">=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
+       <span class="s1">xsi:schemaLocation</span><span class="s3">=&quot;http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd&quot;</span>
+    <span class="s2">&lt;</span><span class="s5">bean </span><span class="s1">id</span><span class="s3">=&quot;person&quot; </span><span class="s1">class</span><span class="s3">=&quot;cn.shu.Person&quot; </span><span class="s2">/&gt;</span>
+<span class="s2">&lt;/</span><span class="s5">beans</span><span class="s2">&gt;</span></pre>
+<h2 >2、注解方式配置</h2>
+<h2 >①、只需要在类的上方添加注解即可</h2>
+<pre>
+<span class="s0">@Component</span>
+<span class="s0">public class </span><span class="s1">Person {</span>
+    <span class="s0">private </span><span class="s1">List</span><span class="s0">&lt;</span><span class="s1">String</span><span class="s0">&gt; </span><span class="s1">list</span><span class="s2">;</span>
+    <span class="s0">private </span><span class="s1">String name</span><span class="s2">;</span>
+<span class="s1">}</span>
+</pre>
+<h2>②、有四个注解，效果一模一样，只是用法不同</h2>
+<h3 ><span class="s0">@Controller</span>：一般用在web层</h3>
+<h3 ><span class="s0">@Service</span>：一般用在Service层</h3>
+<h3 ><span class="s0">@Repository</span>：一般用作Dao层</h3>
+<h3 ><span class="s0">@Component</span>:一般用在其它层</h3>
+<h2 >③、通过xml方式配置的bean会指定id，那么这种方式的id怎么生成的？</h2>
+<h3 style="color: red;">根据当前类的类名来生成：类名的第二个字母为小写，那么首字母变小写作为id，如果第二个字母为大写，首字母不变作为id</h3>
+<h2 >④、id可以通过注解指定</h2>
+<h3 ><span class="s0">@Component</span>("id值")：</h3>
+<pre><span class="s0">package </span><span class="s1">cn.shu</span><span class="s2">;</span>
+
+<span class="s0">import </span><span class="s1">org.springframework.beans.factory.annotation.Value</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">org.springframework.stereotype.Component</span><span class="s2">;</span>
+
+<span class="s0">import </span><span class="s1">java.util.List</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">java.util.Map</span><span class="s2">;</span>
+
+<span class="s0">@Component(</span><span class="s3">&quot;per&quot;</span><span class="s1">)</span>
+<span class="s0">public class </span><span class="s1">Person {</span>
+    <span class="s0">private </span><span class="s1">List</span><span class="s0">&lt;</span><span class="s1">String</span><span class="s0">&gt; </span><span class="s1">list</span><span class="s2">;</span>
+    <span class="s0">private </span><span class="s1">String name</span><span class="s2">;</span>
+
+<span class="s1">}</span>
+</pre>
+<h1>三、实现懒加载</h1>
+<h2>1、xml方式:<span class="s0">lazy-init</span>="true"</h2>
+<pre><span class="s0">&lt;?</span><span class="s1">xml version</span><span class="s3">=&quot;1.0&quot; </span><span class="s1">encoding</span><span class="s3">=&quot;UTF-8&quot;</span><span class="s0">?&gt;</span>
+<span class="s2">&lt;</span><span class="s5">beans </span><span class="s1">xmlns</span><span class="s3">=&quot;http://www.springframework.org/schema/beans&quot;</span>
+       <span class="s1">xmlns:xsi</span><span class="s3">=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
+       <span class="s1">xsi:schemaLocation</span><span class="s3">=&quot;http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd&quot;</span><span class="s2">&gt;</span>
+
+    <span class="s2">&lt;</span><span class="s5">bean </span><span class="s1">id</span><span class="s3">=&quot;person&quot; </span><span class="s1">class</span><span class="s3">=&quot;cn.shu.Person&quot; </span><span class="s1">lazy-init</span><span class="s3">=&quot;true&quot;</span><span class="s2">/&gt;</span>
+<span class="s2">&lt;/</span><span class="s5">beans</span><span class="s2">&gt;</span></pre>
+<h2>2、注解方式：<span class="s0">@Lazy</span></h2>
+<pre>
+<span class="s0">@Component(</span><span class="s3">&quot;per&quot;</span><span class="s1">)</span>
+<span class="s0">@Lazy(</span><span class="s0">true</span><span class="s1">)</span>
+<span class="s0">public class </span><span class="s1">Person {</span>
+<span class="s1">}</span>
+</pre>
+<h1>四、实现初始化方法和销毁方法</h1>
+<h2>1、xml方式:<span class="s0">init-method</span>/<span class="s0">destroy-method</span></h2>
+<pre><span class="s0">&lt;?</span><span class="s1">xml version</span><span class="s3">=&quot;1.0&quot; </span><span class="s1">encoding</span><span class="s3">=&quot;UTF-8&quot;</span><span class="s0">?&gt;</span>
+<span class="s2">&lt;</span><span class="s5">beans </span><span class="s1">xmlns</span><span class="s3">=&quot;http://www.springframework.org/schema/beans&quot;</span>
+       <span class="s1">xmlns:xsi</span><span class="s3">=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
+       <span class="s1">xsi:schemaLocation</span><span class="s3">=&quot;http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd&quot;</span><span class="s2">&gt;</span>
+
+    <span class="s2">&lt;</span><span class="s5">bean </span><span class="s1">id</span><span class="s3">=&quot;person&quot; </span><span class="s1">class</span><span class="s3">=&quot;cn.shu.Person&quot; </span><span class="s1">lazy-init</span><span class="s3">=&quot;true&quot; </span><span class="s1">init-method</span><span class="s3">=&quot;init&quot; </span><span class="s1">destroy-method</span><span class="s3">=&quot;destroy&quot;</span><span class="s2">/&gt;</span>
+<span class="s2">&lt;/</span><span class="s5">beans</span><span class="s2">&gt;</span></pre>
+<h2>2、注解方式：<span class="s0">@PostConstruct</span>/<span class="s0">@PreDestroy</span></h2>
+<pre>
+<span class="s1">@Component(</span><span class="s3">&quot;per&quot;</span><span class="s1">)</span>
+<span class="s1">@Lazy(</span><span class="s0">true</span><span class="s1">)</span>
+<span class="s1">@Scope(</span><span class="s3">&quot;singleton&quot;</span><span class="s1">)</span>
+<span class="s0">public class </span><span class="s1">Person {</span>
+
+    <span class="s1">&nbsp;&nbsp;@PostConstruct </span><span class="s4">//定义初始化方法</span>
+    <span class="s0">&nbsp;&nbsp;public void </span><span class="s1">init() {</span>
+
+    <span class="s1">&nbsp;&nbsp;}</span>
+    <span class="s1">&nbsp;&nbsp;@PreDestroy </span><span class="s4">//定义销毁方法</span>
+    <span class="s0">&nbsp;&nbsp;public void </span><span class="s1">destroy() {</span>
+
+    <span class="s1">&nbsp;&nbsp;}</span>
+<span class="s1">}</span>
+</pre>
+<h1>五、实现单例(singleton)或多例(prototype)</h1>
+<h2>1、xml方式:<span class="s0">scope</span>属性，</h2>
+<pre><span class="s0">&lt;?</span><span class="s1">xml version</span><span class="s3">=&quot;1.0&quot; </span><span class="s1">encoding</span><span class="s3">=&quot;UTF-8&quot;</span><span class="s0">?&gt;</span>
+<span class="s2">&lt;</span><span class="s5">beans </span><span class="s1">xmlns</span><span class="s3">=&quot;http://www.springframework.org/schema/beans&quot;</span>
+       <span class="s1">xmlns:xsi</span><span class="s3">=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
+       <span class="s1">xsi:schemaLocation</span><span class="s3">=&quot;http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd&quot;</span><span class="s2">&gt;</span>
+
+    <span class="s2">&lt;</span><span class="s5">bean </span><span class="s1">id</span><span class="s3">=&quot;person&quot; </span><span class="s1">class</span><span class="s3">=&quot;cn.shu.Person&quot; </span><span class="s1">lazy-init</span><span class="s3">=&quot;true&quot;</span>
+          <span class="s1">init-method</span><span class="s3">=&quot;init&quot; </span><span class="s1">destroy-method</span><span class="s3">=&quot;destroy&quot;</span>
+            <span class="s1">scope</span><span class="s3">=&quot;singleton&quot;</span>
+    <span class="s2">/&gt;</span>
+<span class="s2">&lt;/</span><span class="s5">beans</span><span class="s2">&gt;</span></pre>
+<h2>2、注解方式:<span class="s0">@Scope</span></h2>
+<pre>
+<span class="s0">@Component(</span><span class="s3">&quot;per&quot;</span><span class="s1">)</span>
+<span class="s0">@Lazy(</span><span class="s0">true</span><span class="s1">)</span>
+<span class="s0">@Scope(</span><span class="s3">&quot;singleton&quot;</span><span class="s1">)</span>
+<span class="s0">public class </span><span class="s1">Person {</span>
+
+<span class="s0">@PostConstruct </span><span class="s4">//定义初始化方法</span>
+<span class="s0">public void </span><span class="s1">init() {</span>
+
+<span class="s1">}</span>
+<span class="s0">@PreDestroy </span><span class="s4">//定义销毁方法</span>
+<span class="s0">public void </span><span class="s1">destroy() {</span>
+
+<span class="s1">}</span>
+<span class="s1">}</span>
+</pre>
+<h1>六、工厂模式</h1>
+<h2><a href="/article?articleId=105" target="_blank">1、xml方式实现(三种方式)，参考这篇文章</a></h2>
+<h2>2、注解方式实现</h2>
+<h2>工厂类必须在扫描包下，且被四个(<span class="s0">@Component</span>...)注解中的一个修饰</h2>
+<pre><span class="s0">@Component(</span><span class="s3">&quot;per&quot;</span><span class="s1">)</span>
+<span class="s0">@Lazy(</span><span class="s0">true</span><span class="s1">)</span>
+<span class="s0">@Scope(</span><span class="s3">&quot;singleton&quot;</span><span class="s1">)</span>
+<span class="s0">public class </span><span class="s1">Person {</span>
+    <span class="s0">@Bean </span><span class="s4">//否则按照上面所说的生成规则生成</span>
+    <span class="s4">//@Bean(&quot;Man&quot;) //可以手动指定id</span>
+    <span class="s0">public </span><span class="s1">Man getInstance(){</span>
+        <span class="s0">return new </span><span class="s1">Man()</span><span class="s2">;</span>
+    <span class="s1">}</span>
+<span class="s1">}</span>
+</pre>
+<h1>七、实现DI(依赖注入)：不包括自定义的bean类型</h1>
+<h2>1、xml配置方式</h2>
+<h2>①、在bean标签下方配置(Set方法注入)</h2>
+<h2 style="color: red;">注意：该方式要求必须要有成员属性的set或get方法</h2>
+<pre><span class="s0">&lt;?</span><span class="s1">xml version</span><span class="s3">=&quot;1.0&quot; </span><span class="s1">encoding</span><span class="s3">=&quot;UTF-8&quot;</span><span class="s0">?&gt;</span>
+<span class="s2">&lt;</span><span class="s5">beans </span><span class="s1">xmlns</span><span class="s3">=&quot;http://www.springframework.org/schema/beans&quot;</span>
+       <span class="s1">xmlns:xsi</span><span class="s3">=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
+       <span class="s1">xsi:schemaLocation</span><span class="s3">=&quot;http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd&quot;</span><span class="s2">&gt;</span>
+
+    <span class="s2">&lt;</span><span class="s5">bean </span><span class="s1">id</span><span class="s3">=&quot;person&quot; </span><span class="s1">class</span><span class="s3">=&quot;cn.shu.Person&quot; </span><span class="s2">&gt;</span>
+        <span class="s6">&lt;!--基本数据类型--&gt;</span>
+       <span class="s2">&lt;</span><span class="s5">property </span><span class="s1">name</span><span class="s3">=&quot;age&quot; </span><span class="s1">value</span><span class="s3">=&quot;1&quot;</span><span class="s2">/&gt;</span>
+       <span class="s6">&lt;!-- list类型--&gt;</span>
+        <span class="s2">&lt;</span><span class="s5">property </span><span class="s1">name</span><span class="s3">=&quot;myList&quot;</span><span class="s2">&gt;</span>
+            <span class="s2">&lt;</span><span class="s5">list</span><span class="s2">&gt;</span>
+                <span class="s2">&lt;</span><span class="s5">value</span><span class="s2">&gt;</span><span class="s0">listValue1</span><span class="s2">&lt;/</span><span class="s5">value</span><span class="s2">&gt;</span>
+            <span class="s2">&lt;/</span><span class="s5">list</span><span class="s2">&gt;</span>
+        <span class="s2">&lt;/</span><span class="s5">property</span><span class="s2">&gt;</span>
+        <span class="s6">&lt;!--Map类型--&gt;</span>
+        <span class="s2">&lt;</span><span class="s5">property </span><span class="s1">name</span><span class="s3">=&quot;myMap&quot;</span><span class="s2">&gt;</span>
+            <span class="s2">&lt;</span><span class="s5">map</span><span class="s2">&gt;</span>
+                <span class="s2">&lt;</span><span class="s5">entry </span><span class="s1">key</span><span class="s3">=&quot;myKey&quot; </span><span class="s1">value</span><span class="s3">=&quot;myValue&quot;</span><span class="s2">/&gt;</span>
+            <span class="s2">&lt;/</span><span class="s5">map</span><span class="s2">&gt;</span>
+        <span class="s2">&lt;/</span><span class="s5">property</span><span class="s2">&gt;</span>
+
+        <span class="s6">&lt;!--Set类型--&gt;</span>
+        <span class="s2">&lt;</span><span class="s5">property </span><span class="s1">name</span><span class="s3">=&quot;mySet&quot;</span><span class="s2">&gt;</span>
+            <span class="s2">&lt;</span><span class="s5">set</span><span class="s2">&gt;</span>
+                <span class="s2">&lt;</span><span class="s5">value</span><span class="s2">&gt;</span><span class="s0">SET1</span><span class="s2">&lt;/</span><span class="s5">value</span><span class="s2">&gt;</span>
+            <span class="s2">&lt;/</span><span class="s5">set</span><span class="s2">&gt;</span>
+        <span class="s2">&lt;/</span><span class="s5">property</span><span class="s2">&gt;</span>
+
+        <span class="s6">&lt;!--Properties类型--&gt;</span>
+        <span class="s2">&lt;</span><span class="s5">property </span><span class="s1">name</span><span class="s3">=&quot;myProperties&quot;</span><span class="s2">&gt;</span>
+            <span class="s2">&lt;</span><span class="s5">props</span><span class="s2">&gt;</span>
+                <span class="s2">&lt;</span><span class="s5">prop </span><span class="s1">key</span><span class="s3">=&quot;p1&quot;</span><span class="s2">&gt;</span><span class="s0">pValue1</span><span class="s2">&lt;/</span><span class="s5">prop</span><span class="s2">&gt;</span>
+            <span class="s2">&lt;/</span><span class="s5">props</span><span class="s2">&gt;</span>
+        <span class="s2">&lt;/</span><span class="s5">property</span><span class="s2">&gt;</span>
+    <span class="s2">&lt;/</span><span class="s5">bean</span><span class="s2">&gt;</span>
+<span class="s2">&lt;/</span><span class="s5">beans</span><span class="s2">&gt;</span></pre>
+<h2>②、基于构造方法的注入 </h2>
+<h2>2、注解方式注入</h2>
+<h2>①、需要在xml配置</h2>
+<pre><span class="s0">&lt;?</span><span class="s1">xml version</span><span class="s3">=&quot;1.0&quot; </span><span class="s1">encoding</span><span class="s3">=&quot;UTF-8&quot;</span><span class="s0">?&gt;</span>
+<span class="s2">&lt;</span><span class="s5">beans </span><span class="s1">xmlns</span><span class="s3">=&quot;http://www.springframework.org/schema/beans&quot;</span>
+       <span class="s1">xmlns:xsi</span><span class="s3">=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
+       <span class="s1">xmlns:context</span><span class="s3">=&quot;http://www.springframework.org/schema/context&quot;</span>
+       <span class="s1">xsi:schemaLocation</span><span class="s3">=&quot;http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd&quot;</span>
+       <span class="s2">&gt;</span>
+    <span class="s6">&lt;!--扫描包--&gt;</span>
+    <span class="s2">&lt;</span><span class="s5">context:component-scan </span><span class="s1">base-package</span><span class="s3">=&quot;cn.shu&quot; </span><span class="s2">/&gt;</span>
+    <span class="s6">&lt;!--属性注解--&gt;</span>
+    <span class="s2">&lt;</span><span class="s5">context:annotation-config</span><span class="s2">&gt;&lt;/</span><span class="s5">context:annotation-config</span><span class="s2">&gt;</span>
+<span class="s2">&lt;/</span><span class="s5">beans</span><span class="s2">&gt;</span></pre>
+<h2>②、基本类型的注入 方式一:直接用@Value("值")注解</h2>
+<pre>
+	<span class="s0">@Component(</span><span class="s3">&quot;per&quot;</span><span class="s1">)</span>
+<span class="s0">@Lazy(</span><span class="s0">true</span><span class="s1">)</span>
+<span class="s0">@Scope(</span><span class="s3">&quot;singleton&quot;</span><span class="s1">)</span>
+<span class="s0">public class </span><span class="s1">Person {</span>
+
+    <span class="s0">@Value(</span><span class="s3">&quot;舒新胜&quot;</span><span class="s1">)</span>
+    <span class="s0">private </span><span class="s1">String name</span><span class="s2">;</span>
+    <span class="s0">private int </span><span class="s1">age</span><span class="s2">;</span>
+    <span class="s0">private </span><span class="s1">List</span><span class="s0">&lt;</span><span class="s1">String</span><span class="s0">&gt; </span><span class="s1">myList</span><span class="s2">;</span>
+    <span class="s0">private </span><span class="s1">Map</span><span class="s0">&lt;</span><span class="s1">String</span><span class="s2">,</span><span class="s1">String</span><span class="s0">&gt; </span><span class="s1">myMap</span><span class="s2">;</span>
+    <span class="s0">private </span><span class="s1">Set</span><span class="s0">&lt;</span><span class="s1">String</span><span class="s0">&gt; </span><span class="s1">mySet</span><span class="s2">;</span>
+    <span class="s0">private </span><span class="s1">Properties myProperties</span><span class="s2">;</span>
+
+<span class="s1">}</span>
+</pre>
+<h2>③、基本类型的注入 方式二:外部配置文件注入</h2>
+<h2>src目录下创建文件xxx.properties</h2>
+<h2>xxx.properties文件配置</h2>
+	<pre><span class="s0">name=</span><span class="s1">ShuXinSheng</span>
+	<span class="s0">age=</span><span class="s1">20</span></pre>
+<h2>xml文件配置</h2>
+<pre><span class="s0">&lt;?</span><span class="s1">xml version</span><span class="s3">=&quot;1.0&quot; </span><span class="s1">encoding</span><span class="s3">=&quot;UTF-8&quot;</span><span class="s0">?&gt;</span>
+<span class="s2">&lt;</span><span class="s5">beans </span><span class="s1">xmlns</span><span class="s3">=&quot;http://www.springframework.org/schema/beans&quot;</span>
+       <span class="s1">xmlns:xsi</span><span class="s3">=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
+       <span class="s1">xmlns:context</span><span class="s3">=&quot;http://www.springframework.org/schema/context&quot;</span>
+       <span class="s1">xmlns:util</span><span class="s3">=&quot;http://www.springframework.org/schema/util&quot;</span>
+       <span class="s1">xsi:schemaLocation</span><span class="s3">=&quot;http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/util https://www.springframework.org/schema/util/spring-util.xsd&quot;</span>
+<span class="s2">&gt;</span>
+    <span class="s6">&lt;!--扫描包--&gt;</span>
+    <span class="s2">&lt;</span><span class="s5">context:component-scan </span><span class="s1">base-package</span><span class="s3">=&quot;cn.shu&quot; </span><span class="s2">/&gt;</span>
+    <span class="s6">&lt;!--属性注解--&gt;</span>
+    <span class="s2">&lt;</span><span class="s5">context:annotation-config</span><span class="s2">&gt;&lt;/</span><span class="s5">context:annotation-config</span><span class="s2">&gt;</span>
+    <span class="s6">&lt;!--引入外部配置文件 注入值--&gt;</span>
+   <span class="s2">&lt;</span><span class="s5">context:property-placeholder </span><span class="s1">location</span><span class="s3">=&quot;classpath:/xxx.properties&quot;</span><span class="s2">/&gt;</span>
+
+<span class="s2">&lt;/</span><span class="s5">beans</span><span class="s2">&gt;</span></pre>
+<h2>类中使用</h2>
+<pre>
+	<span class="s0">@Component(</span><span class="s3">&quot;per&quot;</span><span class="s1">)</span>
+<span class="s0">@Lazy(</span><span class="s0">true</span><span class="s1">)</span>
+<span class="s0">@Scope(</span><span class="s3">&quot;singleton&quot;</span><span class="s1">)</span>
+<span class="s0">public class </span><span class="s1">Person {</span>
+    <span class="s4">//name对应properties中的name</span>
+    <span class="s0">@Value(</span><span class="s3">&quot;${name}&quot;</span><span class="s1">)</span>
+    <span class="s0">private </span><span class="s1">String name</span><span class="s2">;</span>
+
+    <span class="s4">//age对应properties中的age</span>
+    <span class="s0">@Value(</span><span class="s3">&quot;${age}&quot;</span><span class="s1">)</span>
+    <span class="s0">private int </span><span class="s1">age</span><span class="s2">;</span>
+
+    <span class="s0">private </span><span class="s1">List</span><span class="s0">&lt;</span><span class="s1">String</span><span class="s0">&gt; </span><span class="s1">myList</span><span class="s2">;</span>
+
+    <span class="s0">private </span><span class="s1">Map</span><span class="s0">&lt;</span><span class="s1">String</span><span class="s2">,</span><span class="s1">String</span><span class="s0">&gt; </span><span class="s1">myMap</span><span class="s2">;</span>
+
+    <span class="s0">private </span><span class="s1">Set</span><span class="s0">&lt;</span><span class="s1">String</span><span class="s0">&gt; </span><span class="s1">mySet</span><span class="s2">;</span>
+
+    <span class="s0">private </span><span class="s1">Properties myProperties</span><span class="s2">;</span>
+
+
+<span class="s1">}</span>
+</pre>
+<h2>④、集合、Map:需要用到配置文件</h2>
+<pre><span class="s0">&lt;?</span><span class="s1">xml version</span><span class="s3">=&quot;1.0&quot; </span><span class="s1">encoding</span><span class="s3">=&quot;UTF-8&quot;</span><span class="s0">?&gt;</span>
+<span class="s2">&lt;</span><span class="s5">beans </span><span class="s1">xmlns</span><span class="s3">=&quot;http://www.springframework.org/schema/beans&quot;</span>
+       <span class="s1">xmlns:xsi</span><span class="s3">=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
+       <span class="s1">xmlns:context</span><span class="s3">=&quot;http://www.springframework.org/schema/context&quot;</span>
+       <span class="s1">xmlns:util</span><span class="s3">=&quot;http://www.springframework.org/schema/util&quot;</span>
+       <span class="s1">xsi:schemaLocation</span><span class="s3">=&quot;http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/util https://www.springframework.org/schema/util/spring-util.xsd&quot;</span>
+<span class="s2">&gt;</span>
+    <span class="s6">&lt;!--扫描包--&gt;</span>
+    <span class="s2">&lt;</span><span class="s5">context:component-scan </span><span class="s1">base-package</span><span class="s3">=&quot;cn.shu&quot; </span><span class="s2">/&gt;</span>
+    <span class="s6">&lt;!--属性注解--&gt;</span>
+    <span class="s2">&lt;</span><span class="s5">context:annotation-config</span><span class="s2">&gt;&lt;/</span><span class="s5">context:annotation-config</span><span class="s2">&gt;</span>
+
+    <span class="s6">&lt;!-- 配置集合数据 --&gt;</span>
+    <span class="s6">&lt;!--List类型--&gt;</span>
+    <span class="s2">&lt;</span><span class="s5">util:list </span><span class="s1">id</span><span class="s3">=&quot;list1&quot;</span><span class="s2">&gt;</span>
+        <span class="s2">&lt;</span><span class="s5">value</span><span class="s2">&gt;</span><span class="s0">aaa</span><span class="s2">&lt;/</span><span class="s5">value</span><span class="s2">&gt;</span>
+        <span class="s2">&lt;</span><span class="s5">value</span><span class="s2">&gt;</span><span class="s0">bbb</span><span class="s2">&lt;/</span><span class="s5">value</span><span class="s2">&gt;</span>
+        <span class="s2">&lt;</span><span class="s5">value</span><span class="s2">&gt;</span><span class="s0">ccc</span><span class="s2">&lt;/</span><span class="s5">value</span><span class="s2">&gt;</span>
+    <span class="s2">&lt;/</span><span class="s5">util:list</span><span class="s2">&gt;</span>
+
+    <span class="s6">&lt;!--Set类型--&gt;</span>
+    <span class="s2">&lt;</span><span class="s5">util:set </span><span class="s1">id</span><span class="s3">=&quot;set1&quot;</span><span class="s2">&gt;</span>
+        <span class="s2">&lt;</span><span class="s5">value</span><span class="s2">&gt;</span><span class="s0">111</span><span class="s2">&lt;/</span><span class="s5">value</span><span class="s2">&gt;</span>
+        <span class="s2">&lt;</span><span class="s5">value</span><span class="s2">&gt;</span><span class="s0">222</span><span class="s2">&lt;/</span><span class="s5">value</span><span class="s2">&gt;</span>
+        <span class="s2">&lt;</span><span class="s5">value</span><span class="s2">&gt;</span><span class="s0">333</span><span class="s2">&lt;/</span><span class="s5">value</span><span class="s2">&gt;</span>
+    <span class="s2">&lt;/</span><span class="s5">util:set</span><span class="s2">&gt;</span>
+
+    <span class="s6">&lt;!--Map类型--&gt;</span>
+    <span class="s2">&lt;</span><span class="s5">util:map </span><span class="s1">id</span><span class="s3">=&quot;map1&quot;</span><span class="s2">&gt;</span>
+        <span class="s2">&lt;</span><span class="s5">entry </span><span class="s1">key</span><span class="s3">=&quot;k1&quot; </span><span class="s1">value</span><span class="s3">=&quot;v1&quot;</span><span class="s2">&gt;&lt;/</span><span class="s5">entry</span><span class="s2">&gt;</span>
+        <span class="s2">&lt;</span><span class="s5">entry </span><span class="s1">key</span><span class="s3">=&quot;k2&quot; </span><span class="s1">value</span><span class="s3">=&quot;v2&quot;</span><span class="s2">&gt;&lt;/</span><span class="s5">entry</span><span class="s2">&gt;</span>
+        <span class="s2">&lt;</span><span class="s5">entry </span><span class="s1">key</span><span class="s3">=&quot;k3&quot; </span><span class="s1">value</span><span class="s3">=&quot;v3&quot;</span><span class="s2">&gt;&lt;/</span><span class="s5">entry</span><span class="s2">&gt;</span>
+    <span class="s2">&lt;/</span><span class="s5">util:map</span><span class="s2">&gt;</span>
+
+    <span class="s6">&lt;!--Properties--&gt;</span>
+    <span class="s2">&lt;</span><span class="s5">util:properties </span><span class="s1">id</span><span class="s3">=&quot;pro1&quot;</span><span class="s2">&gt;</span>
+        <span class="s2">&lt;</span><span class="s5">prop </span><span class="s1">key</span><span class="s3">=&quot;p1&quot;</span><span class="s2">&gt;</span><span class="s0">v1</span><span class="s2">&lt;/</span><span class="s5">prop</span><span class="s2">&gt;</span>
+        <span class="s2">&lt;</span><span class="s5">prop </span><span class="s1">key</span><span class="s3">=&quot;p2&quot;</span><span class="s2">&gt;</span><span class="s0">v2</span><span class="s2">&lt;/</span><span class="s5">prop</span><span class="s2">&gt;</span>
+        <span class="s2">&lt;</span><span class="s5">prop </span><span class="s1">key</span><span class="s3">=&quot;p3&quot;</span><span class="s2">&gt;</span><span class="s0">v3</span><span class="s2">&lt;/</span><span class="s5">prop</span><span class="s2">&gt;</span>
+    <span class="s2">&lt;/</span><span class="s5">util:properties</span><span class="s2">&gt;</span>
+
+
+<span class="s2">&lt;/</span><span class="s5">beans</span><span class="s2">&gt;</span></pre>
+<h2>⑤、集合、Map:类中的配置</h2>
+<pre>
+	<span class="s0">@Component(</span><span class="s3">&quot;per&quot;</span><span class="s1">)</span>
+<span class="s0">@Lazy(</span><span class="s0">true</span><span class="s1">)</span>
+<span class="s0">@Scope(</span><span class="s3">&quot;singleton&quot;</span><span class="s1">)</span>
+<span class="s0">public class </span><span class="s1">Person {</span>
+
+    <span class="s0">@Value(</span><span class="s3">&quot;舒新胜&quot;</span><span class="s1">)</span>
+    <span class="s0">private </span><span class="s1">String name</span><span class="s2">;</span>
+    <span class="s0">private int </span><span class="s1">age</span><span class="s2">;</span>
+
+    <span class="s0">@Value(</span><span class="s3">&quot;<%--#{@list1}--%>&quot;</span><span class="s1">)</span>
+    <span class="s0">private </span><span class="s1">List</span><span class="s0">&lt;</span><span class="s1">String</span><span class="s0">&gt; </span><span class="s1">myList</span><span class="s2">;</span>
+
+    <span class="s0">@Value(</span><span class="s3">&quot;<%--#{@map1}--%>&quot;</span><span class="s1">)</span>
+    <span class="s0">private </span><span class="s1">Map</span><span class="s0">&lt;</span><span class="s1">String</span><span class="s2">,</span><span class="s1">String</span><span class="s0">&gt; </span><span class="s1">myMap</span><span class="s2">;</span>
+
+    <span class="s0">@Value(</span><span class="s3">&quot;<%--#{@set1}--%>&quot;</span><span class="s1">)</span>
+    <span class="s0">private </span><span class="s1">Set</span><span class="s0">&lt;</span><span class="s1">String</span><span class="s0">&gt; </span><span class="s1">mySet</span><span class="s2">;</span>
+
+    <span class="s0">@Value(</span><span class="s3">&quot;<%--#{@pro1}--%>&quot;</span><span class="s1">)</span>
+    <span class="s0">private </span><span class="s1">Properties myProperties</span><span class="s2">;</span>
+
+
+<span class="s1">}</span>
+</pre>
+<h1>八、实现DI(依赖注入)：自定义Bean类型注入</h1>
+<h2>1、xml方式注入</h2>
+<pre><span class="s0">&lt;?</span><span class="s1">xml version</span><span class="s3">=&quot;1.0&quot; </span><span class="s1">encoding</span><span class="s3">=&quot;UTF-8&quot;</span><span class="s0">?&gt;</span>
+<span class="s2">&lt;</span><span class="s5">beans </span><span class="s1">xmlns</span><span class="s3">=&quot;http://www.springframework.org/schema/beans&quot;</span>
+       <span class="s1">xmlns:xsi</span><span class="s3">=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
+       <span class="s1">xsi:schemaLocation</span><span class="s3">=&quot;http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd&quot;</span><span class="s2">&gt;</span>
+
+    <span class="s6">&lt;!--为person类的dog(name)属性设置 引用(ref)为 id=dog的bean--&gt;</span>
+    <span class="s2">&lt;</span><span class="s5">bean </span><span class="s1">id</span><span class="s3">=&quot;person&quot; </span><span class="s1">class</span><span class="s3">=&quot;cn.shu.Person&quot; </span><span class="s2">&gt;</span>
+        <span class="s2">&lt;</span><span class="s5">property </span><span class="s1">name</span><span class="s3">=&quot;dog&quot; </span><span class="s1">ref</span><span class="s3">=&quot;dog&quot;</span><span class="s2">/&gt;</span>
+    <span class="s2">&lt;/</span><span class="s5">bean</span><span class="s2">&gt;</span>
+    <span class="s2">&lt;</span><span class="s5">bean </span><span class="s1">id</span><span class="s3">=&quot;dog&quot; </span><span class="s1">class</span><span class="s3">=&quot;cn.shu.pet.dog&quot;</span><span class="s2">/&gt;</span>
+<span class="s2">&lt;/</span><span class="s5">beans</span><span class="s2">&gt;</span></pre>
+<h2>自动装配:<span class="s0">bean</span>的<span class="s0">autowire</span>属性(byName/byType)</h2>
+<h2>在Spring的set方式实现的注入过程中，支持自动装配机制，所谓自动装配机制，会根据要设置的javabean属性的名字 或 类型 到spring中自动寻找对应id 或 类型的&lt;bean&gt;进行设置，从而 省去依次配置的过程，简化了配置。</h2>
+<pre><span class="s0">&lt;?</span><span class="s1">xml version</span><span class="s3">=&quot;1.0&quot; </span><span class="s1">encoding</span><span class="s3">=&quot;UTF-8&quot;</span><span class="s0">?&gt;</span>
+<span class="s2">&lt;</span><span class="s5">beans </span><span class="s1">xmlns</span><span class="s3">=&quot;http://www.springframework.org/schema/beans&quot;</span>
+       <span class="s1">xmlns:xsi</span><span class="s3">=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span>
+       <span class="s1">xsi:schemaLocation</span><span class="s3">=&quot;http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd&quot;</span><span class="s2">&gt;</span>
+
+    <span class="s6">&lt;!--  </span>
+    <span class="s6">autowire设定自动装配：
+     byName:根据javabean中需要注入的属性的名字 ，在spring容器中找对应id的&lt;bean&gt;将该&lt;bean&gt;的对象复制给 当前的属性
+      byType:根据javabean中需要注入的属性的类型，在spring容器中找对应class类型的&lt;bean&gt;将该&lt;bean&gt;的对象复制给 当前的属性
+     **byType方式 根据类型进行匹配，可能匹配到多个&lt;bean&gt;,此时会抛出异常。而byName是通过id来寻找&lt;bean&gt;，
+     id没有重复，不会有这方面的问题，所以推荐使用byName方式
+    --&gt;</span>
+    <span class="s2">&lt;</span><span class="s5">bean </span><span class="s1">id</span><span class="s3">=&quot;person&quot; </span><span class="s1">class</span><span class="s3">=&quot;cn.shu.Person&quot; </span><span class="s1">autowire</span><span class="s3">=&quot;byName&quot;</span><span class="s2">/&gt;</span>
+
+    <span class="s2">&lt;</span><span class="s5">bean </span><span class="s1">id</span><span class="s3">=&quot;dog&quot; </span><span class="s1">class</span><span class="s3">=&quot;cn.shu.pet.dog&quot;</span><span class="s2">/&gt;</span>
+<span class="s2">&lt;/</span><span class="s5">beans</span><span class="s2">&gt;</span></pre>
+<h2>2、使用注解注入自定义bean类型数据</h2>
+<h2 STYLE="color: red;">当Spring容器解析到@Component注解时，创建当前类的bean在spring容器中进行管理，在创建bean的过程中发现了@Autowired注解，会根据当前bean类型，寻找在spring中是否存在该类型的bean，找到直接注入，如果找不到还会检查是否有子孙类、实现类存在，如果存在唯一的则自动注入，如果还是没有找到或找到多个无法注入，则还会按照属性名对应id去查找对应的bean，如果存在则注入，如果还是没有找到则抛出异常。
+
+	也可以额外配置@Qualifier(value="dog1")注解强制要求按照id寻找bean，则此时会直接使用给定的id寻找bean，而不会进行基于类型的匹配。
+
+</h2>
+<pre>
+	<span class="s0">@Component(</span><span class="s3">&quot;per&quot;</span><span class="s1">)</span>
+<span class="s0">@Lazy(</span><span class="s0">true</span><span class="s1">)</span>
+<span class="s0">@Scope(</span><span class="s3">&quot;singleton&quot;</span><span class="s1">)</span>
+<span class="s0">public class </span><span class="s1">Person {</span>
+    <span class="s0">@Autowired</span>
+    <span class="s0">@Qualifier(</span><span class="s3">&quot;dog1&quot;</span><span class="s1">)</span>
+    <span class="s0">private </span><span class="s1">Dog myDog()</span><span class="s2">;</span>
+<span class="s1">}</span>
+<h2>流程图</h2>
+<img src="html/images/springdi.png" alt=""/>
+</pre>
+</body>
+</html>
