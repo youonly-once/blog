@@ -108,7 +108,7 @@
         from category
             where 1 = 1
         <if test="id != null">
-            and id = #{id,jdbcType=VARCHAR}
+            and id = #{id,jdbcType=INTEGER}
         </if>
         <if test="categoryName != null">
             and categoryName = #{categoryName,jdbcType=VARCHAR}

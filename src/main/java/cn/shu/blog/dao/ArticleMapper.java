@@ -74,4 +74,7 @@ public interface ArticleMapper {
     int batchInsert(@Param("list") List<Article> list);
 
     List<Article> selectByAll(Article article);
+
+    List<Article> getArticlesForIndex();
+
 }

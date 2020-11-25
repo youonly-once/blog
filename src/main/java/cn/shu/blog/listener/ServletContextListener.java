@@ -1,7 +1,10 @@
 package cn.shu.blog.listener;
 
+import cn.shu.blog.ArticleUtil;
+import lombok.SneakyThrows;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.annotation.WebListener;
@@ -13,14 +16,23 @@ import javax.servlet.annotation.WebListener;
 @Component
 @WebListener
 public class ServletContextListener implements javax.servlet.ServletContextListener {
+    @Resource
+    private ArticleUtil articleUtil = null;
+    @SneakyThrows
     @Override
     public void contextInitialized(ServletContextEvent servletContextEvent) {
-       // System.out.println("ServletContext创建");
         ServletContext context = servletContextEvent.getServletContext();
 
         String webPath= context.getContextPath();
          context.setAttribute("webPath",webPath);
-           // System.out.println("source:"+servletContextEvent.getSource());
+         new Thread(new Runnable() {
+             @SneakyThrows
+             @Override
+             public void run() {
+                 articleUtil.scanArticle();
+             }
+         }).start();
+
     }
 
     @Override

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+该文件只是测试使用，
+spring boot中不需要该文件
+-->
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <!--可以配置多个数据源，这里指定默认值-->
+    <environments default="MySQL">
+        <environment id="MySQL">
+            <transactionManager type="JDBC"/>
+            <dataSource type="POOLED">
+                <property name="driver" value="com.mysql.jdbc.Driver"/>
+                <property name="url" value="jdbc:mysql:///myblog?serverTimezone=Asia/Shanghai"/>
+                <property name="username" value="root"/>
+                <property name="password" value="123456"/>
+            </dataSource>
+        </environment>
+    </environments>
+    <mappers>
+        <!--指定SQL映射文件 可以写多个-->
+        <mapper resource="mappers/articleMapper.xml"/>
+        <mapper resource="mappers/categoryMapper.xml"/>
+        <mapper resource="mappers/UserMapper.xml"/>
+    </mappers>
+</configuration>

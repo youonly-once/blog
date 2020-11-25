@@ -1,12 +1,15 @@
 package cn.shu.blog.utils;
 
 import com.artofsolving.jodconverter.DocumentConverter;
+import com.artofsolving.jodconverter.DocumentFamily;
+import com.artofsolving.jodconverter.DocumentFormat;
 import com.artofsolving.jodconverter.openoffice.connection.OpenOfficeConnection;
 import com.artofsolving.jodconverter.openoffice.connection.SocketOpenOfficeConnection;
 import com.artofsolving.jodconverter.openoffice.converter.OpenOfficeDocumentConverter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.ConnectException;
 @Slf4j
 public class Doc2Pdf {
@@ -27,7 +30,8 @@ public class Doc2Pdf {
             File inputFile = new File(sourcePath);
             if (!inputFile.exists()) {
                 log.error("找不到源文件："+sourcePath);
-                return -1;// 找不到源文件, 则返回-1
+                // 找不到源文件, 则返回-1
+                return -1;
             }
             return turn(inputFile,destPath);
     }
@@ -43,11 +47,12 @@ public class Doc2Pdf {
             // 将源文件转换为目标文件
             DocumentConverter converter = new OpenOfficeDocumentConverter(connection);
             converter.convert(inputFile, outputFile);
-
+            //转html使用
+           // FileEncodeConvert.convert(outputFile);
             return 0;
-        } catch (ConnectException e) {
+        } catch (IOException e) {
             e.printStackTrace();
-        }finally {
+        } finally {
             // 关闭连接服务
             if (connection != null) {
                 connection.disconnect();

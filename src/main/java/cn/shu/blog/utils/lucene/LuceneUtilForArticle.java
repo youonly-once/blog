@@ -1,10 +1,17 @@
 package cn.shu.blog.utils.lucene;
 
 import cn.shu.blog.beans.Article;
+import cn.shu.blog.dao.ArticleMapper;
 import cn.shu.blog.service.ArticleService;
 import cn.shu.blog.utils.database.JDBCUtil;
 import cn.shu.blog.utils.database.ResultSet2Bean;
+import org.apache.ibatis.io.Resources;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -17,11 +24,10 @@ import java.util.List;
  * @创建时间 2020/6/7 14:05
  */
 public class LuceneUtilForArticle {
-    public static void createIndex(String rootPath){
-        List<Article> articles = getArticles();
-        if (articles!=null){
-            System.out.println(articles);
-            LuceneIndexUntil.createIndex(getArticles(),rootPath+"\\article_index");
+    public static void createIndex(String rootPath,List<Article> articleList) throws IOException {
+
+        if (articleList != null && articleList.size()>0){
+            LuceneIndexUntil.createIndex(articleList,rootPath+"\\article_index");
         }
     }
     private static List<Article> getArticles(){

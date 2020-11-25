@@ -1,6 +1,6 @@
 package cn.shu.blog.controller;
 
-import cn.shu.blog.AddArticle;
+import cn.shu.blog.ArticleUtil;
 import cn.shu.blog.beans.Article;
 import cn.shu.blog.beans.Category;
 import cn.shu.blog.beans.Comment;
@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.annotation.Resource;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
@@ -38,6 +39,8 @@ public class BlogArticleHandler {
     private CommentService commentService = null;
     @Autowired
     private CategoryMapper categoryMapper = null;
+
+    @Resource ArticleUtil articleUtil =null;
 
     @RequestMapping("/hot.action")
     public String getHotArticle(HttpServletRequest request) {
@@ -73,7 +76,7 @@ public class BlogArticleHandler {
             //swf文件
             if (".swf".equalsIgnoreCase(article.getFileType())) {
                 //转换为swf方便显示 转换失败
-                if (!AddArticle.turnSwfJar(article.getSourceFilePath(), article.getTargetFilePath())) {
+                if (!articleUtil.turnSwfJar(article.getSourceFilePath(), article.getTargetFilePath())) {
                     return "forward:/WEB-INF/jsp/404.jsp";
                 }
                 return "forward:/WEB-INF/jsp/article.jsp";

@@ -1,530 +1,536 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="cn.shu.blog.dao.ArticleMapper">
-  <resultMap id="BaseResultMap" type="cn.shu.blog.beans.Article">
-    <!--@mbg.generated-->
-    <!--@Table article-->
-    <id column="id" jdbcType="INTEGER" property="id" />
-    <result column="title" jdbcType="VARCHAR" property="title" />
-    <result column="createDate" jdbcType="DATE" property="createDate" />
-    <result column="updateDate" jdbcType="DATE" property="updateDate" />
-    <result column="categoryId" jdbcType="INTEGER" property="categoryId" />
-    <result column="userId" jdbcType="INTEGER" property="userId" />
-    <result column="visitors" jdbcType="INTEGER" property="visitors" />
-    <result column="fileType" jdbcType="CHAR" property="fileType" />
-    <result column="targetFilePath" jdbcType="VARCHAR" property="targetFilePath" />
-    <result column="sourceFilePath" jdbcType="VARCHAR" property="sourceFilePath" />
-    <result column="description" jdbcType="VARCHAR" property="description" />
-    <result column="imagePath" jdbcType="VARCHAR" property="imagePath" />
-  </resultMap>
-  <sql id="Base_Column_List">
-    <!--@mbg.generated-->
-    id, title, createDate, updateDate, categoryId, userId, visitors, fileType, targetFilePath,
-    sourceFilePath, description, imagePath
-  </sql>
-  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
-    <!--@mbg.generated-->
-    select 
-    <include refid="Base_Column_List" />
-    from article
-    where id = #{id,jdbcType=INTEGER}
-  </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
-    <!--@mbg.generated-->
-    delete from article
-    where id = #{id,jdbcType=INTEGER}
-  </delete>
-  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="cn.shu.blog.beans.Article" useGeneratedKeys="true">
-    <!--@mbg.generated-->
-    insert into article (title, createDate, updateDate,
-      categoryId, userId, visitors, 
-      fileType, targetFilePath, sourceFilePath, 
-      description, imagePath)
-    values (#{title,jdbcType=VARCHAR}, #{createDate,jdbcType=DATE}, #{updateDate,jdbcType=DATE},
-      #{categoryId,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, #{visitors,jdbcType=INTEGER}, 
-      #{fileType,jdbcType=CHAR}, #{targetFilePath,jdbcType=VARCHAR}, #{sourceFilePath,jdbcType=VARCHAR}, 
-      #{description,jdbcType=VARCHAR}, #{imagePath,jdbcType=VARCHAR})
-  </insert>
-  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="cn.shu.blog.beans.Article" useGeneratedKeys="true">
-    <!--@mbg.generated-->
-    insert into article
-    <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="title != null">
-        title,
-      </if>
-      <if test="createDate != null">
-        createDate,
-      </if>
-      <if test="updateDate != null">
-        updateDate,
-      </if>
-      <if test="categoryId != null">
-        categoryId,
-      </if>
-      <if test="userId != null">
-        userId,
-      </if>
-      <if test="visitors != null">
-        visitors,
-      </if>
-      <if test="fileType != null">
-        fileType,
-      </if>
-      <if test="targetFilePath != null">
-        targetFilePath,
-      </if>
-      <if test="sourceFilePath != null">
-        sourceFilePath,
-      </if>
-      <if test="description != null">
-        description,
-      </if>
-      <if test="imagePath != null">
-        imagePath,
-      </if>
-    </trim>
-    <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="title != null">
-        #{title,jdbcType=VARCHAR},
-      </if>
-      <if test="createDate != null">
-        #{createDate,jdbcType=DATE},
-      </if>
-      <if test="updateDate != null">
-        #{updateDate,jdbcType=DATE},
-      </if>
-      <if test="categoryId != null">
-        #{categoryId,jdbcType=INTEGER},
-      </if>
-      <if test="userId != null">
-        #{userId,jdbcType=INTEGER},
-      </if>
-      <if test="visitors != null">
-        #{visitors,jdbcType=INTEGER},
-      </if>
-      <if test="fileType != null">
-        #{fileType,jdbcType=CHAR},
-      </if>
-      <if test="targetFilePath != null">
-        #{targetFilePath,jdbcType=VARCHAR},
-      </if>
-      <if test="sourceFilePath != null">
-        #{sourceFilePath,jdbcType=VARCHAR},
-      </if>
-      <if test="description != null">
-        #{description,jdbcType=VARCHAR},
-      </if>
-      <if test="imagePath != null">
-        #{imagePath,jdbcType=VARCHAR},
-      </if>
-    </trim>
-  </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="cn.shu.blog.beans.Article">
-    <!--@mbg.generated-->
-    update article
-    <set>
-      <if test="title != null">
-        title = #{title,jdbcType=VARCHAR},
-      </if>
-      <if test="createDate != null">
-        createDate = #{createDate,jdbcType=DATE},
-      </if>
-      <if test="updateDate != null">
-        updateDate = #{updateDate,jdbcType=DATE},
-      </if>
-      <if test="categoryId != null">
-        categoryId = #{categoryId,jdbcType=INTEGER},
-      </if>
-      <if test="userId != null">
-        userId = #{userId,jdbcType=INTEGER},
-      </if>
-      <if test="visitors != null">
-        visitors = #{visitors,jdbcType=INTEGER},
-      </if>
-      <if test="fileType != null">
-        fileType = #{fileType,jdbcType=CHAR},
-      </if>
-      <if test="targetFilePath != null">
-        targetFilePath = #{targetFilePath,jdbcType=VARCHAR},
-      </if>
-      <if test="sourceFilePath != null">
-        sourceFilePath = #{sourceFilePath,jdbcType=VARCHAR},
-      </if>
-      <if test="description != null">
-        description = #{description,jdbcType=VARCHAR},
-      </if>
-      <if test="imagePath != null">
-        imagePath = #{imagePath,jdbcType=VARCHAR},
-      </if>
-    </set>
-    where id = #{id,jdbcType=INTEGER}
-  </update>
-  <update id="updateByPrimaryKey" parameterType="cn.shu.blog.beans.Article">
-    <!--@mbg.generated-->
-    update article
-    set title = #{title,jdbcType=VARCHAR},
-      createDate = #{createDate,jdbcType=DATE},
-      updateDate = #{updateDate,jdbcType=DATE},
-      categoryId = #{categoryId,jdbcType=INTEGER},
-      userId = #{userId,jdbcType=INTEGER},
-      visitors = #{visitors,jdbcType=INTEGER},
-      fileType = #{fileType,jdbcType=CHAR},
-      targetFilePath = #{targetFilePath,jdbcType=VARCHAR},
-      sourceFilePath = #{sourceFilePath,jdbcType=VARCHAR},
-      description = #{description,jdbcType=VARCHAR},
-      imagePath = #{imagePath,jdbcType=VARCHAR}
-    where id = #{id,jdbcType=INTEGER}
-  </update>
-  <update id="updateBatch" parameterType="java.util.List">
-    <!--@mbg.generated-->
-    update article
-    <trim prefix="set" suffixOverrides=",">
-      <trim prefix="title = case" suffix="end,">
-        <foreach collection="list" index="index" item="item">
-          when id = #{item.id,jdbcType=INTEGER} then #{item.title,jdbcType=VARCHAR}
+    <resultMap id="BaseResultMap" type="cn.shu.blog.beans.Article">
+        <!--@mbg.generated-->
+        <!--@Table article-->
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="title" jdbcType="VARCHAR" property="title"/>
+        <result column="createDate" jdbcType="DATE" property="createDate"/>
+        <result column="updateDate" jdbcType="DATE" property="updateDate"/>
+        <result column="categoryId" jdbcType="INTEGER" property="categoryId"/>
+        <result column="userId" jdbcType="INTEGER" property="userId"/>
+        <result column="visitors" jdbcType="INTEGER" property="visitors"/>
+        <result column="fileType" jdbcType="CHAR" property="fileType"/>
+        <result column="targetFilePath" jdbcType="VARCHAR" property="targetFilePath"/>
+        <result column="sourceFilePath" jdbcType="VARCHAR" property="sourceFilePath"/>
+        <result column="description" jdbcType="VARCHAR" property="description"/>
+        <result column="imagePath" jdbcType="VARCHAR" property="imagePath"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        <!--@mbg.generated-->
+        id, title, createDate, updateDate, categoryId, userId, visitors, fileType, targetFilePath,
+        sourceFilePath, description, imagePath
+    </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        <!--@mbg.generated-->
+        select
+        <include refid="Base_Column_List"/>
+        from article
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        <!--@mbg.generated-->
+        delete
+        from article
+        where id = #{id,jdbcType=INTEGER}
+    </delete>
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="cn.shu.blog.beans.Article"
+            useGeneratedKeys="true">
+        <!--@mbg.generated-->
+        insert into article (title, createDate, updateDate,
+                             categoryId, userId, visitors,
+                             fileType, targetFilePath, sourceFilePath,
+                             description, imagePath)
+        values (#{title,jdbcType=VARCHAR}, #{createDate,jdbcType=DATE}, #{updateDate,jdbcType=DATE},
+                #{categoryId,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, #{visitors,jdbcType=INTEGER},
+                #{fileType,jdbcType=CHAR}, #{targetFilePath,jdbcType=VARCHAR}, #{sourceFilePath,jdbcType=VARCHAR},
+                #{description,jdbcType=VARCHAR}, #{imagePath,jdbcType=VARCHAR})
+    </insert>
+    <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="cn.shu.blog.beans.Article"
+            useGeneratedKeys="true">
+        <!--@mbg.generated-->
+        insert into article
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="title != null">
+                title,
+            </if>
+            <if test="createDate != null">
+                createDate,
+            </if>
+            <if test="updateDate != null">
+                updateDate,
+            </if>
+            <if test="categoryId != null">
+                categoryId,
+            </if>
+            <if test="userId != null">
+                userId,
+            </if>
+            <if test="visitors != null">
+                visitors,
+            </if>
+            <if test="fileType != null">
+                fileType,
+            </if>
+            <if test="targetFilePath != null">
+                targetFilePath,
+            </if>
+            <if test="sourceFilePath != null">
+                sourceFilePath,
+            </if>
+            <if test="description != null">
+                description,
+            </if>
+            <if test="imagePath != null">
+                imagePath,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="title != null">
+                #{title,jdbcType=VARCHAR},
+            </if>
+            <if test="createDate != null">
+                #{createDate,jdbcType=DATE},
+            </if>
+            <if test="updateDate != null">
+                #{updateDate,jdbcType=DATE},
+            </if>
+            <if test="categoryId != null">
+                #{categoryId,jdbcType=INTEGER},
+            </if>
+            <if test="userId != null">
+                #{userId,jdbcType=INTEGER},
+            </if>
+            <if test="visitors != null">
+                #{visitors,jdbcType=INTEGER},
+            </if>
+            <if test="fileType != null">
+                #{fileType,jdbcType=CHAR},
+            </if>
+            <if test="targetFilePath != null">
+                #{targetFilePath,jdbcType=VARCHAR},
+            </if>
+            <if test="sourceFilePath != null">
+                #{sourceFilePath,jdbcType=VARCHAR},
+            </if>
+            <if test="description != null">
+                #{description,jdbcType=VARCHAR},
+            </if>
+            <if test="imagePath != null">
+                #{imagePath,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="cn.shu.blog.beans.Article">
+        <!--@mbg.generated-->
+        update article
+        <set>
+            <if test="title != null">
+                title = #{title,jdbcType=VARCHAR},
+            </if>
+            <if test="createDate != null">
+                createDate = #{createDate,jdbcType=DATE},
+            </if>
+            <if test="updateDate != null">
+                updateDate = #{updateDate,jdbcType=DATE},
+            </if>
+            <if test="categoryId != null">
+                categoryId = #{categoryId,jdbcType=INTEGER},
+            </if>
+            <if test="userId != null">
+                userId = #{userId,jdbcType=INTEGER},
+            </if>
+            <if test="visitors != null">
+                visitors = #{visitors,jdbcType=INTEGER},
+            </if>
+            <if test="fileType != null">
+                fileType = #{fileType,jdbcType=CHAR},
+            </if>
+            <if test="targetFilePath != null">
+                targetFilePath = #{targetFilePath,jdbcType=VARCHAR},
+            </if>
+            <if test="sourceFilePath != null">
+                sourceFilePath = #{sourceFilePath,jdbcType=VARCHAR},
+            </if>
+            <if test="description != null">
+                description = #{description,jdbcType=VARCHAR},
+            </if>
+            <if test="imagePath != null">
+                imagePath = #{imagePath,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="cn.shu.blog.beans.Article">
+        <!--@mbg.generated-->
+        update article
+        set title          = #{title,jdbcType=VARCHAR},
+            createDate     = #{createDate,jdbcType=DATE},
+            updateDate     = #{updateDate,jdbcType=DATE},
+            categoryId     = #{categoryId,jdbcType=INTEGER},
+            userId         = #{userId,jdbcType=INTEGER},
+            visitors       = #{visitors,jdbcType=INTEGER},
+            fileType       = #{fileType,jdbcType=CHAR},
+            targetFilePath = #{targetFilePath,jdbcType=VARCHAR},
+            sourceFilePath = #{sourceFilePath,jdbcType=VARCHAR},
+            description    = #{description,jdbcType=VARCHAR},
+            imagePath      = #{imagePath,jdbcType=VARCHAR}
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="updateBatch" parameterType="java.util.List">
+        <!--@mbg.generated-->
+        update article
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="title = case" suffix="end,">
+                <foreach collection="list" index="index" item="item">
+                    when id = #{item.id,jdbcType=INTEGER} then #{item.title,jdbcType=VARCHAR}
+                </foreach>
+            </trim>
+            <trim prefix="createDate = case" suffix="end,">
+                <foreach collection="list" index="index" item="item">
+                    when id = #{item.id,jdbcType=INTEGER} then #{item.createDate,jdbcType=DATE}
+                </foreach>
+            </trim>
+            <trim prefix="updateDate = case" suffix="end,">
+                <foreach collection="list" index="index" item="item">
+                    when id = #{item.id,jdbcType=INTEGER} then #{item.updateDate,jdbcType=DATE}
+                </foreach>
+            </trim>
+            <trim prefix="categoryId = case" suffix="end,">
+                <foreach collection="list" index="index" item="item">
+                    when id = #{item.id,jdbcType=INTEGER} then #{item.categoryId,jdbcType=INTEGER}
+                </foreach>
+            </trim>
+            <trim prefix="userId = case" suffix="end,">
+                <foreach collection="list" index="index" item="item">
+                    when id = #{item.id,jdbcType=INTEGER} then #{item.userId,jdbcType=INTEGER}
+                </foreach>
+            </trim>
+            <trim prefix="visitors = case" suffix="end,">
+                <foreach collection="list" index="index" item="item">
+                    when id = #{item.id,jdbcType=INTEGER} then #{item.visitors,jdbcType=INTEGER}
+                </foreach>
+            </trim>
+            <trim prefix="fileType = case" suffix="end,">
+                <foreach collection="list" index="index" item="item">
+                    when id = #{item.id,jdbcType=INTEGER} then #{item.fileType,jdbcType=CHAR}
+                </foreach>
+            </trim>
+            <trim prefix="targetFilePath = case" suffix="end,">
+                <foreach collection="list" index="index" item="item">
+                    when id = #{item.id,jdbcType=INTEGER} then #{item.targetFilePath,jdbcType=VARCHAR}
+                </foreach>
+            </trim>
+            <trim prefix="sourceFilePath = case" suffix="end,">
+                <foreach collection="list" index="index" item="item">
+                    when id = #{item.id,jdbcType=INTEGER} then #{item.sourceFilePath,jdbcType=VARCHAR}
+                </foreach>
+            </trim>
+            <trim prefix="description = case" suffix="end,">
+                <foreach collection="list" index="index" item="item">
+                    when id = #{item.id,jdbcType=INTEGER} then #{item.description,jdbcType=VARCHAR}
+                </foreach>
+            </trim>
+            <trim prefix="imagePath = case" suffix="end,">
+                <foreach collection="list" index="index" item="item">
+                    when id = #{item.id,jdbcType=INTEGER} then #{item.imagePath,jdbcType=VARCHAR}
+                </foreach>
+            </trim>
+        </trim>
+        where id in
+        <foreach close=")" collection="list" item="item" open="(" separator=", ">
+            #{item.id,jdbcType=INTEGER}
         </foreach>
-      </trim>
-      <trim prefix="createDate = case" suffix="end,">
-        <foreach collection="list" index="index" item="item">
-          when id = #{item.id,jdbcType=INTEGER} then #{item.createDate,jdbcType=DATE}
+    </update>
+    <update id="updateBatchSelective" parameterType="java.util.List">
+        <!--@mbg.generated-->
+        update article
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="title = case" suffix="end,">
+                <foreach collection="list" index="index" item="item">
+                    <if test="item.title != null">
+                        when id = #{item.id,jdbcType=INTEGER} then #{item.title,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="createDate = case" suffix="end,">
+                <foreach collection="list" index="index" item="item">
+                    <if test="item.createDate != null">
+                        when id = #{item.id,jdbcType=INTEGER} then #{item.createDate,jdbcType=DATE}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="updateDate = case" suffix="end,">
+                <foreach collection="list" index="index" item="item">
+                    <if test="item.updateDate != null">
+                        when id = #{item.id,jdbcType=INTEGER} then #{item.updateDate,jdbcType=DATE}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="categoryId = case" suffix="end,">
+                <foreach collection="list" index="index" item="item">
+                    <if test="item.categoryId != null">
+                        when id = #{item.id,jdbcType=INTEGER} then #{item.categoryId,jdbcType=INTEGER}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="userId = case" suffix="end,">
+                <foreach collection="list" index="index" item="item">
+                    <if test="item.userId != null">
+                        when id = #{item.id,jdbcType=INTEGER} then #{item.userId,jdbcType=INTEGER}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="visitors = case" suffix="end,">
+                <foreach collection="list" index="index" item="item">
+                    <if test="item.visitors != null">
+                        when id = #{item.id,jdbcType=INTEGER} then #{item.visitors,jdbcType=INTEGER}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="fileType = case" suffix="end,">
+                <foreach collection="list" index="index" item="item">
+                    <if test="item.fileType != null">
+                        when id = #{item.id,jdbcType=INTEGER} then #{item.fileType,jdbcType=CHAR}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="targetFilePath = case" suffix="end,">
+                <foreach collection="list" index="index" item="item">
+                    <if test="item.targetFilePath != null">
+                        when id = #{item.id,jdbcType=INTEGER} then #{item.targetFilePath,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="sourceFilePath = case" suffix="end,">
+                <foreach collection="list" index="index" item="item">
+                    <if test="item.sourceFilePath != null">
+                        when id = #{item.id,jdbcType=INTEGER} then #{item.sourceFilePath,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="description = case" suffix="end,">
+                <foreach collection="list" index="index" item="item">
+                    <if test="item.description != null">
+                        when id = #{item.id,jdbcType=INTEGER} then #{item.description,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="imagePath = case" suffix="end,">
+                <foreach collection="list" index="index" item="item">
+                    <if test="item.imagePath != null">
+                        when id = #{item.id,jdbcType=INTEGER} then #{item.imagePath,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+        </trim>
+        where id in
+        <foreach close=")" collection="list" item="item" open="(" separator=", ">
+            #{item.id,jdbcType=INTEGER}
         </foreach>
-      </trim>
-      <trim prefix="updateDate = case" suffix="end,">
-        <foreach collection="list" index="index" item="item">
-          when id = #{item.id,jdbcType=INTEGER} then #{item.updateDate,jdbcType=DATE}
+    </update>
+    <insert id="batchInsert" keyColumn="id" keyProperty="id" parameterType="cn.shu.blog.beans.Article"
+            useGeneratedKeys="true">
+        <!--@mbg.generated-->
+        insert into article
+                (title, createDate, updateDate, categoryId, userId, visitors, fileType, targetFilePath,
+                 sourceFilePath, description, imagePath)
+                values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.title,jdbcType=VARCHAR}, #{item.createDate,jdbcType=DATE}, #{item.updateDate,jdbcType=DATE},
+             #{item.categoryId,jdbcType=INTEGER}, #{item.userId,jdbcType=INTEGER}, #{item.visitors,jdbcType=INTEGER},
+             #{item.fileType,jdbcType=CHAR}, #{item.targetFilePath,jdbcType=VARCHAR},
+             #{item.sourceFilePath,jdbcType=VARCHAR},
+             #{item.description,jdbcType=VARCHAR}, #{item.imagePath,jdbcType=VARCHAR})
         </foreach>
-      </trim>
-      <trim prefix="categoryId = case" suffix="end,">
-        <foreach collection="list" index="index" item="item">
-          when id = #{item.id,jdbcType=INTEGER} then #{item.categoryId,jdbcType=INTEGER}
-        </foreach>
-      </trim>
-      <trim prefix="userId = case" suffix="end,">
-        <foreach collection="list" index="index" item="item">
-          when id = #{item.id,jdbcType=INTEGER} then #{item.userId,jdbcType=INTEGER}
-        </foreach>
-      </trim>
-      <trim prefix="visitors = case" suffix="end,">
-        <foreach collection="list" index="index" item="item">
-          when id = #{item.id,jdbcType=INTEGER} then #{item.visitors,jdbcType=INTEGER}
-        </foreach>
-      </trim>
-      <trim prefix="fileType = case" suffix="end,">
-        <foreach collection="list" index="index" item="item">
-          when id = #{item.id,jdbcType=INTEGER} then #{item.fileType,jdbcType=CHAR}
-        </foreach>
-      </trim>
-      <trim prefix="targetFilePath = case" suffix="end,">
-        <foreach collection="list" index="index" item="item">
-          when id = #{item.id,jdbcType=INTEGER} then #{item.targetFilePath,jdbcType=VARCHAR}
-        </foreach>
-      </trim>
-      <trim prefix="sourceFilePath = case" suffix="end,">
-        <foreach collection="list" index="index" item="item">
-          when id = #{item.id,jdbcType=INTEGER} then #{item.sourceFilePath,jdbcType=VARCHAR}
-        </foreach>
-      </trim>
-      <trim prefix="description = case" suffix="end,">
-        <foreach collection="list" index="index" item="item">
-          when id = #{item.id,jdbcType=INTEGER} then #{item.description,jdbcType=VARCHAR}
-        </foreach>
-      </trim>
-      <trim prefix="imagePath = case" suffix="end,">
-        <foreach collection="list" index="index" item="item">
-          when id = #{item.id,jdbcType=INTEGER} then #{item.imagePath,jdbcType=VARCHAR}
-        </foreach>
-      </trim>
-    </trim>
-    where id in
-    <foreach close=")" collection="list" item="item" open="(" separator=", ">
-      #{item.id,jdbcType=INTEGER}
-    </foreach>
-  </update>
-  <update id="updateBatchSelective" parameterType="java.util.List">
-    <!--@mbg.generated-->
-    update article
-    <trim prefix="set" suffixOverrides=",">
-      <trim prefix="title = case" suffix="end,">
-        <foreach collection="list" index="index" item="item">
-          <if test="item.title != null">
-            when id = #{item.id,jdbcType=INTEGER} then #{item.title,jdbcType=VARCHAR}
-          </if>
-        </foreach>
-      </trim>
-      <trim prefix="createDate = case" suffix="end,">
-        <foreach collection="list" index="index" item="item">
-          <if test="item.createDate != null">
-            when id = #{item.id,jdbcType=INTEGER} then #{item.createDate,jdbcType=DATE}
-          </if>
-        </foreach>
-      </trim>
-      <trim prefix="updateDate = case" suffix="end,">
-        <foreach collection="list" index="index" item="item">
-          <if test="item.updateDate != null">
-            when id = #{item.id,jdbcType=INTEGER} then #{item.updateDate,jdbcType=DATE}
-          </if>
-        </foreach>
-      </trim>
-      <trim prefix="categoryId = case" suffix="end,">
-        <foreach collection="list" index="index" item="item">
-          <if test="item.categoryId != null">
-            when id = #{item.id,jdbcType=INTEGER} then #{item.categoryId,jdbcType=INTEGER}
-          </if>
-        </foreach>
-      </trim>
-      <trim prefix="userId = case" suffix="end,">
-        <foreach collection="list" index="index" item="item">
-          <if test="item.userId != null">
-            when id = #{item.id,jdbcType=INTEGER} then #{item.userId,jdbcType=INTEGER}
-          </if>
-        </foreach>
-      </trim>
-      <trim prefix="visitors = case" suffix="end,">
-        <foreach collection="list" index="index" item="item">
-          <if test="item.visitors != null">
-            when id = #{item.id,jdbcType=INTEGER} then #{item.visitors,jdbcType=INTEGER}
-          </if>
-        </foreach>
-      </trim>
-      <trim prefix="fileType = case" suffix="end,">
-        <foreach collection="list" index="index" item="item">
-          <if test="item.fileType != null">
-            when id = #{item.id,jdbcType=INTEGER} then #{item.fileType,jdbcType=CHAR}
-          </if>
-        </foreach>
-      </trim>
-      <trim prefix="targetFilePath = case" suffix="end,">
-        <foreach collection="list" index="index" item="item">
-          <if test="item.targetFilePath != null">
-            when id = #{item.id,jdbcType=INTEGER} then #{item.targetFilePath,jdbcType=VARCHAR}
-          </if>
-        </foreach>
-      </trim>
-      <trim prefix="sourceFilePath = case" suffix="end,">
-        <foreach collection="list" index="index" item="item">
-          <if test="item.sourceFilePath != null">
-            when id = #{item.id,jdbcType=INTEGER} then #{item.sourceFilePath,jdbcType=VARCHAR}
-          </if>
-        </foreach>
-      </trim>
-      <trim prefix="description = case" suffix="end,">
-        <foreach collection="list" index="index" item="item">
-          <if test="item.description != null">
-            when id = #{item.id,jdbcType=INTEGER} then #{item.description,jdbcType=VARCHAR}
-          </if>
-        </foreach>
-      </trim>
-      <trim prefix="imagePath = case" suffix="end,">
-        <foreach collection="list" index="index" item="item">
-          <if test="item.imagePath != null">
-            when id = #{item.id,jdbcType=INTEGER} then #{item.imagePath,jdbcType=VARCHAR}
-          </if>
-        </foreach>
-      </trim>
-    </trim>
-    where id in
-    <foreach close=")" collection="list" item="item" open="(" separator=", ">
-      #{item.id,jdbcType=INTEGER}
-    </foreach>
-  </update>
-  <insert id="batchInsert" keyColumn="id" keyProperty="id" parameterType="map" useGeneratedKeys="true">
-    <!--@mbg.generated-->
-    insert into article
-    (title, createDate, updateDate, categoryId, userId, visitors, fileType, targetFilePath,
-      sourceFilePath, description, imagePath)
-    values
-    <foreach collection="list" item="item" separator=",">
-      (#{item.title,jdbcType=VARCHAR}, #{item.createDate,jdbcType=DATE}, #{item.updateDate,jdbcType=DATE},
-        #{item.categoryId,jdbcType=INTEGER}, #{item.userId,jdbcType=INTEGER}, #{item.visitors,jdbcType=INTEGER}, 
-        #{item.fileType,jdbcType=CHAR}, #{item.targetFilePath,jdbcType=VARCHAR}, #{item.sourceFilePath,jdbcType=VARCHAR}, 
-        #{item.description,jdbcType=VARCHAR}, #{item.imagePath,jdbcType=VARCHAR})
-    </foreach>
-  </insert>
-  <insert id="insertOrUpdate" keyColumn="id" keyProperty="id" parameterType="cn.shu.blog.beans.Article" useGeneratedKeys="true">
-    <!--@mbg.generated-->
-    insert into article
-    <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        id,
-      </if>
-      title,
-      createDate,
-      updateDate,
-      categoryId,
-      userId,
-      visitors,
-      fileType,
-      targetFilePath,
-      sourceFilePath,
-      description,
-      imagePath,
-    </trim>
-    values
-    <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        #{id,jdbcType=INTEGER},
-      </if>
-      #{title,jdbcType=VARCHAR},
-      #{createDate,jdbcType=DATE},
-      #{updateDate,jdbcType=DATE},
-      #{categoryId,jdbcType=INTEGER},
-      #{userId,jdbcType=INTEGER},
-      #{visitors,jdbcType=INTEGER},
-      #{fileType,jdbcType=CHAR},
-      #{targetFilePath,jdbcType=VARCHAR},
-      #{sourceFilePath,jdbcType=VARCHAR},
-      #{description,jdbcType=VARCHAR},
-      #{imagePath,jdbcType=VARCHAR},
-    </trim>
-    on duplicate key update 
-    <trim suffixOverrides=",">
-      <if test="id != null">
-        id = #{id,jdbcType=INTEGER},
-      </if>
-      title = #{title,jdbcType=VARCHAR},
-      createDate = #{createDate,jdbcType=DATE},
-      updateDate = #{updateDate,jdbcType=DATE},
-      categoryId = #{categoryId,jdbcType=INTEGER},
-      userId = #{userId,jdbcType=INTEGER},
-      visitors = #{visitors,jdbcType=INTEGER},
-      fileType = #{fileType,jdbcType=CHAR},
-      targetFilePath = #{targetFilePath,jdbcType=VARCHAR},
-      sourceFilePath = #{sourceFilePath,jdbcType=VARCHAR},
-      description = #{description,jdbcType=VARCHAR},
-      imagePath = #{imagePath,jdbcType=VARCHAR},
-    </trim>
-  </insert>
-  <insert id="insertOrUpdateSelective" keyColumn="id" keyProperty="id" parameterType="cn.shu.blog.beans.Article" useGeneratedKeys="true">
-    <!--@mbg.generated-->
-    insert into article
-    <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        id,
-      </if>
-      <if test="title != null">
-        title,
-      </if>
-      <if test="createDate != null">
-        createDate,
-      </if>
-      <if test="updateDate != null">
-        updateDate,
-      </if>
-      <if test="categoryId != null">
-        categoryId,
-      </if>
-      <if test="userId != null">
-        userId,
-      </if>
-      <if test="visitors != null">
-        visitors,
-      </if>
-      <if test="fileType != null">
-        fileType,
-      </if>
-      <if test="targetFilePath != null">
-        targetFilePath,
-      </if>
-      <if test="sourceFilePath != null">
-        sourceFilePath,
-      </if>
-      <if test="description != null">
-        description,
-      </if>
-      <if test="imagePath != null">
-        imagePath,
-      </if>
-    </trim>
-    values
-    <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        #{id,jdbcType=INTEGER},
-      </if>
-      <if test="title != null">
-        #{title,jdbcType=VARCHAR},
-      </if>
-      <if test="createDate != null">
-        #{createDate,jdbcType=DATE},
-      </if>
-      <if test="updateDate != null">
-        #{updateDate,jdbcType=DATE},
-      </if>
-      <if test="categoryId != null">
-        #{categoryId,jdbcType=INTEGER},
-      </if>
-      <if test="userId != null">
-        #{userId,jdbcType=INTEGER},
-      </if>
-      <if test="visitors != null">
-        #{visitors,jdbcType=INTEGER},
-      </if>
-      <if test="fileType != null">
-        #{fileType,jdbcType=CHAR},
-      </if>
-      <if test="targetFilePath != null">
-        #{targetFilePath,jdbcType=VARCHAR},
-      </if>
-      <if test="sourceFilePath != null">
-        #{sourceFilePath,jdbcType=VARCHAR},
-      </if>
-      <if test="description != null">
-        #{description,jdbcType=VARCHAR},
-      </if>
-      <if test="imagePath != null">
-        #{imagePath,jdbcType=VARCHAR},
-      </if>
-    </trim>
-    on duplicate key update 
-    <trim suffixOverrides=",">
-      <if test="id != null">
-        id = #{id,jdbcType=INTEGER},
-      </if>
-      <if test="title != null">
-        title = #{title,jdbcType=VARCHAR},
-      </if>
-      <if test="createDate != null">
-        createDate = #{createDate,jdbcType=DATE},
-      </if>
-      <if test="updateDate != null">
-        updateDate = #{updateDate,jdbcType=DATE},
-      </if>
-      <if test="categoryId != null">
-        categoryId = #{categoryId,jdbcType=INTEGER},
-      </if>
-      <if test="userId != null">
-        userId = #{userId,jdbcType=INTEGER},
-      </if>
-      <if test="visitors != null">
-        visitors = #{visitors,jdbcType=INTEGER},
-      </if>
-      <if test="fileType != null">
-        fileType = #{fileType,jdbcType=CHAR},
-      </if>
-      <if test="targetFilePath != null">
-        targetFilePath = #{targetFilePath,jdbcType=VARCHAR},
-      </if>
-      <if test="sourceFilePath != null">
-        sourceFilePath = #{sourceFilePath,jdbcType=VARCHAR},
-      </if>
-      <if test="description != null">
-        description = #{description,jdbcType=VARCHAR},
-      </if>
-      <if test="imagePath != null">
-        imagePath = #{imagePath,jdbcType=VARCHAR},
-      </if>
-    </trim>
-  </insert>
-   <!--获取热门文章-->
+    </insert>
+    <insert id="insertOrUpdate" keyColumn="id" keyProperty="id" parameterType="cn.shu.blog.beans.Article"
+            useGeneratedKeys="true">
+        <!--@mbg.generated-->
+        insert into article
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            title,
+            createDate,
+            updateDate,
+            categoryId,
+            userId,
+            visitors,
+            fileType,
+            targetFilePath,
+            sourceFilePath,
+            description,
+            imagePath,
+        </trim>
+        values
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            #{title,jdbcType=VARCHAR},
+            #{createDate,jdbcType=DATE},
+            #{updateDate,jdbcType=DATE},
+            #{categoryId,jdbcType=INTEGER},
+            #{userId,jdbcType=INTEGER},
+            #{visitors,jdbcType=INTEGER},
+            #{fileType,jdbcType=CHAR},
+            #{targetFilePath,jdbcType=VARCHAR},
+            #{sourceFilePath,jdbcType=VARCHAR},
+            #{description,jdbcType=VARCHAR},
+            #{imagePath,jdbcType=VARCHAR},
+        </trim>
+        on duplicate key update
+        <trim suffixOverrides=",">
+            <if test="id != null">
+                id = #{id,jdbcType=INTEGER},
+            </if>
+            title = #{title,jdbcType=VARCHAR},
+                    createDate = #{createDate,jdbcType=DATE},
+                    updateDate = #{updateDate,jdbcType=DATE},
+                    categoryId = #{categoryId,jdbcType=INTEGER},
+                    userId = #{userId,jdbcType=INTEGER},
+                    visitors = #{visitors,jdbcType=INTEGER},
+                    fileType = #{fileType,jdbcType=CHAR},
+                    targetFilePath = #{targetFilePath,jdbcType=VARCHAR},
+                    sourceFilePath = #{sourceFilePath,jdbcType=VARCHAR},
+                    description = #{description,jdbcType=VARCHAR},
+                    imagePath = #{imagePath,jdbcType=VARCHAR},
+        </trim>
+    </insert>
+    <insert id="insertOrUpdateSelective" keyColumn="id" keyProperty="id" parameterType="cn.shu.blog.beans.Article"
+            useGeneratedKeys="true">
+        <!--@mbg.generated-->
+        insert into article
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="title != null">
+                title,
+            </if>
+            <if test="createDate != null">
+                createDate,
+            </if>
+            <if test="updateDate != null">
+                updateDate,
+            </if>
+            <if test="categoryId != null">
+                categoryId,
+            </if>
+            <if test="userId != null">
+                userId,
+            </if>
+            <if test="visitors != null">
+                visitors,
+            </if>
+            <if test="fileType != null">
+                fileType,
+            </if>
+            <if test="targetFilePath != null">
+                targetFilePath,
+            </if>
+            <if test="sourceFilePath != null">
+                sourceFilePath,
+            </if>
+            <if test="description != null">
+                description,
+            </if>
+            <if test="imagePath != null">
+                imagePath,
+            </if>
+        </trim>
+        values
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="title != null">
+                #{title,jdbcType=VARCHAR},
+            </if>
+            <if test="createDate != null">
+                #{createDate,jdbcType=DATE},
+            </if>
+            <if test="updateDate != null">
+                #{updateDate,jdbcType=DATE},
+            </if>
+            <if test="categoryId != null">
+                #{categoryId,jdbcType=INTEGER},
+            </if>
+            <if test="userId != null">
+                #{userId,jdbcType=INTEGER},
+            </if>
+            <if test="visitors != null">
+                #{visitors,jdbcType=INTEGER},
+            </if>
+            <if test="fileType != null">
+                #{fileType,jdbcType=CHAR},
+            </if>
+            <if test="targetFilePath != null">
+                #{targetFilePath,jdbcType=VARCHAR},
+            </if>
+            <if test="sourceFilePath != null">
+                #{sourceFilePath,jdbcType=VARCHAR},
+            </if>
+            <if test="description != null">
+                #{description,jdbcType=VARCHAR},
+            </if>
+            <if test="imagePath != null">
+                #{imagePath,jdbcType=VARCHAR},
+            </if>
+        </trim>
+        on duplicate key update
+        <trim suffixOverrides=",">
+            <if test="id != null">
+                id = #{id,jdbcType=INTEGER},
+            </if>
+            <if test="title != null">
+                title = #{title,jdbcType=VARCHAR},
+            </if>
+            <if test="createDate != null">
+                createDate = #{createDate,jdbcType=DATE},
+            </if>
+            <if test="updateDate != null">
+                updateDate = #{updateDate,jdbcType=DATE},
+            </if>
+            <if test="categoryId != null">
+                categoryId = #{categoryId,jdbcType=INTEGER},
+            </if>
+            <if test="userId != null">
+                userId = #{userId,jdbcType=INTEGER},
+            </if>
+            <if test="visitors != null">
+                visitors = #{visitors,jdbcType=INTEGER},
+            </if>
+            <if test="fileType != null">
+                fileType = #{fileType,jdbcType=CHAR},
+            </if>
+            <if test="targetFilePath != null">
+                targetFilePath = #{targetFilePath,jdbcType=VARCHAR},
+            </if>
+            <if test="sourceFilePath != null">
+                sourceFilePath = #{sourceFilePath,jdbcType=VARCHAR},
+            </if>
+            <if test="description != null">
+                description = #{description,jdbcType=VARCHAR},
+            </if>
+            <if test="imagePath != null">
+                imagePath = #{imagePath,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <!--获取热门文章-->
     <select id="getHotArticles" resultType="cn.shu.blog.beans.Article">
-       /* SELECT *,CASE WHEN  num IS NULL THEN 0 ELSE num END AS commnum
-                    FROM articles LEFT JOIN (SELECT COUNT(*)AS num,articleId
-                    FROM comments GROUP BY articleId) AS comments_count
-                    ON   comments_count. articleId= articles.id
-                    ORDER BY visitors desc,updateDate desc limit 0,5*/
-       SELECT id,title,visitors,updateDate,CONCAT(LEFT(description,20),'...') as description,imagePath
-       FROM article
-       ORDER BY visitors DESC,updateDate DESC
-
+        /* SELECT *,CASE WHEN  num IS NULL THEN 0 ELSE num END AS commnum
+                     FROM articles LEFT JOIN (SELECT COUNT(*)AS num,articleId
+                     FROM comments GROUP BY articleId) AS comments_count
+                     ON   comments_count. articleId= articles.id
+                     ORDER BY visitors desc,updateDate desc limit 0,5*/
+                SELECT id, title, visitors, updateDate, CONCAT(LEFT(description, 20), '...') as description, imagePath
+                FROM article
+                ORDER BY visitors DESC, updateDate DESC
     </select>
     <!--获取文章评论-->
     <resultMap id="comments" type="cn.shu.blog.beans.Comment">
@@ -536,13 +542,20 @@
         </association>
     </resultMap>
     <select id="getArticleComments" resultMap="comments">
-            select comment.id,comment.comment,comment.createDate,nickname from comment,"user"
-             where articleId=#{articleId} and comment.userId="user".id
-            order by createDate desc limit #{currPage},#{pageCount}
-     </select>
+        select comment.id, comment.comment, comment.createDate, nickname
+        from comment,
+             "user"
+        where articleId = #{articleId}
+          and comment.userId = "user".id
+        order by createDate desc
+        limit #{currPage}
+        ,
+        #{pageCount}
+    </select>
     <!--评论文章-->
     <insert id="addArticlesComment">
-        insert into comment values(null,#{articleId},#{userId},#{dateTime},'无',#{comment})
+        insert into comment
+        values (null, #{articleId}, #{userId}, #{dateTime}, '无', #{comment})
     </insert>
     <!--获取文章详细信息-->
     <!--
@@ -553,71 +566,116 @@
 
     <!-- ==-1 则查询全部 类型-->
     <select id="getArticles" resultType="cn.shu.blog.beans.Article">
-        SELECT
-        xx.id,title,createDate,updateDate,userId,visitors,fileType,targetFilePath,sourceFilePath,description,imagePath,commNum,categoryName
-        FROM (SELECT *,CASE WHEN num IS NULL THEN 0 ELSE num END AS commNum
-        FROM article LEFT JOIN (SELECT COUNT(*)AS num,articleId FROM comment GROUP BY articleId) AS comments_count
-        ON comments_count. articleId= article.id
+        SELECT xx.id,
+               title,
+               createDate,
+               updateDate,
+               userId,
+               visitors,
+               fileType,
+               targetFilePath,
+               sourceFilePath,
+               description,
+               imagePath,
+               commNum,
+               categoryName
+                FROM (SELECT *, CASE WHEN num IS NULL THEN 0 ELSE num END AS commNum
+                      FROM article
+                                   LEFT JOIN (SELECT COUNT(*) AS num, articleId FROM comment GROUP BY articleId) AS comments_count
+                              ON comments_count.articleId = article.id
         <where>
-            <if test="categoryId != null and categoryId !=''">
-                article.categoryId=#{categoryId}
+            <if test="categoryId != null and categoryId != ''">
+                article.categoryId = #{categoryId}
             </if>
         </where>
-        ORDER BY updatedate DESC LIMIT #{currPage},#{pageNum}) AS xx,category WHERE xx.categoryId=category.id;
+        ORDER BY updatedate DESC
+        LIMIT #{currPage}
+        ,
+        #{pageNum}) AS xx,
+                category
+                WHERE xx.categoryId = category.id;
     </select>
     <!--查询一个文章-->
     <select id="getSingleArticle" resultType="cn.shu.blog.beans.Article">
-        SELECT  xx.id,title,updateDate,visitors,fileType,targetFilePath,sourceFilePath,description,imagePath,commNum,nickname, categoryName
-                 FROM (SELECT
-                       b.id,
-                       title,
-                       updateDate,
-                        visitors,
-                        fileType,
-                        targetFilePath,
-                        sourceFilePath,
-                        description,
-                        imagePath,
-                        commNum,
-                        nickname,
-                        categoryId
-                      FROM (SELECT *
-                            FROM article,
-                              (SELECT
-                                 COUNT(*)  AS commNum
-                               FROM comment
-                              WHERE articleId = #{articleId}) AS a
-                            WHERE article.id = #{articleId}) AS b,
-                        user
-                 WHERE user.id = b.userId) AS xx,category
-                WHERE xx.categoryId = category.id;
+        SELECT xx.id,
+               title,
+               updateDate,
+               visitors,
+               fileType,
+               targetFilePath,
+               sourceFilePath,
+               description,
+               imagePath,
+               commNum,
+               nickname,
+               categoryName
+        FROM (SELECT b.id,
+                     title,
+                     updateDate,
+                     visitors,
+                     fileType,
+                     targetFilePath,
+                     sourceFilePath,
+                     description,
+                     imagePath,
+                     commNum,
+                     nickname,
+                     categoryId
+              FROM (SELECT *
+                    FROM article,
+                         (SELECT COUNT(*) AS commNum
+                          FROM comment
+                          WHERE articleId = #{articleId}) AS a
+                    WHERE article.id = #{articleId}) AS b,
+                   user
+              WHERE user.id = b.userId) AS xx,
+             category
+        WHERE xx.categoryId = category.id;
     </select>
     <!--获取文章数量-->
 
     <select id="getArticlesCount" resultType="java.lang.Integer">
-        SELECT count(*) as _count FROM article
+        SELECT count(*) as _count
+        FROM article
         <where>
-            <if test="categoryId!=-1">
-                categoryId=#{categoryId}
+            <if test="categoryId != -1">
+                categoryId = #{categoryId}
             </if>
         </where>
     </select>
 
     <!--获取当前文章以外文章 计算推荐文章-->
     <select id="getExceptCurrArticles" resultType="cn.shu.blog.beans.Article">
-        select <include refid="Base_Column_List"/> from article where id!=#{currArticleId}
+        select
+        <include refid="Base_Column_List"/>
+        from article
+        where id != #{currArticleId}
     </select>
 
     <!--添加文章访问记录-->
     <update id="addVisitRecord">
-        update myblog.article set visitors=visitors+1 where id=#{articleId}
+        update myblog.article
+        set visitors=visitors + 1
+        where id = #{articleId}
     </update>
     <select id="selectByAll" resultMap="BaseResultMap">
-    select <include refid="Base_Column_List"/>
-    from article
-    where 1= 1
-    <if test="categoryId != null and categoryId !=''">
-    and categoryId=#{categoryId,jdbcType=VARCHAR}
-</if>
+        select
+        <include refid="Base_Column_List"/>
+        from article
+                where 1 = 1
+        <if test="categoryId != null and categoryId != ''">
+            and categoryId = #{categoryId,jdbcType=VARCHAR}
+        </if>
+
+        <if test="sourceFilePath != null and sourceFilePath != ''">
+            and sourceFilePath = #{sourceFilePath,jdbcType=VARCHAR}
+        </if>
+    </select>
+    <select id="getArticlesForIndex" resultType="cn.shu.blog.beans.Article">
+    SELECT xx.id,title,createDate,updateDate,userId,visitors,fileType,targetFilePath,sourceFilePath,description,imagePath,commNum,categoryName
+                     FROM (SELECT *,CASE WHEN  num IS NULL THEN 0 ELSE num END AS commNum
+                   FROM article LEFT JOIN (SELECT COUNT(*)AS num,articleId FROM comment GROUP BY articleId) AS comments_count
+                    ON comments_count. articleId= article.id
+                    ORDER BY updatedate DESC ) AS xx,category WHERE xx.categoryId=category.id;
 </select>
 </mapper>

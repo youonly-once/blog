@@ -1,4 +1,4 @@
-package cn.shu.blog;
+package cn.shu.blog.utils;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -13,13 +13,13 @@ import java.util.regex.Pattern;
  * @项目 blog
  * @创建时间 2020/6/6 18:18
  */
-public class HtmlDocument {
+public class HtmlUtil {
 
     /**
      * 读取Html文件的内容
      * @param filePath 文件路径
      * @param length 读取长度
-     * @return
+     * @return 读取内容
      */
     public static String readHtml(String filePath,int length) {
         StringBuilder resultBuilder=new StringBuilder();
@@ -36,23 +36,17 @@ public class HtmlDocument {
                 String  str= new String(bytes,0,readLen, StandardCharsets.UTF_8);
                 stringBuilder.append(str.replaceAll("\\s",""));
             }
-            //System.out.println(stringBuilder);
             //查找p标签中的内容
             Pattern pattern=Pattern.compile("<[pPhH][1]?>[^<>]+</[pPhH][1]?>");
             Matcher matcher = pattern.matcher(stringBuilder);
-/*            boolean b= matcher.matches();
-            System.out.println(b);
-            System.out.println(b);*/
-
-
             //循环取出
             int i=1;
             while (matcher.find()){
-                if (i==4){//只显示3行
+                //只显示3行
+                if (i == 4){
                     break;
                 }
                 String group = matcher.group();
-                // System.out.println(group);
                 //获取p中的内容
                 String substring="";
                 if (group.contains("<p>")) {
@@ -73,16 +67,19 @@ public class HtmlDocument {
                 if (fi!=null){
                     fi.close();
                 }
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
                 if (bi!=null){
                     bi.close();
                 }
-
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
         }
-        //System.out.println(stringBuilder.toString());
         //获取200个
         if (resultBuilder.length()>length){
             return resultBuilder.toString().substring(0,length);

@@ -68,4 +68,6 @@ public interface CategoryMapper {
     int batchInsert(@Param("list") List<Category> list);
 
     List<Category> selectByAll(HashMap<String, Object> params);
+
+    int insertIgnore(Category record);
 }

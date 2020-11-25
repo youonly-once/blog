@@ -24,7 +24,7 @@ public class SpringBootJarUtil {
      * @param filePath
      * @return
      */
-    public static boolean sourceExists(String filePath){
+    public  boolean sourceExists(String filePath){
 
         return getSource(filePath).exists();
     }
@@ -35,7 +35,7 @@ public class SpringBootJarUtil {
      * @param filePath
      * @return
      */
-    public static Resource getSource(String filePath){
+    public  Resource getSource(String filePath){
         ResourceLoader resourceLoader = new DefaultResourceLoader();
         Resource resource = resourceLoader.getResource("classpath:static"+filePath);
         return resource;
@@ -45,7 +45,7 @@ public class SpringBootJarUtil {
      * @param filePath
      * @return
      */
-    public static File getSourceFile(String filePath) throws IOException {
+    public  File getSourceFile(String filePath) throws IOException {
         return getSource(filePath).getFile();
     }
     //获取配置文件的外部静态资源路径
@@ -59,7 +59,7 @@ public class SpringBootJarUtil {
      * 获取配置的springboot jar包外部的资源文件目录
      * @return
      */
-    public static String getExtStaticSources() throws FileNotFoundException {
+    public  String getExtStaticSources() throws FileNotFoundException {
         String finalPath= getJarPath()+extStaticSourcesPath;
         return finalPath;
     }
@@ -69,7 +69,7 @@ public class SpringBootJarUtil {
      * @return
      * @throws FileNotFoundException
      */
-    public static String getJarPath() throws FileNotFoundException {
+    public  String getJarPath() throws FileNotFoundException {
         String jarPath="";
         if(Pdf2Swf.isWindowsSystem()){
             //去掉 /E://前面的 /

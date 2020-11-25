@@ -24,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.annotation.Resource;
 import java.io.*;
 import java.sql.SQLException;
 import java.util.*;
@@ -35,6 +36,9 @@ import java.util.*;
 public class ArticleService implements ArticleServiceInter {
     //自动注入，首先寻找 ArticleDaoInter类型的(包括实现了的类)，找到唯一注入，
     //没找到或找到多个则按id(articleDaoInter)查找,查找到则注入
+
+    @Resource
+    private SpringBootJarUtil springBootJarUtil = null;
 
     @Autowired(required = false)
 
@@ -173,7 +177,7 @@ public class ArticleService implements ArticleServiceInter {
                 String fileNameAndExt;
                 try {
                     //文章展示图片文件完整路径
-                    imgStr = SpringBootJarUtil.getExtStaticSources() + imgRelativePath;
+                    imgStr = springBootJarUtil.getExtStaticSources() + imgRelativePath;
                     File imageFile = new File(imgStr);
                     //存放文件名，包括后缀
                     fileNameAndExt = imageFile.getName();
@@ -193,7 +197,7 @@ public class ArticleService implements ArticleServiceInter {
                         }
                     }
                     //内部和外部资源都不存在
-                    if (!SpringBootJarUtil.sourceExists(File.separator + imgRelativePath) && !imageFile.exists()) {
+                    if (!springBootJarUtil.sourceExists(File.separator + imgRelativePath) && !imageFile.exists()) {
                         //1代表下载一页，一页一般有30张图片
                         File imgFile = GetNetImage.getPictures(fileName, 20, imageAbsolutePath, fileNameAndExt);
                         log.info("图片下载成功：" + imgFile.getAbsolutePath());
@@ -234,7 +238,7 @@ public class ArticleService implements ArticleServiceInter {
             BooleanClause booleanClause1 = new BooleanClause(termQuery, BooleanClause.Occur.MUST_NOT);
 
             Query query = LuceneIndexUntil.newBooleanQuery(booleanClause, booleanClause1);
-            return LuceneIndexUntil.searchDocument(null, query, 1, 10, SpringBootJarUtil.getExtStaticSources() + savePath, 1).getArticles();
+            return LuceneIndexUntil.searchDocument(null, query, 1, 10, springBootJarUtil.getExtStaticSources() + savePath, 1).getArticles();
         } catch (ParseException | FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -261,7 +265,7 @@ public class ArticleService implements ArticleServiceInter {
             Query query = LuceneIndexUntil.newMultiQuery(fields, searchStr);
             //查询10条
             SearchArticle searchArticle = LuceneIndexUntil
-                    .searchDocument(searchStr, query, currPage, pageNum, SpringBootJarUtil.getExtStaticSources() + savePath, 0);
+                    .searchDocument(searchStr, query, currPage, pageNum, springBootJarUtil.getExtStaticSources() + savePath, 0);
 
             System.out.println("搜索结果:" + searchArticle.getArticles().size() + " " + searchArticle);
 

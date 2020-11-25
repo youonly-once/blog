@@ -16,7 +16,9 @@ import org.springframework.boot.web.servlet.ServletComponentScan;
 
 @ServletComponentScan(basePackages = "cn.shu.blog.listener.*")
 public class MyBlogMain {
+
     public static void main(String[] args) {
         SpringApplication.run(MyBlogMain.class,args);
+
     }
 }
