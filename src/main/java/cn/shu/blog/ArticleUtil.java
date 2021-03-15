@@ -13,14 +13,16 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
-import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * @author 舒新胜
@@ -76,7 +78,7 @@ public class ArticleUtil {
 
         //3、转换swf
         for (Article article : articleList) {
-            if (article.getFileType().equals(".swf")){
+            if (".swf".equals(article.getFileType())){
                 turnSwf(rootPath+article.getSourceFilePath(),rootPath+article.getTargetFilePath());
             }
 
@@ -151,6 +153,9 @@ public class ArticleUtil {
                 }
             } else if (file.isDirectory()) {
                 //遍历子目录
+                if (file.getAbsolutePath().endsWith("2020最新Git教程（2小时从入门到精通）")){
+                    continue;
+                }
                 createArticles(file.getAbsolutePath(), "/");
             }
         }
@@ -260,16 +265,16 @@ public class ArticleUtil {
     /**
      * 读取word文件内容
      *
-     * @param path
+     * @param path word文件路径
      * @return buffer
      */
     private String readWord(String path) {
         // TODO Auto-generated method stub
         StringBuilder content = new StringBuilder();
-        InputStream istream = null;
+        InputStream inStream = null;
         try {
-            istream = new FileInputStream(path);
-            XWPFDocument doc = new XWPFDocument(istream);
+            inStream = new FileInputStream(path);
+            XWPFDocument doc = new XWPFDocument(inStream);
             //获取所有段落
             List<XWPFParagraph> paras = doc.getParagraphs();
             //遍历段落
@@ -289,9 +294,9 @@ public class ArticleUtil {
             // TODO Auto-generated catch block
             log.info("获取word文档内容错误:" + e.getMessage());
         } finally {
-            if (istream != null) {
+            if (inStream != null) {
                 try {
-                    istream.close();
+                    inStream.close();
                 } catch (IOException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
