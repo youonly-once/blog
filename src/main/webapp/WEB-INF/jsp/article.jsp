@@ -79,9 +79,9 @@
 
             <article class="article-content">
                 <div id="getflash" style="display: none;text-align: center;margin-top: 150px;margin-bottom: 20px;">
-                    <!-- <a href="http://www.adobe.com/go/getflashplayer" rel="nofollow" target="_blank" title="升级Flash插件">启用flash</a> -->
+                    <!-- <a href="http://www.adobe.com/go/getflashplayer" rel="nofollow" target="_top" title="升级Flash插件">启用flash</a> -->
                     <%--<p><i class="iconfont_video_details" style="font-size: 30px;">&#xe625;</i></p>--%>
-                    <a href="https://get.adobe.com/cn/flashplayer/" target="_blank"
+                    <a href="https://get.adobe.com/cn/flashplayer/" target="_top"
                        style="color:#3399CC;font-size: 18px;">您尚未安装或未允许浏览器运行Flash，点击允许即可浏览文档</a>
                 </div>
                 <a id="viewerPlaceHolder"<%-- style="width:860px;height:720px;display:block;"--%>></a>

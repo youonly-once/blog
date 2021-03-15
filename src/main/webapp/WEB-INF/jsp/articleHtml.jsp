@@ -121,6 +121,8 @@
             <article class="article-content">
 
                 <c:import url="<%= articleHtml%>" charEncoding="UTF-8"/>
+               <%-- <c:import var="data" url="https://www.bejson.com/"/>
+                <c:out value="${data}"/>--%>
                <%-- <jsp:include page="<%= articleHtml%>"/>--%>
             </article>
             <div class="article-tags">标签：<a href="" rel="tag">${articleInfo.categoryName}

@@ -82,7 +82,7 @@ public class BlogArticleHandler {
                 return "forward:/WEB-INF/jsp/article.jsp";
                 //html文件
             } else if (".html".equalsIgnoreCase(article.getFileType()) || ".htm".equalsIgnoreCase(article.getFileType())) {
-                request.setAttribute("html", article.getTargetFilePath());
+                request.setAttribute("html",servletContext.getContextPath()+"/" +article.getTargetFilePath());
                 return "forward:/WEB-INF/jsp/articleHtml.jsp";
             }
 

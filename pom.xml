@@ -54,7 +54,6 @@
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>jstl</artifactId>
-            <version>1.2</version>
         </dependency>
         <!--德鲁伊数据源-->
         <dependency>

@@ -71,11 +71,11 @@
 
                 </ol>
                 <div class="carousel-inner" role="listbox">
-                    <div class="item active"><a href="" target="_blank"><img src="${pageContext.request.contextPath}/images/banner/banner_01.jpg" alt=""
+                    <div class="item active"><a href="" target="_top"><img src="${pageContext.request.contextPath}/images/banner/banner_01.jpg" alt=""
                                                                              class="img-responsive"></a>
                         <!--<div class="carousel-caption"> </div>-->
                     </div>
-                    <div class="item"><a href="" target="_blank"><img src="${pageContext.request.contextPath}/images/banner/banner_02.jpg" alt=""
+                    <div class="item"><a href="" target="_top"><img src="${pageContext.request.contextPath}/images/banner/banner_02.jpg" alt=""
                                                                       class="img-responsive"></a>
                         <!--<div class="carousel-caption"> </div>-->
                     </div>
@@ -110,17 +110,17 @@
             <%-- 遍历--%>
             <c:forEach items="${articles}" var="ar">
 
-                <a href="${articlePath}${ar.id}.action" target="_blank">  <article class="excerpt excerpt-1" style="cursor: pointer;">
-                    <a class="focus" href="${articlePath}${ar.id}.action" title="" target="_blank">
+                <a href="${articlePath}${ar.id}.action" target="_top">  <article class="excerpt excerpt-1" style="cursor: pointer;">
+                    <a class="focus" href="${articlePath}${ar.id}.action" title="" target="_top">
                         <img class="thumb" data-original="${ar.imagePath}" src="${pageContext.request.contextPath}/images/logo.png" alt="">
                     </a>
-                    <header><a class="cat" href="program" target="_blank">${ar.categoryName}<i></i></a>
-                        <h2><a href="${articlePath}${ar.id}.action" title="" target="_blank">${ar.title}</a></h2>
+                    <header><a class="cat" href="program" target="_top">${ar.categoryName}<i></i></a>
+                        <h2><a href="${articlePath}${ar.id}.action" title="" target="_top">${ar.title}</a></h2>
                     </header>
                     <p class="meta">
                         <time class="time"><i class="glyphicon glyphicon-time"></i> ${ar.updateDate}</time>
                         <span class="views"><i class="glyphicon glyphicon-eye-open"></i> 共${ar.visitors}人围观</span> <a
-                            class="comment" href="${articlePath}${ar.id}.action" target="_blank"><i
+                            class="comment" href="${articlePath}${ar.id}.action" target="_top"><i
                             class="glyphicon glyphicon-comment"></i> ${ar.commNum} 评论</a></p>
                      <p class="note">${ar.description} ...</p>
                 </article>
@@ -132,7 +132,7 @@
                     <li class="prev-page"></li>
                     <li class="active"><span id="currPage">${currPage}</span></li>
                     <%--当前页数--%>
-                    <li><a href="${path}?page=${nextPage}&categoryId=${currCategoryId}" target="_blank">${nextPage}
+                    <li><a href="${path}?page=${nextPage}&categoryId=${currCategoryId}" target="_top">${nextPage}
                     </a></li>
                     <%--下一页数字--%>
                     <li class="next-page"><a id="slnext" href="${path}?page=${nextPage}&categoryId=${currCategoryId}">下一页</a>

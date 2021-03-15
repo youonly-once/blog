@@ -20,10 +20,10 @@
                     <ul>
                         <li>
                             <time datetime="2019-01-04">01-04</time>
-                            <a href="" target="_blank">欢迎访问舒新胜博客</a></li>
+                            <a href="" target="_top">欢迎访问舒新胜博客</a></li>
                         <li>
                             <time datetime="2019-01-04">01-04</time>
-                            <a target="_blank" href="">在这里可以看到我的学习心得！</a></li>
+                            <a target="_top" href="">在这里可以看到我的学习心得！</a></li>
 
                     </ul>
                 </div>
@@ -31,7 +31,7 @@
                     <c:if test="${empty user}">
                     <h4>需要登录才能进入会员中心</h4>
                     <p> <a data-toggle="modal" data-target="#loginModal" class="btn btn-primary">立即登录</a>
-                        <a href="${pageContext.request.contextPath}/register/register.html" class="btn btn-default" target="_blank">现在注册</a> </p>
+                        <a href="${pageContext.request.contextPath}/register/register.html" class="btn btn-default" target="_top">现在注册</a> </p>
                     </c:if>
                 </div>
                 <div role="tabpanel" class="tab-pane contact" id="contact">

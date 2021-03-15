@@ -43,15 +43,15 @@
       <h1 class="article-title">友情链接</h1>
     </header>
     <ul class="plinks">
-      <li><a href="" title="" target="_blank" rel="nofollow"><img src="${pageContext.request.contextPath}/images/icon/head.ico" alt="">舒新胜</a></li>
-      <li><a href="" title="" target="_blank" rel="nofollow"><img src="${pageContext.request.contextPath}/images/icon/head.ico" alt="">舒新胜</a></li>
-      <li><a href="" title="" target="_blank" rel="nofollow"><img src="${pageContext.request.contextPath}/images/icon/head.ico" alt="">舒新胜</a></li>
-      <li><a href="" title="" target="_blank" rel="nofollow"><img src="${pageContext.request.contextPath}/images/icon/head.ico" alt="">舒新胜</a></li>
-      <li><a href="" title="" target="_blank" rel="nofollow"><img src="${pageContext.request.contextPath}/images/icon/head.ico" alt="">舒新胜</a></li>
-      <li><a href="" title="" target="_blank" rel="nofollow"><img src="${pageContext.request.contextPath}/images/icon/head.ico" alt="">舒新胜</a></li>
-      <li><a href="" title="" target="_blank" rel="nofollow"><img src="${pageContext.request.contextPath}/images/icon/head.ico" alt="">舒新胜</a></li>
-      <li><a href="" title="" target="_blank" rel="nofollow"><img src="${pageContext.request.contextPath}/images/icon/head.ico" alt="">舒新胜</a></li>
-      <li><a href="" title="" target="_blank" rel="nofollow"><img src="${pageContext.request.contextPath}/images/icon/head.ico" alt="">舒新胜</a></li>
+      <li><a href="" title="" target="_top" rel="nofollow"><img src="${pageContext.request.contextPath}/images/icon/head.ico" alt="">舒新胜</a></li>
+      <li><a href="" title="" target="_top" rel="nofollow"><img src="${pageContext.request.contextPath}/images/icon/head.ico" alt="">舒新胜</a></li>
+      <li><a href="" title="" target="_top" rel="nofollow"><img src="${pageContext.request.contextPath}/images/icon/head.ico" alt="">舒新胜</a></li>
+      <li><a href="" title="" target="_top" rel="nofollow"><img src="${pageContext.request.contextPath}/images/icon/head.ico" alt="">舒新胜</a></li>
+      <li><a href="" title="" target="_top" rel="nofollow"><img src="${pageContext.request.contextPath}/images/icon/head.ico" alt="">舒新胜</a></li>
+      <li><a href="" title="" target="_top" rel="nofollow"><img src="${pageContext.request.contextPath}/images/icon/head.ico" alt="">舒新胜</a></li>
+      <li><a href="" title="" target="_top" rel="nofollow"><img src="${pageContext.request.contextPath}/images/icon/head.ico" alt="">舒新胜</a></li>
+      <li><a href="" title="" target="_top" rel="nofollow"><img src="${pageContext.request.contextPath}/images/icon/head.ico" alt="">舒新胜</a></li>
+      <li><a href="" title="" target="_top" rel="nofollow"><img src="${pageContext.request.contextPath}/images/icon/head.ico" alt="">舒新胜</a></li>
     </ul>
   </div>
 </section>

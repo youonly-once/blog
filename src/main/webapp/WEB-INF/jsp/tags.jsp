@@ -43,10 +43,10 @@
       <h1 class="article-title">标签云</h1>
     </header>
     <ul class="plinks ptags">
-      <li><a href="" title="" target="_blank">这个是标签 <span class="badge">42</span></a></li>
-      <li><a href="" title="" target="_blank">这个是标签 <span class="badge">42</span></a></li>
-      <li><a href="" title="" target="_blank">这个是标签 <span class="badge">42</span></a></li>
-      <li><a href="" title="" target="_blank">这个是标签 <span class="badge">42</span></a></li>
+      <li><a href="" title="" target="_top">这个是标签 <span class="badge">42</span></a></li>
+      <li><a href="" title="" target="_top">这个是标签 <span class="badge">42</span></a></li>
+      <li><a href="" title="" target="_top">这个是标签 <span class="badge">42</span></a></li>
+      <li><a href="" title="" target="_top">这个是标签 <span class="badge">42</span></a></li>
     </ul>
   </div>
 </section>

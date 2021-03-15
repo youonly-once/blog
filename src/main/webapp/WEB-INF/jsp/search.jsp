@@ -52,7 +52,7 @@
           <li class="prev-page"></li>
           <li class="active"><span id="currPage"></span></li>
           &lt;%&ndash;当前页数&ndash;%&gt;
-          <li><a href="" target="_blank"></a></li>
+          <li><a href="" target="_top"></a></li>
           &lt;%&ndash;下一页数字&ndash;%&gt;
           <li class="next-page"><a id="slnext" href="">下一页</a>
           </li>
