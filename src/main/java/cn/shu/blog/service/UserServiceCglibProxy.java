@@ -1,6 +1,7 @@
 package cn.shu.blog.service;
 
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cglib.proxy.Enhancer;
@@ -17,6 +18,7 @@ import java.lang.reflect.Method;
  * @创建时间 2020/4/29
  */
 //@Service
+@Slf4j
 public class UserServiceCglibProxy {
     @Autowired
     @Qualifier("userService")
@@ -40,7 +42,7 @@ public class UserServiceCglibProxy {
             @Override
             public Object intercept(Object o, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
                 //额外操作
-                System.out.println("Cglib 动态代理者 日志记录:" + method.getName());
+                 log.info("Cglib 动态代理者 日志记录:" + method.getName());
 
                 //反射调用被代理者真正的方法
                 Object returnObj = method.invoke(userServiceInter, args);

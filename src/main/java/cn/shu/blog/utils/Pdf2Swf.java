@@ -124,7 +124,6 @@ public class Pdf2Swf {
         //转换器安装路径
         String exePath = "C:\\Program Files (x86)\\SWFTools/pdf2swf.exe";
         boolean b = Pdf2Swf.pdf2swf("E:\\JAVA\\WEB\\个人笔记\\2020-04-11_JDBC.pdf","E:\\JAVA\\WEB\\个人笔记\\2020-04-11_JDBC.swf" , exePath);
-        System.out.println(b);
     }
 }
 

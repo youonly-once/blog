@@ -267,7 +267,7 @@ public class ArticleService implements ArticleServiceInter {
             SearchArticle searchArticle = LuceneIndexUntil
                     .searchDocument(searchStr, query, currPage, pageNum, springBootJarUtil.getExtStaticSources() + savePath, 0);
 
-            System.out.println("搜索结果:" + searchArticle.getArticles().size() + " " + searchArticle);
+            log.info("搜索结果:" + searchArticle.getArticles().size() + " " + searchArticle);
 
             return searchArticle;
         } catch (ParseException | FileNotFoundException e) {

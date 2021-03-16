@@ -177,8 +177,8 @@ public class DateUtil {// 返回查询时间
 		}
 		calendar.add(Calendar.DAY_OF_MONTH, -(currDayWeek-1));
 		int dayOfWeekBegin = calendar.get(Calendar.DAY_OF_MONTH);// 当周第一天
-/*		System.out.println(currDayWeek+"");
-		System.out.println(dayOfWeekBegin+"");*/
+/*		 log.info(currDayWeek+"");
+		 log.info(dayOfWeekBegin+"");*/
 		int year = calendar.get(Calendar.YEAR);// 年
 		int month = calendar.get(Calendar.MONTH) + 1;// 月 0-11表示12月
 		return year + "-" + month + "-" + dayOfWeekBegin+ " 00:00:00.000";

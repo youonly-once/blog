@@ -4,6 +4,7 @@ import cn.shu.blog.beans.User;
 import cn.shu.blog.dao.UserMapper;
 import cn.shu.blog.exception.UserException;
 import cn.shu.blog.utils.StringUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
@@ -16,6 +17,7 @@ import java.util.HashMap;import java.util.List;
 @Service("userServiceInter")
 @Lazy
 @Scope(value = "singleton")
+@Slf4j
 public class UserService implements UserServiceInter {
     @Autowired
     /**
@@ -169,7 +171,6 @@ public class UserService implements UserServiceInter {
         if (StringUtil.isEmpty(loginUser.getPassword())) {
             return null;
         }
-        System.out.println(loginUser);
         return userMapper.selectByAllWithObject(loginUser).get(0);
     }
 
@@ -182,8 +183,6 @@ public class UserService implements UserServiceInter {
      */
     @Override
     public boolean checkCaptcha(String captchaClient, Object captchaServe) {
-        System.out.println(captchaClient);
-        System.out.println(captchaServe);
         if (StringUtil.isEmpty(captchaClient)) {
             return false;
         }

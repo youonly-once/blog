@@ -7,6 +7,7 @@ package cn.shu.blog.service;
  */
 
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -18,6 +19,7 @@ import java.lang.reflect.Proxy;
  * 该类为工厂类，创建出实际的代理者 交给Spring容器管理
  */
 //@Service//由Web层调用
+@Slf4j
 public class UserServiceJavaProxy {
     /*
      * 被代理者
@@ -48,7 +50,7 @@ public class UserServiceJavaProxy {
                 , (proxy, method, args) -> {
 
                     //额外操作
-                    System.out.println("JAVA 动态代理者 日志记录:" + method.getName());
+                     log.info("JAVA 动态代理者 日志记录:" + method.getName());
 
                     //反射调用被代理者真正的方法
                     Object returnObj = method.invoke(userServiceInter, args);

@@ -30,7 +30,7 @@ public class GetNetImage {
     public static void main(String[] args) throws Exception {
         String tempPath = "D:/pictures/";
 
-        System.out.println("输入爬取关键字（可用空格，、号分隔多个想爬的关键字）：");
+         log.info("输入爬取关键字（可用空格，、号分隔多个想爬的关键字）：");
         Scanner KeyWord = new Scanner(System.in);
         String Word = KeyWord.nextLine();
         List<String> keywordList = nameList(Word);
@@ -67,14 +67,14 @@ public class GetNetImage {
                             .timeout(5000)
                             .get();
                     String xmlSource = document.toString();
-                   /* System.out.println(xmlSource);*/
+                   /*  log.info(xmlSource);*/
                     String reg = "objURL\":\"http://.+?\\.jpg";
                     Pattern pattern = Pattern.compile(reg);
                     Matcher m = pattern.matcher(xmlSource);
 
                     while (m.find()) {
                         finalURL = m.group().substring(9);
-                     /*   System.out.println(finalURL);*/
+                     /*    log.info(finalURL);*/
                         log.info(keyword + picCount++ + ":下载中" );
                         returnFile = download(finalURL, tempPath,downloadName);
                         if (returnFile != null) {

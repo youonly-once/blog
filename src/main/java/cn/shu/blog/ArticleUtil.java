@@ -45,6 +45,10 @@ public class ArticleUtil {
     @Value("${extStaticSourcesPath}")
     private String extStaticSourcesPath = null;
 
+    /**文件位置*/
+    @Value("${docPath}")
+    private String docPath = null;
+
     /**
      * 资源文件根路径
      */
@@ -71,15 +75,14 @@ public class ArticleUtil {
         //rootPath = springBootJarUtil.getJarPath()+extStaticSourcesPath;
         rootPath = springBootJarUtil.getExtStaticSources();
         //1、创建文件对象
-        createArticles(rootPath, "/note");
-
+        createArticles(rootPath, docPath);
         //2、插入数据库
         insertArticles(articleMapper,categoryMapper);
 
         //3、转换swf
         for (Article article : articleList) {
-            if (".swf".equals(article.getFileType())){
-                turnSwf(rootPath+article.getSourceFilePath(),rootPath+article.getTargetFilePath());
+            if (".pdf".equals(article.getFileType())){
+                turnPdf(article.getSourceFilePath(),article.getTargetFilePath());
             }
 
         }
@@ -93,7 +96,7 @@ public class ArticleUtil {
      * @throws IOException
      */
     private void insertArticles(ArticleMapper articleMapper,CategoryMapper categoryMapper) throws IOException {
-        //1、加载配置文件
+      /*  //1、加载配置文件
         InputStream inputStream = Resources.getResourceAsStream("mybatis-config.xml");
         //2、创建连接工厂
         SqlSessionFactory build = new SqlSessionFactoryBuilder().build(inputStream);
@@ -105,7 +108,7 @@ public class ArticleUtil {
         }
         if (categoryMapper == null){
             categoryMapper = sqlSession.getMapper(CategoryMapper.class);
-        }
+        }*/
 
         for (Article article : articleList) {
             //添加分类，并获取分类id
@@ -131,8 +134,8 @@ public class ArticleUtil {
 
         }
         articleList = articleMapper.getArticlesForIndex();
-        sqlSession.commit();
-        sqlSession.close();
+/*        sqlSession.commit();
+        sqlSession.close();*/
     }
 
 
@@ -190,14 +193,14 @@ public class ArticleUtil {
         //标题
         String title = fileInfo[3].trim();
         //最后修改时间
-        String updateDate = DateUtil.formatDate(new Date(file.lastModified()), "yy-MM-dd");
+        String updateDate = DateUtil.formatDate(new Date(file.lastModified()), "yyyy-MM-dd");
         //源文件目录
         String sourceFilePath = file.getAbsolutePath().substring(file.getAbsolutePath().indexOf(rootPath) + rootPath.length());
         //目标文件目录 如果是docx或doc转为swf
         String targetFilePath = "/" + ext + "/" + filename + fileType;
         if ("docx".equalsIgnoreCase(ext) || "doc".equalsIgnoreCase(ext)) {
-                 fileType = ".swf";
-            targetFilePath = "/swf/" + MD5.md5(filename) + fileType;
+                 fileType = ".pdf";
+            targetFilePath = "/pdf/" + MD5.md5(filename) + fileType;
              /* //转html使用
              fileType = ".html";
             targetFilePath = "/html/"+ UUID.randomUUID()+"/" + MD5.md5(filename) + fileType;*/
@@ -218,7 +221,7 @@ public class ArticleUtil {
         Article article = new Article();
         article.setTitle(title);
         article.setCreateDate(DateUtil.stringToDate(createDate));
-        article.setUpdateDate(DateUtil.stringToDate(updateDate));
+        article.setUpdateDate(DateUtil.stringToDate(createDate));
         // article.setCategoryId((int)categoryId);
         article.setCategoryName(tag);
         article.setFileType(fileType);
@@ -236,31 +239,6 @@ public class ArticleUtil {
 
     }
 
-    private  boolean turnSwf(String pathDoc, String pathSwf) {
-
-        File file = new File(pathSwf);
-        if (file.exists() || file.isDirectory()) {
-            return true;
-        }
-        log.info("源DOC文件:{}" , pathDoc);
-
-        String pathPdf = pathSwf.substring(0, pathSwf.lastIndexOf(".")) + ".pdf";
-        //转html使用
-        //pathPdf = pathSwf.substring(0, pathSwf.lastIndexOf(".")) + ".html";
-        file = new File(pathPdf);
-        if (!file.exists() && !file.isDirectory()) {
-            log.info("生成pdf文件:{}", pathPdf);
-            //docx转pdf
-            //Doc2Pdf.turn(pathDoc, pathPdf);
-            Doc2Pdf.turn(pathDoc, pathPdf);
-        }
-
-
-        //pdf转swf
-        log.info("转换swf中...");
-        log.info("生成Swf文件:" + pathSwf);
-        return Pdf2Swf.pdf2swf(pathPdf, pathSwf, swfToolsPath);
-    }
 
     /**
      * 读取word文件内容
@@ -306,40 +284,30 @@ public class ArticleUtil {
         return content.toString();
     }
 
-    public  boolean turnSwfJar(String pathDoc, String pathSwf) {
+    public  boolean turnPdf(String pathDoc, String pathPdf) {
         try {
             //jar内部资源存在SWF文件
-            if (springBootJarUtil.sourceExists(pathSwf)) {
+            if (springBootJarUtil.sourceExists(pathPdf)) {
                 return true;
             }
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
         }
 
-        log.warn("内部资源文件不存在:" + pathSwf);
-        String pathPdf = pathSwf.replace(".swf", ".pdf");
-        ;
-        pathPdf = pathPdf.replace("/swf/", "/pdf/");
         try {
             pathDoc = springBootJarUtil.getExtStaticSources() + pathDoc;
             pathPdf = springBootJarUtil.getExtStaticSources() + pathPdf;
-            pathSwf = springBootJarUtil.getExtStaticSources() + pathSwf;
             boolean mkdirs = new File(pathPdf).getParentFile().mkdirs();
-            boolean mkdirs1 = new File(pathSwf).getParentFile().mkdirs();
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             return false;
         }
-        //jar外部资源swf文件存在
-        File file = new File(pathSwf);
+        File file = new File(pathPdf);
         if (file.exists() && !file.isDirectory()) {
             return true;
         }
-        log.warn("外部资源文件不存在:" + pathSwf);
         log.info("源DOC文件:" + pathDoc);
-        file = new File(pathPdf);
-        if (!file.exists() && !file.isDirectory()) {
             log.info("生成pdf文件:" + pathPdf);
             //docx转pdf
             int b = Doc2Pdf.turn(pathDoc, pathPdf);
@@ -347,14 +315,6 @@ public class ArticleUtil {
                 log.error("生成pdf失败");
                 return false;
             }
-        }
-
-        //pdf转swf
-        log.info("转换swf中..." + pathSwf);
-        boolean b = Pdf2Swf.pdf2swf(pathPdf, pathSwf, swfToolsPath);
-        if (!b) {
-            log.error("转换swf失败:" + pathSwf);
-        }
-        return b;
+        return true;
     }
 }

@@ -36,7 +36,7 @@ public class TransactionManagerAspect {
             Object proceed=null;
             try {
                 proceed = pjp.proceed();
-                System.out.println(proceed);
+                 log.info(proceed);
                 //提交事务
                 TransactionManager.commitTrans();
             } catch (Throwable throwable) {

@@ -30,7 +30,7 @@ public class PermissionAspect {
             }
         }*/
 
-      /*  System.out.println("Permission");
+      /*   log.info("Permission");
         throw new RuntimeException("权限不足");*/
         return pjp.proceed();
     }

@@ -1,5 +1,7 @@
 package cn.shu.blog.utils.captcha;
 
+import lombok.extern.slf4j.Slf4j;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -10,6 +12,7 @@ import java.util.Random;
 /**
  * 动态生成图片
  */
+@Slf4j
 public class VerifyCode {
 	// {"宋体", "华文楷体", "黑体", "华文新魏", "华文隶书", "微软雅黑", "楷体_GB2312"}
 	private static String[] fontNames = { "宋体", "华文楷体", "黑体", "微软雅黑",  "楷体_GB2312" };
@@ -115,6 +118,6 @@ public class VerifyCode {
 	public static void main(String[] args) throws Exception {
 		VerifyCode vc = new VerifyCode();
 		vc.drawImage(new FileOutputStream("e:/vc.jpg"));
-		System.out.println("执行成功~!");
+		 log.info("执行成功~!");
 	}
 }

@@ -81,7 +81,6 @@ public class BlogUserHandler {
     public void registerUser(@Valid User newUser, Errors errors, String captcha, @SessionAttribute("captcha") String serCaptcha, HttpServletResponse response) throws  IOException {
         if (errors.hasErrors()){
             for(FieldError fieldError : errors.getFieldErrors()) {
-                System.out.println(fieldError.getField() + ":" + fieldError.getDefaultMessage());
                 response.getWriter().write(fieldError.getDefaultMessage()+",5秒后返回注册页面");
                 response.setHeader("refresh", "5;url=/register/register.html");
                 return;
@@ -104,7 +103,6 @@ public class BlogUserHandler {
     @ResponseBody
     @RequestMapping(value = "/registerCheck.action",params = "method",produces = "text/html;charset=utf-8")
     public String registerAjaxCheck(String method, String userName, String nickName, String mail, String captcha, @SessionAttribute(value = "captcha",required = false) String serCaptcha){
-        System.out.println(method);
         String msg="success";
         try {             //校验用户名
             if ("userName".equals(method)) {

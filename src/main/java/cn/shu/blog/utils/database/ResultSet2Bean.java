@@ -35,7 +35,7 @@ public class ResultSet2Bean <T>{
                 columnNames[i] = rsmd.getColumnLabel(i + 1).toUpperCase();
             }
             List columnNameList = Arrays.asList(columnNames);
-            // System.out.println(columnNameList);
+            //  log.info(columnNameList);
             // 开始遍历查询结果
             while (rs.next()) {
                 // 创建Javabean对象

@@ -9,6 +9,7 @@ package cn.shu.blog.service;
 import cn.shu.blog.beans.User;
 import cn.shu.blog.exception.UserException;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -17,6 +18,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
  * 代理者
  */
 //@Service("userServiceInter") //Spring管理
+@Slf4j
 public class UserServiceStaticProxy implements UserServiceInter {
     /**
      * 被代理者
@@ -50,7 +52,7 @@ public class UserServiceStaticProxy implements UserServiceInter {
         /*
          *代理者中做一些日志记录
          */
-        System.out.println("用户登录:静态代理");
+         log.info("用户登录:静态代理");
         return userServiceInter.isUserExists(loginUser);
     }
 

@@ -47,18 +47,18 @@ public class LuceneIndexUntil {
         Analyzer a3 = new WhitespaceAnalyzer();
         Analyzer a4 = new SmartChineseAnalyzer();
         IKAnalyzer6x ikAnalyzer6x = new IKAnalyzer6x();
-/*        System.out.println("******************标准********************");
+/*         log.info("******************标准********************");
         printTerm(a1,msg);//今,天,晚,上,干,嘛,呢
 
-        System.out.println("******************简单********************");
+         log.info("******************简单********************");
         printTerm(a2,msg);//今天晚上干嘛呢
 
-        System.out.println("******************空格********************");
+         log.info("******************空格********************");
         printTerm(a3,msg);//今天晚上干嘛呢？
 
-        System.out.println("******************智能********************");
+         log.info("******************智能********************");
         printTerm(a4,msg);//今天,晚上,干,嘛,呢*/
-        System.out.println("******************IK********************");
+         log.info("******************IK********************");
         //printTerm(ikAnalyzer6x,msg);//今天,晚上,干嘛,呢
 
     }
@@ -81,8 +81,8 @@ public class LuceneIndexUntil {
 
         //遍历词项
             while (tokenStream.incrementToken()) {
-/*            System.out.println("偏移量起始位置:"+offAttr.startOffset());
-            System.out.println("偏移量结束位置:"+offAttr.endOffset());*/
+/*             log.info("偏移量起始位置:"+offAttr.startOffset());
+             log.info("偏移量结束位置:"+offAttr.endOffset());*/
 
                // System.out.print(s + ",");
                 String s=charAttr.toString();
@@ -264,7 +264,7 @@ public class LuceneIndexUntil {
                 article.setImagePath(doc1.get("imagePath"));
 
                 articles.add(article);
-                System.out.println("匹配分数：" + scoreDoc.score + ":" + doc1.get("title"));
+                 log.info("匹配分数：" + scoreDoc.score + ":" + doc1.get("title"));
             }
             SearchArticle searchArticle = new SearchArticle();
             searchArticle.setCurrPage(currPage);

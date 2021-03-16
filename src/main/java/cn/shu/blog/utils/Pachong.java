@@ -1,5 +1,6 @@
 package cn.shu.blog.utils;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -20,6 +21,7 @@ import java.util.regex.Pattern;
  * @author:
  * @Date:2018/5/22
  */
+@Slf4j
 public class Pachong {
 
     private static int n=0;
@@ -27,7 +29,7 @@ public class Pachong {
     public static void main(String[] args) throws Exception{
         String downloadPath = "D:\\videos\\";
 
-        System.out.println("输入爬取关键字（可用空格，、号分隔多个想爬的关键字）：");
+         log.info("输入爬取关键字（可用空格，、号分隔多个想爬的关键字）：");
         Scanner KeyWord = new Scanner(System.in);
         String Word =KeyWord.nextLine();
         List<String> list = nameList(Word);
@@ -161,7 +163,7 @@ public class Pachong {
         return arr;
     }
     public static void sop(Object obj){
-        System.out.println(obj);
+
     }
     //根据图片网络地址下载图片
     public static void download(String url, String path){
@@ -256,7 +258,6 @@ public class Pachong {
 
             double width = r.getWidth();
             double wh=width/height;
-            System.out.println(wh);
             return wh;
         }finally {
 

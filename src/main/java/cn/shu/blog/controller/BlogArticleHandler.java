@@ -67,18 +67,15 @@ public class BlogArticleHandler {
         //增加访问次数
         articleServiceInter.addVisitRecord(articleId);
         Article article = articleServiceInter.getSingleArticle(articleId);
-        System.out.println(article);
         if (article != null) {
 
-            String targetFilePath = article.getTargetFilePath();
-            article.setTargetFilePath(targetFilePath.replaceAll("\\.swf",".pdf"));
             request.setAttribute("recommendArticles", new ArrayList<>());
             request.setAttribute("pageCommNum", pageCommNum);
             request.setAttribute("articleInfo", article);
             //swf文件
-            if (".swf".equalsIgnoreCase(article.getFileType())) {
+            if (".pdf".equalsIgnoreCase(article.getFileType())) {
                 //转换为swf方便显示 转换失败
-                if (!articleUtil.turnSwfJar(article.getSourceFilePath(), targetFilePath)) {
+                if (!articleUtil.turnPdf(article.getSourceFilePath(), article.getTargetFilePath())) {
                     return "forward:/WEB-INF/jsp/404.jsp";
                 }
                 return "forward:/WEB-INF/jsp/article.jsp";
@@ -113,7 +110,6 @@ public class BlogArticleHandler {
 
 
         String articleId = request.getParameter("articleId");
-        System.out.println(articleId);
         //获取文章的评论
         List<Comment> articleComments = commentService.getArticleComments(articleId, currPage, pageCommNum);
         if (articleComments != null && articleComments.size() > 0) {
@@ -124,12 +120,12 @@ public class BlogArticleHandler {
 
     }
 
-    @ResponseBody
-    @RequestMapping(value = "/addComment.action")
     /*
      * 前端提交articleId=" + articleId
      * 封装参数到Comment的 articleId参数
      */
+    @ResponseBody
+    @RequestMapping(value = "/addComment.action")
     public String addComment(HttpServletRequest request, Comment comment) {
         Object user = request.getSession().getAttribute("user");
         String s = commentService.articleComment(comment, user);
@@ -139,18 +135,12 @@ public class BlogArticleHandler {
     @ResponseBody
     @RequestMapping(value = "/search.action", produces = "application/json")
     public SearchArticle searchArticle(String searchStr, String currPage, String pageNum) {
-        System.out.println(searchStr);
-        System.out.println(currPage);
-        System.out.println(pageNum);
         return articleServiceInter.searchArticle(searchStr, Integer.parseInt(currPage), Integer.parseInt(pageNum));
     }
 
     @ResponseBody
     @RequestMapping(value = "/searchIas.action")
     public String searchArticleIAS(String searchStr, String currPage, String pageNum) {
-        System.out.println(searchStr);
-        System.out.println(currPage);
-        System.out.println(pageNum);
         List<Article> articles = articleServiceInter.searchArticle(searchStr, Integer.parseInt(currPage), Integer.parseInt(pageNum)).getArticles();
         StringBuilder stringBuilder = new StringBuilder();
         for (Article article : articles) {
@@ -175,7 +165,6 @@ public class BlogArticleHandler {
                     .append("</p>").append("<p class='note'>")
                     .append(article.getDescription()).append("</p>").append("</article>");
         }
-        System.out.println(stringBuilder);
         return stringBuilder.toString();
     }
 }

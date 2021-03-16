@@ -18,12 +18,12 @@ public class OnlineNumberListener implements HttpSessionListener {
     private int onlineNumber=0;
 
     public OnlineNumberListener() {
-        //System.out.println("Listener 构造");
+        // log.info("Listener 构造");
     }
 
     @Override
     public void sessionCreated(HttpSessionEvent httpSessionEvent) {
-        //System.out.println("session被创建");
+        // log.info("session被创建");
         onlineNumber=onlineNumber+1;
         httpSessionEvent.getSession().setAttribute("onlineNumber",onlineNumber);
         log.info("在线人数:" + onlineNumber);
@@ -31,7 +31,7 @@ public class OnlineNumberListener implements HttpSessionListener {
 
     @Override
     public void sessionDestroyed(HttpSessionEvent httpSessionEvent) {
-       // System.out.println("session被销毁");
+       //  log.info("session被销毁");
         onlineNumber=onlineNumber-1;
         httpSessionEvent.getSession().setAttribute("onlineNumber",onlineNumber);
         log.info("在线人数:" + onlineNumber);

@@ -1,9 +1,12 @@
 package cn.shu.blog.utils;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.io.*;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 
+@Slf4j
 public class FileEncodeConvert {
     public static int fileCount = 0;
     public static String sourceFileRoot = "替换为要转换的源文件或源目录"; // 将要转换文件所在的根目录
@@ -12,7 +15,7 @@ public class FileEncodeConvert {
     public static void main(String[] args) throws IOException {
         File fileDir = new File(sourceFileRoot);
         convert(fileDir);
-        System.out.println("Total Dealed : " + fileCount + "Files");
+         log.info("Total Dealed : " + fileCount + "Files");
     }
 
     public static void convert(File file) throws IOException {
@@ -40,7 +43,7 @@ public class FileEncodeConvert {
             bw.close();
             osw.close();
 
-            System.out.println("Deal:" + file.getPath());
+             log.info("Deal:" + file.getPath());
             fileCount++;
         } else {
             //利用递归对目录下的每个以.java结尾的文件进行编码转换
