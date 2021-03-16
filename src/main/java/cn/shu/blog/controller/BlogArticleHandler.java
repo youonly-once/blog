@@ -70,19 +70,21 @@ public class BlogArticleHandler {
         System.out.println(article);
         if (article != null) {
 
+            String targetFilePath = article.getTargetFilePath();
+            article.setTargetFilePath(targetFilePath.replaceAll("\\.swf",".pdf"));
             request.setAttribute("recommendArticles", new ArrayList<>());
             request.setAttribute("pageCommNum", pageCommNum);
             request.setAttribute("articleInfo", article);
             //swf文件
             if (".swf".equalsIgnoreCase(article.getFileType())) {
                 //转换为swf方便显示 转换失败
-                if (!articleUtil.turnSwfJar(article.getSourceFilePath(), article.getTargetFilePath())) {
+                if (!articleUtil.turnSwfJar(article.getSourceFilePath(), targetFilePath)) {
                     return "forward:/WEB-INF/jsp/404.jsp";
                 }
                 return "forward:/WEB-INF/jsp/article.jsp";
                 //html文件
             } else if (".html".equalsIgnoreCase(article.getFileType()) || ".htm".equalsIgnoreCase(article.getFileType())) {
-                request.setAttribute("html", article.getTargetFilePath());
+                request.setAttribute("html", targetFilePath);
                 return "forward:/WEB-INF/jsp/articleHtml.jsp";
             }
 
