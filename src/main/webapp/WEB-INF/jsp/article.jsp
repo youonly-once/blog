@@ -2,6 +2,7 @@
 <%@ page import="java.util.List" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 
 <html lang="zh-CN">
 <head>
@@ -56,8 +57,8 @@
                 </a></h1>
                 <div class="article-meta"> <span class="item article-meta-time">
           <time class="time" data-toggle="tooltip" data-placement="bottom"
-                title="时间：${articleInfo.updateDate}"><i
-                  class="glyphicon glyphicon-time"></i> ${articleInfo.updateDate}</time>
+                title="时间：<fmt:formatDate value="${articleInfo.updateDate}" pattern="yyyy-MM-dd" />"><i
+                  class="glyphicon glyphicon-time"></i> <fmt:formatDate value="${articleInfo.updateDate}" pattern="yyyy-MM-dd" /></time>
           </span>
                     <span class="item article-meta-source" data-toggle="tooltip" data-placement="bottom" title="来源：${articleInfo.nickname}">
           <i class="glyphicon glyphicon-globe"></i> ${articleInfo.nickname}</span>
@@ -78,14 +79,21 @@
             <script type="text/javascript" src="${pageContext.request.contextPath}/js/flexpaper/flexpaper_flash.js"></script>
 
             <article class="article-content">
-                <div id="getflash" style="display: none;text-align: center;margin-top: 150px;margin-bottom: 20px;">
-                    <!-- <a href="http://www.adobe.com/go/getflashplayer" rel="nofollow" target="_top" title="升级Flash插件">启用flash</a> -->
-                    <%--<p><i class="iconfont_video_details" style="font-size: 30px;">&#xe625;</i></p>--%>
-                    <a href="https://get.adobe.com/cn/flashplayer/" target="_top"
+           <%--     <div id="getflash" style="display: none;text-align: center;margin-top: 150px;margin-bottom: 20px;">
+                    <!-- <a href="http://www.adobe.com/go/getflashplayer" rel="nofollow" target="_blank" title="升级Flash插件">启用flash</a> -->
+                    &lt;%&ndash;<p><i class="iconfont_video_details" style="font-size: 30px;">&#xe625;</i></p>&ndash;%&gt;
+                    <a href="https://get.adobe.com/cn/flashplayer/" target="_blank"
                        style="color:#3399CC;font-size: 18px;">您尚未安装或未允许浏览器运行Flash，点击允许即可浏览文档</a>
                 </div>
-                <a id="viewerPlaceHolder"<%-- style="width:860px;height:720px;display:block;"--%>></a>
-                <SCRIPT src="${pageContext.request.contextPath}/js/swfobject.js"></SCRIPT>
+                <a id="viewerPlaceHolder"&lt;%&ndash; style="width:860px;height:720px;display:block;"&ndash;%&gt;></a>
+--%>            <object data='${pageContext.request.contextPath}${articleInfo.targetFilePath}' type="application/pdf" width=800 height=800>
+<%--
+                <embed src="${pageContext.request.contextPath}${articleInfo.targetFilePath}" type="application/pdf" width=800 height=800>
+--%>
+               <P>This browser does not support PDFs. Please download the PDF to view it</P>
+           </object>
+                <%--禁用flash--%>
+               <%-- <SCRIPT src="${pageContext.request.contextPath}/js/swfobject.js"></SCRIPT>
                 <script type="text/javascript">
 
                     var swfVersionStr = "10.0.0";
@@ -149,7 +157,7 @@
                         flashvars, params, attributes);
                     swfobject.createCSS("#flashContent", "display:block;text-align:left;");
 
-                </script>
+                </script>--%>
             </article>
             <div class="article-tags">标签：<a href="" rel="tag">${articleInfo.categoryName}
             </a></div>
@@ -289,9 +297,9 @@
         }
         $(".article-content").mouseover(function () {
             //禁用滚动条
-            $('body').css({
+        /*    $('body').css({
                 "overflow-y":"hidden"
-            });
+            });*/
         });
         $(".article-content").mouseout(function () {
             //开启滚动条

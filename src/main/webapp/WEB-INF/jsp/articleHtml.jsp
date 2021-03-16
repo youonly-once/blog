@@ -2,6 +2,7 @@
 <%@ page import="java.util.List" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%
     String articleHtml=request.getAttribute("html")+"";
 %>
@@ -97,8 +98,8 @@
                 </a></h1>
                 <div class="article-meta"> <span class="item article-meta-time">
           <time class="time" data-toggle="tooltip" data-placement="bottom"
-                title="时间：${articleInfo.updateDate}"><i
-                  class="glyphicon glyphicon-time"></i> ${articleInfo.updateDate}</time>
+                title="时间：<fmt:formatDate value="${articleInfo.updateDate}" pattern="yyyy-MM-dd"/>"><i
+                  class="glyphicon glyphicon-time"></i> <fmt:formatDate value="${articleInfo.updateDate}" pattern="yyyy-MM-dd" /></time>
           </span>
                     <span class="item article-meta-source" data-toggle="tooltip" data-placement="bottom" title="来源：${articleInfo.nickname}">
           <i class="glyphicon glyphicon-globe"></i> ${articleInfo.nickname}</span>

@@ -7,6 +7,7 @@
 --%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%
     String path =request.getContextPath()+"/index.action";
     String articlePath = request.getContextPath()+"/article/detail/";
@@ -118,7 +119,7 @@
                         <h2><a href="${articlePath}${ar.id}.action" title="" target="_top">${ar.title}</a></h2>
                     </header>
                     <p class="meta">
-                        <time class="time"><i class="glyphicon glyphicon-time"></i> ${ar.updateDate}</time>
+                        <time class="time"><i class="glyphicon glyphicon-time"></i> <fmt:formatDate value="${ar.updateDate}" pattern="yyyy-MM-dd" /></time>
                         <span class="views"><i class="glyphicon glyphicon-eye-open"></i> 共${ar.visitors}人围观</span> <a
                             class="comment" href="${articlePath}${ar.id}.action" target="_top"><i
                             class="glyphicon glyphicon-comment"></i> ${ar.commNum} 评论</a></p>

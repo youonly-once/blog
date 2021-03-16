@@ -12,6 +12,7 @@ import cn.shu.blog.dao.CommentMapper;
 import cn.shu.blog.beans.Comment;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
 @Service
 public class CommentService{
@@ -69,7 +70,7 @@ public class CommentService{
         if (user != null) {
             userId = ((User) user).getId();
         }
-        comment.setCreateDate(DateUtil.stringToDateTime(DateUtil.getCurrDateAndTimeMil()));
+        comment.setCreateDate(new Date());
         comment.setUserId(userId);
         //提交评论
         int b =commentMapper.insert(comment);

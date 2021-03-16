@@ -1,9 +1,12 @@
 package cn.shu.blog.utils;
+import lombok.extern.slf4j.Slf4j;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+@Slf4j
 public class DateUtil {// 返回查询时间
 	private DateUtil(){}
 	/**
@@ -247,7 +250,7 @@ public class DateUtil {// 返回查询时间
 		try {
 			return simpleDateFormat.parse(date);
 		} catch (ParseException e) {
-			e.printStackTrace();
+			log.error(e.getMessage());
 		}
 		return null;
 	}
