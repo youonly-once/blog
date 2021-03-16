@@ -139,11 +139,6 @@
             <artifactId>poi-excelant</artifactId>
             <version>3.10-FINAL</version>
         </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-jdk14</artifactId>
-            <version>1.6.1</version>
-        </dependency>
         <!-- https://mvnrepository.com/artifact/org.apache.poi/poi-ooxml -->
         <dependency>
             <groupId>org.apache.poi</groupId>
@@ -180,14 +175,13 @@
             <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
 
-        <!--#########################lucene 相关包##############33-->
-        <!-- 查询相关jar包 -->
+        <!--#########################lucene 相关包# 查询相关jar包 #############33-->
         <dependency>
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-queryparser</artifactId>
             <version>6.0.0</version>
         </dependency>
-        <!-- lucene自带只能中文分词器jar包 -->
+        <!-- lucene自带智能中文分词器jar包 -->
         <dependency>
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-analyzers-smartcn</artifactId>
@@ -203,6 +197,21 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.13</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.25</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <version>1.2.3</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.2.3</version>
         </dependency>
     </dependencies>
 
