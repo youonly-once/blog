@@ -82,7 +82,7 @@ public class ArticleUtil {
         //3、转换swf
         for (Article article : articleList) {
             if (".pdf".equals(article.getFileType())){
-                turnPdf(article.getSourceFilePath(),article.getTargetFilePath());
+              //  turnPdf(article.getSourceFilePath(),article.getTargetFilePath());
             }
 
         }
