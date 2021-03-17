@@ -200,7 +200,7 @@ public class ArticleUtil {
         String targetFilePath = "/" + ext + "/" + filename + fileType;
         if ("docx".equalsIgnoreCase(ext) || "doc".equalsIgnoreCase(ext)) {
                  fileType = ".pdf";
-            targetFilePath = "/pdf/" + MD5.md5(filename) + fileType;
+            targetFilePath = "/pdf/" + MD5Util.getMD5(new File(sourceFilePath)) + fileType;
              /* //转html使用
              fileType = ".html";
             targetFilePath = "/html/"+ UUID.randomUUID()+"/" + MD5.md5(filename) + fileType;*/
