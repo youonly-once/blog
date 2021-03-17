@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -26,13 +27,30 @@ import java.util.List;
 @Controller
 @SessionAttributes
 public class BlogHomeHandler {
-    @Autowired
+
+    /**
+     * 文章service
+     */
+    @Resource
     private ArticleServiceInter articleServiceInter=null;
-    @Autowired
+
+
+    /**
+     * 文章分类service
+     */
+    @Resource
     private CategoryServiceInter categoryServiceInter =null;
-    //每页显示的文章数
+
+    /**
+     * 首先显示的文章数量
+     */
     @Value("${home.pageCommNum}")
     private int pageCommNum=5;
+
+    /**
+     * 异常捕获器
+     * @param throwable 异常
+     */
     @ExceptionHandler
     public void exceptionHandler(Throwable throwable){
 

@@ -25,6 +25,7 @@ spring:
 #自定义的属性
 extStaticSourcesPath: ext_resources/
 docPath: /note
+articleIndexPath: /article_index
 
  #mybatis
 mybatis:
