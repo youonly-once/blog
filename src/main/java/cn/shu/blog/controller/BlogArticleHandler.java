@@ -8,6 +8,7 @@ import cn.shu.blog.beans.SearchArticle;
 import cn.shu.blog.dao.CategoryMapper;
 import cn.shu.blog.service.ArticleServiceInter;
 import cn.shu.blog.service.CommentService;
+import cn.shu.blog.utils.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -144,7 +145,7 @@ public class BlogArticleHandler {
 
     }
 
-    /*
+    /**
      * 前端提交articleId=" + articleId
      * 封装参数到Comment的 articleId参数
      */
@@ -182,7 +183,7 @@ public class BlogArticleHandler {
                     .append(category.getCategoryName()).append("<i></i></a>").append("<h2><a href='article.jsp' title=''>").append(article.getTitle())
                     .append("</a></h2>").append("</header>").append("<p class='meta'>")
                     .append("<time class='time'><i class='glyphicon glyphicon-time'></i>")
-                    .append(article.getUpdateDate()).append("</time>")
+                    .append(DateUtil.formatDate(article.getUpdateDate(),"yyyy-MM-dd")).append("</time>")
                     .append("<span class='views'><i class='glyphicon glyphicon-eye-open'></i> ")
                     .append(article.getVisitors()).append(" 人围观</span>").append("<a class='comment' href='article.jsp#comment'><i class='glyphicon glyphicon-comment'></i> ")
                     .append(comments.size()).append(" 评论</a>")

@@ -286,12 +286,14 @@ public class ArticleService implements ArticleServiceInter {
     public SearchArticle searchArticle(String searchStr, Integer currPage, Integer pageNum) {
         //根据title、content搜索
         String[] fields = new String[]{"title", "description"};
+
         try {
+            String s = springBootJarUtil.getExtStaticSources() + savePath;
             //查询条件
             Query query = LuceneIndexUntil.newMultiQuery(fields, searchStr);
             //查询10条
             return LuceneIndexUntil
-                    .searchDocument(searchStr, query, currPage, pageNum, springBootJarUtil.getExtStaticSources() + savePath, 0);
+                    .searchDocument(searchStr, query, currPage, pageNum, s, 0);
         } catch (ParseException | FileNotFoundException e) {
             e.printStackTrace();
         }
