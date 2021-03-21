@@ -202,8 +202,8 @@ public class ArticleUtil {
                  fileType = ".pdf";
             targetFilePath = "/pdf/" + MD5.md5(filename) + fileType;
              /* //转html使用
-             fileType = ".html";
-            targetFilePath = "/html/"+ UUID.randomUUID()+"/" + MD5.md5(filename) + fileType;*/
+             fileType = ".html"; bbb
+            targetFilePath = "/html/"+ UUID.randomUUID()+"/"  + MD5.md5(filename) + fileType;*/
         }
 
         //描述读取文档内容
