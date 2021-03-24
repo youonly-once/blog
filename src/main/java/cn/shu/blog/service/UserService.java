@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
-import javax.validation.Valid;
 import java.util.HashMap;import java.util.List;
 
 @Service("userServiceInter")
@@ -44,10 +43,13 @@ public class UserService implements UserServiceInter {
         if (StringUtil.isEmpty(userName)) {
             throw new UserException("用户名不能为空");
         }
-
         HashMap<String, Object> params = new HashMap<>(1);
-        params.put("account", userName);
-        return userMapper.selectByAll(params).get(0);
+        params.put("username", userName);
+        List<User> users = userMapper.selectByAll(params);
+        if (users .isEmpty()){
+            return null;
+        }
+        return users.get(0);
     }
 
     /**
@@ -63,8 +65,12 @@ public class UserService implements UserServiceInter {
         }
 
         HashMap<String, Object> params = new HashMap<>(1);
-        params.put("nickName", nickName);
-        return userMapper.selectByAll(params).get(0);
+        params.put("nickname", nickName);
+        List<User> users = userMapper.selectByAll(params);
+        if (users.isEmpty()){
+            return null;
+        }
+        return users.get(0);
     }
 
     /**
@@ -81,7 +87,11 @@ public class UserService implements UserServiceInter {
 
         HashMap<String, Object> params = new HashMap<>(1);
         params.put("email", email);
-        return userMapper.selectByAll(params).get(0);
+        List<User> users = userMapper.selectByAll(params);
+        if (users .isEmpty()){
+            return null;
+        }
+        return users.get(0);
     }
 
 
@@ -98,7 +108,7 @@ public class UserService implements UserServiceInter {
             return s;
         }
         try {
-            User u = findUserByUsername(newUser.getAccount());
+            User u = findUserByUsername(newUser.getUsername());
             if (u != null) {
                 return "用户名已被注册";
             }
@@ -166,7 +176,7 @@ public class UserService implements UserServiceInter {
      */
     @Override
     public User isUserExists(User loginUser) {
-        if (StringUtil.isEmpty(loginUser.getAccount())) {
+        if (StringUtil.isEmpty(loginUser.getUsername())) {
             return null;
         }
         if (StringUtil.isEmpty(loginUser.getPassword())) {

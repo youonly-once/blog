@@ -34,28 +34,28 @@ public class BlogArticleHandler {
     /**
      * Article service
      */
-    @Resource private ArticleServiceInter articleServiceInter = null;
+    @Resource private ArticleServiceInter articleServiceInter ;
 
     /**
      * comment of article service
      */
-    @Resource private CommentService commentService = null;
+    @Resource private CommentService commentService ;
 
     /**
      * category of article service
      */
-    @Resource private CategoryMapper categoryMapper = null;
+    @Resource private CategoryMapper categoryMapper ;
 
     /**
      * Office转pdf工具类
      */
-    @Resource private ArticleUtil articleUtil =null;
+    @Resource private ArticleUtil articleUtil ;
 
     /**
      * 每页显示的文章数量，默认5
      */
     @Value("${home.article-page-num}")
-    private int articleCountOfPage = 5;
+    private final int articleCountOfPage = 5;
 
     /**
      * 获取热门文章列表
@@ -125,22 +125,18 @@ public class BlogArticleHandler {
         return "forward:/WEB-INF/jsp/recommendArticle.jsp";
     }
 
-    @RequestMapping("/comment.action")
-    public String getComment(HttpServletRequest request, String currPage) {
-
-        //获取每页加载的页数
-        ServletContext servletContext = request.getServletContext();
-        int pageCommNum = 5;
-        if (servletContext.getInitParameter("pageCommNum") != null) {
-            pageCommNum = Integer.parseInt(servletContext.getInitParameter("pageCommNum").trim());
-        }
-
-
-        String articleId = request.getParameter("articleId");
+    /**
+     * 获取文章评论
+     * @param request 请求对象
+     * @param currPage 当前页
+     * @return
+     */
+    @RequestMapping(value = "/comment.action",params ="articleId")
+    public String getComment(HttpServletRequest request,String articleId, String currPage) {
         //获取文章的评论
-        List<Comment> articleComments = commentService.getArticleComments(articleId, currPage, pageCommNum);
+        List<Comment> articleComments = commentService.getArticleComments(articleId, currPage, articleCountOfPage);
         if (articleComments != null && articleComments.size() > 0) {
-            request.setAttribute("pageCommNum", pageCommNum);
+            request.setAttribute("pageCommNum", articleCountOfPage);
             request.setAttribute("articleComments", articleComments);
         }
         return "forward:/WEB-INF/jsp/comments.jsp";
@@ -148,8 +144,10 @@ public class BlogArticleHandler {
     }
 
     /**
-     * 前端提交articleId=" + articleId
-     * 封装参数到Comment的 articleId参数
+     * 文章评论
+     * @param request 请求体
+     * @param comment 评论实体
+     * @return
      */
     @ResponseBody
     @RequestMapping(value = "/addComment.action")
@@ -159,12 +157,26 @@ public class BlogArticleHandler {
         return s;
     }
 
+    /**
+     * 文章搜索
+     * @param searchStr 搜索关键字
+     * @param currPage 当前页
+     * @param pageNum 每页数量
+     * @return 文章实体
+     */
     @ResponseBody
     @RequestMapping(value = "/search.action", produces = "application/json")
-    public SearchArticle searchArticle(@PathVariable String searchStr, String currPage, String pageNum) {
+    public SearchArticle searchArticle(String searchStr, String currPage, String pageNum) {
         return articleServiceInter.searchArticle(searchStr, Integer.parseInt(currPage), Integer.parseInt(pageNum));
     }
 
+    /**
+     * 文章搜索
+     * @param searchStr 搜索关键字
+     * @param currPage 当前页
+     * @param pageNum 每页数量
+     * @return 文章实体
+     */
     @ResponseBody
     @RequestMapping(value = "/searchIas.action")
     public String searchArticleIAS(String searchStr, String currPage, String pageNum) {

@@ -32,20 +32,20 @@ public class BlogHomeHandler {
      * 文章service
      */
     @Resource
-    private ArticleServiceInter articleServiceInter=null;
+    private ArticleServiceInter articleServiceInter;
 
 
     /**
      * 文章分类service
      */
     @Resource
-    private CategoryServiceInter categoryServiceInter =null;
+    private CategoryServiceInter categoryServiceInter;
 
     /**
      * 首先显示的文章数量
      */
     @Value("${home.article-page-num}")
-    private int pageCommNum=5;
+    private final int pageCommNum=5;
 
     /**
      * 异常捕获器

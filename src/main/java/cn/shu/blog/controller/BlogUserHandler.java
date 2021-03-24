@@ -1,13 +1,13 @@
 package cn.shu.blog.controller;
 
 import cn.shu.blog.beans.User;
+import cn.shu.blog.exception.UserException;
 import cn.shu.blog.service.UserServiceInter;
 
 import cn.shu.blog.utils.MD5;
 import cn.shu.blog.utils.captcha.VerifyCode;
 import cn.shu.blog.utils.cookies.CookiesUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttribute;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -34,26 +35,36 @@ import java.io.UnsupportedEncodingException;
 @Controller
 @RequestMapping("/user")
 public class BlogUserHandler {
-    @Autowired
-    UserServiceInter userServiceInter;
+    @Resource
+    private UserServiceInter userServiceInter;
 
+    /**
+     * 用户登录
+     * @param request
+     * @param response
+     * @param loginUser
+     * @param remName
+     * @param autoLogin
+     * @return
+     * @throws IOException
+     */
     @ResponseBody
     @RequestMapping(value = "/login.action",produces = "text/html;charset=utf-8")
-    public String login(HttpServletRequest request, HttpServletResponse response, User loginUser, String remName, String autoLogin) throws IOException {
-        loginUser.setPassword(MD5.md5(loginUser.getPassword()));
+    public String login(HttpServletRequest request, HttpServletResponse response,User loginUser, boolean remName, boolean autoLogin) throws IOException {
+       // loginUser.setPassword(MD5.md5(loginUser.getPassword()));
         //判断用户是否存在
         User user = userServiceInter.isUserExists(loginUser);
         if (user!=null){
             //自动登录
-            if("true".equals(autoLogin)){
-                response.addCookie(CookiesUtil.setCookie("username",loginUser.getAccount(),request.getContextPath()+"/"));
+            if(autoLogin){
+                response.addCookie(CookiesUtil.setCookie("username",loginUser.getUsername(),request.getContextPath()+"/"));
                 response.addCookie(CookiesUtil.setCookie("password", loginUser.getPassword(),request.getContextPath()+"/"));
             }else{//没有勾选//删除之前的
                 //记住用户名 设置cookie
-                if("true".equals(remName)){
-                    response.addCookie(CookiesUtil.setCookie("username",loginUser.getAccount(),request.getContextPath()+"/"));
+                if(remName){
+                    response.addCookie(CookiesUtil.setCookie("username",loginUser.getUsername(),request.getContextPath()+"/"));
                 }else{//没有勾选//删除之前的
-                    response.addCookie(CookiesUtil.delCookie("username",loginUser.getAccount(),request.getContextPath()+"/"));
+                    response.addCookie(CookiesUtil.delCookie("username",loginUser.getUsername(),request.getContextPath()+"/"));
                 }
                 response.addCookie(CookiesUtil.delCookie("password",loginUser.getPassword(),request.getContextPath()+"/"));
             }
@@ -102,9 +113,8 @@ public class BlogUserHandler {
     }
     @ResponseBody
     @RequestMapping(value = "/registerCheck.action",params = "method",produces = "text/html;charset=utf-8")
-    public String registerAjaxCheck(String method, String userName, String nickName, String mail, String captcha, @SessionAttribute(value = "captcha",required = false) String serCaptcha){
+    public String registerAjaxCheck(String method, String userName, String nickName, String mail, String captcha, @SessionAttribute(value = "captcha",required = false) String serCaptcha) throws UserException {
         String msg="success";
-        try {             //校验用户名
             if ("userName".equals(method)) {
                 User user = userServiceInter.findUserByUsername(userName);
                 if (user != null) {
@@ -128,11 +138,6 @@ public class BlogUserHandler {
                 }
             }
            return msg;
-        }catch(Exception e){
-            e.printStackTrace();
-            return "系统错误";
-        }
-
     }
     @RequestMapping("/Captcha")
     public void getCaptcha(HttpServletResponse response, HttpSession session) throws IOException {

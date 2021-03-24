@@ -17,8 +17,8 @@ public class BlogJSPForward {
      * 返回hello
      * 匹配后缀.jsp，前缀/web-inf/
      * 最终/web-inf/hello.jsp
-     * @param tags
-     * @return
+     * @param tags 标签
+     * @return 路径
      */
     @RequestMapping("/header/{tags}.action")
     public String tags(@PathVariable String tags){

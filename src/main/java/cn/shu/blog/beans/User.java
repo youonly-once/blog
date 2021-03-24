@@ -11,7 +11,7 @@ public class User {
      * 账号
      */
     @NotEmpty(message = "账号不能为空")
-    private String account;
+    private String username;
 
     /**
      * 密码
@@ -50,12 +50,12 @@ public class User {
         this.id = id;
     }
 
-    public String getAccount() {
-        return account;
+    public String getUsername() {
+        return username;
     }
 
-    public void setAccount(String account) {
-        this.account = account == null ? null : account.trim();
+    public void setUsername(String username) {
+        this.username = username == null ? null : username.trim();
     }
 
     public String getPassword() {
