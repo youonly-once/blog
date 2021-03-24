@@ -23,8 +23,11 @@ spring:
     #不指定则默认为 classpath:/static/
     static-locations: classpath:/static/,file:ext_resources/
 #自定义的属性
+  #外部资源文件的相对路径
 extStaticSourcesPath: ext_resources/
+  #文档的路径
 docPath: /note
+  #保存文档索引的路径
 articleIndexPath: /article_index
 
  #mybatis
@@ -43,6 +46,6 @@ logging:
 
 #每页显示的文章数
 home:
-  pageCommNum: 5
+  article-page-num: 10
 #pdf转swf工具路径
 swfToolsPath: D:/SWFTools/pdf2swf.exe

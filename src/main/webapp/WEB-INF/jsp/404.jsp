@@ -72,10 +72,10 @@ h2 {
 <section class="container">
   <div class="panel">
     <div class="text-center">
-      <h2><stong>404错误！很抱歉，您要找的页面不存在</stong></h2>
+      <h2><stong>${msg.desc}</stong></h2>
       <div>
         <div class="float-left"> <img src="${pageContext.request.contextPath}/images/404/left.gif" alt="" />
-          <div class="alert"> 卧槽！页面不见了！ </div>
+          <div class="alert"> ${msg.desc} </div>
         </div>
         <div class="float-right"> <img src="${pageContext.request.contextPath}/images/404/right.png" width="260" class="hidden-xs" alt="" /> </div>
       </div>

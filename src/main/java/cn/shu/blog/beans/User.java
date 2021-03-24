@@ -1,5 +1,7 @@
 package cn.shu.blog.beans;
 
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotEmpty;
 import java.util.Date;
 
 public class User {
@@ -8,11 +10,13 @@ public class User {
     /**
      * 账号
      */
+    @NotEmpty(message = "账号不能为空")
     private String account;
 
     /**
      * 密码
      */
+    @NotEmpty(message = "密码不能为空")
     private String password;
 
     /**
@@ -23,11 +27,14 @@ public class User {
     /**
      * 昵称
      */
+    @NotEmpty(message = "昵称不能为空")
     private String nickname;
 
     /**
      * 邮箱地址
      */
+    @NotEmpty(message = "邮箱不能为空")
+    @Email(message = "邮箱格式不正确")
     private String email;
 
     /**

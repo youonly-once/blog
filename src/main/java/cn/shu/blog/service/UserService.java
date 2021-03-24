@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
+import javax.validation.Valid;
 import java.util.HashMap;import java.util.List;
 
 @Service("userServiceInter")
@@ -125,7 +126,7 @@ public class UserService implements UserServiceInter {
      */
     private String dataCheck(User user, String captcha, String serCaptcha) {
 
-        if (StringUtil.isEmpty(user.getAccount())) {
+/*        if (StringUtil.isEmpty(user.getAccount())) {
             return "用户名不能为空";
         }
         if (StringUtil.isEmpty(user.getPassword())) {
@@ -136,7 +137,7 @@ public class UserService implements UserServiceInter {
         }
         if (StringUtil.isEmpty(user.getEmail())) {
             return "email不能为空";
-        }
+        }*/
         if (StringUtil.isEmpty(captcha)) {
             return "验证码不能为空";
         }
@@ -148,9 +149,9 @@ public class UserService implements UserServiceInter {
          *  $匹配字符结尾
          */
 
-        if (!user.getEmail().matches("^\\w+@\\w+(\\.\\w+)+$")) {
+/*        if (!user.getEmail().matches("^\\w+@\\w+(\\.\\w+)+$")) {
             return "邮箱格式不正确";
-        }
+        }*/
         /*
          * 验证码判断
          */

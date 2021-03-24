@@ -44,7 +44,7 @@ public class BlogHomeHandler {
     /**
      * 首先显示的文章数量
      */
-    @Value("${home.pageCommNum}")
+    @Value("${home.article-page-num}")
     private int pageCommNum=5;
 
     /**

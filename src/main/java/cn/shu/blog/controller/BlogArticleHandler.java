@@ -6,10 +6,11 @@ import cn.shu.blog.beans.Category;
 import cn.shu.blog.beans.Comment;
 import cn.shu.blog.beans.SearchArticle;
 import cn.shu.blog.dao.CategoryMapper;
+import cn.shu.blog.exception.GlobalErrorException;
 import cn.shu.blog.service.ArticleServiceInter;
 import cn.shu.blog.service.CommentService;
 import cn.shu.blog.utils.DateUtil;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,7 +21,6 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.*;
 
 /**
  * 文章 处理器
@@ -49,7 +49,13 @@ public class BlogArticleHandler {
     /**
      * Office转pdf工具类
      */
-    @Resource ArticleUtil articleUtil =null;
+    @Resource private ArticleUtil articleUtil =null;
+
+    /**
+     * 每页显示的文章数量，默认5
+     */
+    @Value("${home.article-page-num}")
+    private int articleCountOfPage = 5;
 
     /**
      * 获取热门文章列表
@@ -73,15 +79,8 @@ public class BlogArticleHandler {
      * @return 请求转发对象
      */
     @RequestMapping("/detail/{articleId}.action")
-    public String showArticleDetail(HttpServletRequest request, @PathVariable String articleId) {
+    public String showArticleDetail(HttpServletRequest request, @PathVariable String articleId) throws GlobalErrorException {
         ServletContext servletContext = request.getServletContext();
-        //获取每页显示的页数
-        String pageCommNumStr = servletContext.getInitParameter("pageCommNum");
-        int pageCommNum = 5;
-        if (pageCommNumStr != null) {
-            pageCommNum = Integer.parseInt(pageCommNumStr.trim());
-        }
-
         //增加访问次数
         articleServiceInter.addVisitRecord(articleId);
         //获取文章信息
@@ -89,23 +88,26 @@ public class BlogArticleHandler {
         if (article != null) {
 
             request.setAttribute("recommendArticles", new ArrayList<>());
-            request.setAttribute("pageCommNum", pageCommNum);
+            request.setAttribute("pageCommNum", articleCountOfPage);
             request.setAttribute("articleInfo", article);
             if (".pdf".equalsIgnoreCase(article.getFileType())) {
                 //转换为swf方便显示 转换失败
                 if (!articleUtil.turnPdf(article.getSourceFilePath(), article.getTargetFilePath())) {
-                    return "forward:/WEB-INF/jsp/404.jsp";
+                    //return "forward:/WEB-INF/jsp/404.jsp";
+                    throw new GlobalErrorException("PDF加载失败！");
                 }
                 return "forward:/WEB-INF/jsp/article.jsp";
                 //html文件
-            } else if (".html".equalsIgnoreCase(article.getFileType()) || ".htm".equalsIgnoreCase(article.getFileType())) {
+            } else if (".html".equalsIgnoreCase(article.getFileType())
+                    || ".htm".equalsIgnoreCase(article.getFileType())) {
                 request.setAttribute("html",servletContext.getContextPath()+"/" +article.getTargetFilePath());
                 return "forward:/WEB-INF/jsp/articleHtml.jsp";
             }
 
         }
 
-        return "forward:/WEB-INF/jsp/404.jsp";
+        //return "forward:/WEB-INF/jsp/404.jsp";
+        throw new GlobalErrorException("文档加载失败！");
     }
 
     /**
@@ -159,7 +161,7 @@ public class BlogArticleHandler {
 
     @ResponseBody
     @RequestMapping(value = "/search.action", produces = "application/json")
-    public SearchArticle searchArticle(String searchStr, String currPage, String pageNum) {
+    public SearchArticle searchArticle(@PathVariable String searchStr, String currPage, String pageNum) {
         return articleServiceInter.searchArticle(searchStr, Integer.parseInt(currPage), Integer.parseInt(pageNum));
     }
 
