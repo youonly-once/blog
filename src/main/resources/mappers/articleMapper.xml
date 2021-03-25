@@ -359,14 +359,14 @@
              #{item.sourceFilePath,jdbcType=VARCHAR},
              #{item.description,jdbcType=VARCHAR}, #{item.imagePath,jdbcType=VARCHAR})
         </foreach>
-        on DUPLICATE KEY UPDATE
+         ON DUPLICATE KEY UPDATE
         createDate = values (createDate),
         updateDate = values (updateDate),
         fileType = values (fileType),
         targetFilePath = values (targetFilePath),
         description = values (description),
         sourceFilePath = values (sourceFilePath),
-        imagePath = values (imagePath);
+        imagePath = values (imagePath)
     </insert>
     <insert id="insertOrUpdate" keyColumn="id" keyProperty="id" parameterType="cn.shu.blog.beans.Article"
             useGeneratedKeys="true">

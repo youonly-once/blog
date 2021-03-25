@@ -115,12 +115,15 @@ public class ArticleUtil {
             }
             //3、转换pdf
             if (".pdf".equals(article.getFileType())) {
-                //turnPdf(article.getSourceFilePath(),article.getTargetFilePath());
+                turnPdf(article.getSourceFilePath(),article.getTargetFilePath());
             }
         }
-
         //4、新增或更新文章信息
-        articleMapper.batchInsertOrUpdate(articleList);
+        if (!articleList.isEmpty()){
+            articleMapper.batchInsertOrUpdate(articleList);
+        }
+
+
 
 
     }

@@ -3,6 +3,7 @@ package cn.shu.blog.utils.lucene;
 import cn.shu.blog.beans.Article;
 import cn.shu.blog.beans.SearchArticle;
 import cn.shu.blog.utils.DateUtil;
+import cn.shu.blog.utils.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
@@ -247,6 +248,8 @@ public class LuceneIndexUntil {
                 article.setUpdateDate(DateUtil.stringToDate(doc1.get("updateDate")));
                 article.setDescription(term.get("description"));
                 article.setImagePath(doc1.get("imagePath"));
+                article.setVisitors(StringUtil.isEmpty(doc1.get("visitors"))?0:Integer.parseInt(doc1.get("visitors")));
+
 
                 articles.add(article);
                 log.info("匹配分数：" + scoreDoc.score + ":" + doc1.get("title"));

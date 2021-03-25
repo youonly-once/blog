@@ -1,5 +1,6 @@
 package cn.shu.blog.beans;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.text.SimpleDateFormat;import java.util.Date;
@@ -20,11 +21,13 @@ public class Article {
     /**
      * 创建日期
      */
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     private Date createDate;
 
     /**
      * 更新日期
      */
+    @JsonFormat(pattern="yyyy-MM-dd",timezone = "GMT+8")
     private Date updateDate;
 
     /**

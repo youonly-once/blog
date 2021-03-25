@@ -27,7 +27,17 @@ public class ServletContextListener implements javax.servlet.ServletContextListe
         String webPath= context.getContextPath();
          context.setAttribute("webPath",webPath);
         try {
-            articleUtil.scanArticle();
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        articleUtil.scanArticle();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }).start();
+
         } catch (Exception e) {
             e.printStackTrace();
         }
