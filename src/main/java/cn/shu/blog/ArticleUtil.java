@@ -96,8 +96,7 @@ public class ArticleUtil {
 
     /**
      * 保存到数据库
-     *
-     * @throws IOException 连接数据库异常
+
      */
     private void insertArticles() {
         for (Article article : articleList) {
@@ -114,16 +113,14 @@ public class ArticleUtil {
                 categoryMapper.insert(category);
                 article.setCategoryId(category.getId());
             }
-
-            //新增或文章
-            articleMapper.insertOrUpdate(article);
             //3、转换pdf
             if (".pdf".equals(article.getFileType())) {
                 //turnPdf(article.getSourceFilePath(),article.getTargetFilePath());
             }
-
-
         }
+
+        //4、新增或更新文章信息
+        articleMapper.batchInsertOrUpdate(articleList);
 
 
     }

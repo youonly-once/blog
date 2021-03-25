@@ -359,7 +359,7 @@
              #{item.sourceFilePath,jdbcType=VARCHAR},
              #{item.description,jdbcType=VARCHAR}, #{item.imagePath,jdbcType=VARCHAR})
         </foreach>
-        ON DUPLICATE KEY UPDATE
+        on DUPLICATE KEY UPDATE
         createDate = values (createDate),
         updateDate = values (updateDate),
         fileType = values (fileType),
