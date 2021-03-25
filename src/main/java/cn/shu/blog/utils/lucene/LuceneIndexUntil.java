@@ -1,16 +1,11 @@
 package cn.shu.blog.utils.lucene;
 
 import cn.shu.blog.beans.Article;
-import cn.shu.blog.beans.Comment;
 import cn.shu.blog.beans.SearchArticle;
 import cn.shu.blog.utils.DateUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.cn.smart.SmartChineseAnalyzer;
-import org.apache.lucene.analysis.core.SimpleAnalyzer;
-import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.document.*;
@@ -21,6 +16,7 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.*;
+import org.apache.lucene.store.AlreadyClosedException;
 import org.apache.lucene.store.FSDirectory;
 
 import java.io.IOException;
@@ -29,8 +25,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @作者 舒新胜
@@ -39,54 +33,31 @@ import java.util.regex.Pattern;
  */
 @Slf4j
 public class LuceneIndexUntil {
-    public static void main(String[] args) throws IOException {
-        String msg = "小娃儿，你打个仙人板板的王者荣耀？";
-        //构造标准分词器、简单分词器、空格分词器、智能中文分词器
-        Analyzer a1 = new StandardAnalyzer();
-        Analyzer a2 = new SimpleAnalyzer();
-        Analyzer a3 = new WhitespaceAnalyzer();
-        Analyzer a4 = new SmartChineseAnalyzer();
-        IKAnalyzer6x ikAnalyzer6x = new IKAnalyzer6x();
-/*         log.info("******************标准********************");
-        printTerm(a1,msg);//今,天,晚,上,干,嘛,呢
-
-         log.info("******************简单********************");
-        printTerm(a2,msg);//今天晚上干嘛呢
-
-         log.info("******************空格********************");
-        printTerm(a3,msg);//今天晚上干嘛呢？
-
-         log.info("******************智能********************");
-        printTerm(a4,msg);//今天,晚上,干,嘛,呢*/
-         log.info("******************IK********************");
-        //printTerm(ikAnalyzer6x,msg);//今天,晚上,干嘛,呢
-
-    }
 
     private static HashMap<String, String> getTerm(Analyzer a, String msg, String title, String description) throws IOException {
-        if (msg!=null){
+        if (msg != null) {
 
 
-        //调用a这个分词器的api将需要分词的数据计算成词项
-        //分词不能独立存在,需要依托document数据，这里"document"模拟为文档对象
-        //实际 “document”就是定义的域属性
-        TokenStream tokenStream = a.tokenStream("document", msg);
+            //调用a这个分词器的api将需要分词的数据计算成词项
+            //分词不能独立存在,需要依托document数据，这里"document"模拟为文档对象
+            //实际 “document”就是定义的域属性
+            TokenStream tokenStream = a.tokenStream("document", msg);
 
-        //上面分词计算后 指针指向这里需要重置回到开头
-        tokenStream.reset();
+            //上面分词计算后 指针指向这里需要重置回到开头
+            tokenStream.reset();
 
-        //获取分词后词项的文本属性及偏移量属性
-        CharTermAttribute charAttr = tokenStream.getAttribute(CharTermAttribute.class);
-        OffsetAttribute offAttr = tokenStream.getAttribute(OffsetAttribute.class);
+            //获取分词后词项的文本属性及偏移量属性
+            CharTermAttribute charAttr = tokenStream.getAttribute(CharTermAttribute.class);
+            OffsetAttribute offAttr = tokenStream.getAttribute(OffsetAttribute.class);
 
-        //遍历词项
+            //遍历词项
             while (tokenStream.incrementToken()) {
 /*             log.info("偏移量起始位置:"+offAttr.startOffset());
              log.info("偏移量结束位置:"+offAttr.endOffset());*/
 
-               // System.out.print(s + ",");
-                String s=charAttr.toString();
-              title = title.replaceAll("(?i)" + s, "<font color='#e33e33'>" + s + "</font>");
+                // System.out.print(s + ",");
+                String s = charAttr.toString();
+                title = title.replaceAll("(?i)" + s, "<font color='#e33e33'>" + s + "</font>");
                 description = description.replaceAll("(?i)" + s, "<font color='#e33e33'>" + s + "</font>");
             }
         }
@@ -98,11 +69,17 @@ public class LuceneIndexUntil {
 
 
     /**
-     * 创建lucene索引
-     *
-     * @param articles
+
      */
-    public static void createIndex(List<Article> articles, String pathStr) {
+    /**
+     * 给文章创建lucene索引
+     * 索引存在则更新，不存在则添加
+     *
+     * @param articles 文章List
+     * @param pathStr  索引，目录
+     * @param update   是更新还是新增
+     */
+    public static void createIndex(List<Article> articles, String pathStr, boolean update) {
         IndexWriter indexWriter = null;
         FSDirectory dir = null;
         try {
@@ -121,18 +98,24 @@ public class LuceneIndexUntil {
             for (Article article : articles) {
                 Document doc = new Document();
                 //获取文章评论
-              //  List<Comment> comments = commentService.selectByAll(Comment.builder().articleId(article.getId()).build());
+                //  List<Comment> comments = commentService.selectByAll(Comment.builder().articleId(article.getId()).build());
                 doc.add(new TextField("title", article.getTitle(), Field.Store.YES));
                 // doc.add(new StringField("content", "lucene是一种全文检索技术的工具包...", Field.Store.YES));
                 doc.add(new StringField("id", article.getId() + "", Field.Store.YES));
                 doc.add(new TextField("description", article.getDescription() + "", Field.Store.YES));
                 doc.add(new IntPoint("visitors", article.getVisitors()));
                 doc.add(new StringField("visitors", article.getVisitors() + "", Field.Store.YES));
-                doc.add(new StringField("updateDate", DateUtil.formatDate(article.getUpdateDate(),null), Field.Store.YES));
-               // doc.add(new StringField("commNum", article.getCommNum() + "", Field.Store.YES));
+                doc.add(new StringField("updateDate", DateUtil.formatDate(article.getUpdateDate(), null), Field.Store.YES));
+                // doc.add(new StringField("commNum", article.getCommNum() + "", Field.Store.YES));
                 //doc.add(new StringField("categoryName", article.getCategoryName(), Field.Store.YES));
                 doc.add(new StringField("imagePath", article.getImagePath(), Field.Store.YES));
-                indexWriter.addDocument(doc);
+
+                if (update) {
+                    //执行步骤如下：根据ID查询数据--》查询到替换或未查询到-添加doc数据
+                    indexWriter.updateDocument(new Term("id", article.getId() + ""), doc);
+                } else {
+                    indexWriter.addDocument(doc);
+                }
             }
 
             //6、输出到索引文件
@@ -142,16 +125,7 @@ public class LuceneIndexUntil {
             e.printStackTrace();
             log.warn("创建lucene索引失败：" + articles);
         } finally {
-            try {
-                if (indexWriter != null) {
-                    indexWriter.close();
-                }
-                if (dir != null) {
-                    dir.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            close(null,dir,indexWriter);
         }
 
     }
@@ -213,9 +187,20 @@ public class LuceneIndexUntil {
     }
 
     /**
+     *
+     *
+     * @param query
+     */
+    /**
      * 搜索文档
      *
-     * @param query 查询条件
+     * @param searchStr 搜索字符串
+     * @param query     查询条件
+     * @param currPage  当前页面
+     * @param pageNum   每页显示数量
+     * @param savePath  索引目录
+     * @param minScore  匹配最小分数
+     * @return 搜索的文档对象
      */
     public static SearchArticle searchDocument(String searchStr, Query query, Integer currPage, Integer pageNum, String savePath, double minScore) {
         DirectoryReader reader = null;
@@ -258,13 +243,13 @@ public class LuceneIndexUntil {
                 article.setTitle(term.get("title"));
                 article.setId(Integer.parseInt(doc1.get("id")));
                 article.setCategoryName(doc1.get("categoryName"));
-                article.setCommNum(doc1.get("commNum")== null?0:Long.parseLong( doc1.get("commNum")));
+                article.setCommNum(doc1.get("commNum") == null ? 0 : Long.parseLong(doc1.get("commNum")));
                 article.setUpdateDate(DateUtil.stringToDate(doc1.get("updateDate")));
                 article.setDescription(term.get("description"));
                 article.setImagePath(doc1.get("imagePath"));
 
                 articles.add(article);
-                 log.info("匹配分数：" + scoreDoc.score + ":" + doc1.get("title"));
+                log.info("匹配分数：" + scoreDoc.score + ":" + doc1.get("title"));
             }
             SearchArticle searchArticle = new SearchArticle();
             searchArticle.setCurrPage(currPage);
@@ -275,18 +260,40 @@ public class LuceneIndexUntil {
             e.printStackTrace();
             log.warn("搜索文档失败：" + query);
         } finally {
-            try {
-                if (fsDirectory != null) {
-                    fsDirectory.close();
-                }
-                if (reader != null) {
-                    reader.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            close(reader,fsDirectory,null);
 
         }
         return null;
+    }
+
+    /**
+     * 关闭相关对象
+     * @param reader
+     * @param fsDirectory
+     * @param indexWriter
+     */
+    private static void close(DirectoryReader reader,FSDirectory fsDirectory,IndexWriter indexWriter){
+
+        if (reader != null) {
+            try {
+                reader.close();
+            } catch (IOException | AlreadyClosedException e) {
+                //e.printStackTrace();
+            }
+        }
+        if (fsDirectory != null) {
+            try {
+                fsDirectory.close();
+            } catch (IOException | AlreadyClosedException e) {
+                //e.printStackTrace();
+            }
+        }
+        if (indexWriter != null) {
+            try {
+                indexWriter.close();
+            } catch (IOException | AlreadyClosedException e) {
+                //e.printStackTrace();
+            }
+        }
     }
 }

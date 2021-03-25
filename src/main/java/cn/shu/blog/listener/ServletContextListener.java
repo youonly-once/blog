@@ -8,30 +8,29 @@ import javax.annotation.Resource;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.annotation.WebListener;
+import java.io.IOException;
 
 /**
  * ServletContext是web全局 web启动时启动
  * 可以监听其创建，然后将当前web应用路径保存，供JSP使用
+ * @author SXS
  */
 @Component
 @WebListener
 public class ServletContextListener implements javax.servlet.ServletContextListener {
     @Resource
     private ArticleUtil articleUtil = null;
-    @SneakyThrows
     @Override
     public void contextInitialized(ServletContextEvent servletContextEvent) {
         ServletContext context = servletContextEvent.getServletContext();
 
         String webPath= context.getContextPath();
          context.setAttribute("webPath",webPath);
-         new Thread(new Runnable() {
-             @SneakyThrows
-             @Override
-             public void run() {
-                 articleUtil.scanArticle();
-             }
-         }).start();
+        try {
+            articleUtil.scanArticle();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
     }
 

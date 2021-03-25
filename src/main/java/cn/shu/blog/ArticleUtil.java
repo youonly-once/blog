@@ -5,12 +5,8 @@ import cn.shu.blog.beans.Category;
 import cn.shu.blog.dao.ArticleMapper;
 import cn.shu.blog.dao.CategoryMapper;
 import cn.shu.blog.utils.*;
-import cn.shu.blog.utils.lucene.LuceneUtilForArticle;
+import cn.shu.blog.utils.lucene.LuceneIndexUntil;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.io.Resources;
-import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
-import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.junit.Test;
@@ -33,38 +29,51 @@ import java.util.List;
 @Component
 @Slf4j
 public class ArticleUtil {
+
     @Resource
     private SpringBootJarUtil springBootJarUtil = null;
     /**
      * pdf转pdf工具路径
      */
     @Value("${swfToolsPath}")
-    private  String swfToolsPath = "D:/SWFTools/pdf2swf.exe";
+    private String swfToolsPath = "D:/SWFTools/pdf2swf.exe";
 
-    /**获取配置文件的外部静态资源路径*/
+    /**
+     * 获取外部静态资源路径
+     */
     @Value("${extStaticSourcesPath}")
     private String extStaticSourcesPath = null;
 
-    /**文件位置*/
+    /**
+     * 文档目录
+     */
     @Value("${docPath}")
     private String docPath = null;
 
     /**
+     * 索引目录
+     */
+    @Value("${articleIndexPath}")
+    private String articleIndexPath = null;
+
+
+    /**
      * 资源文件根路径
      */
-    private  String rootPath = "";
+    private String rootPath = "";
 
     /**
      * 文章mapper
      */
     @Resource
-    ArticleMapper articleMapper = null;
+    private ArticleMapper articleMapper = null;
 
     /**
      * 分类mapper
      */
     @Resource
-    CategoryMapper categoryMapper = null;
+    private CategoryMapper categoryMapper = null;
+
     /**
      * 文章对象列表
      */
@@ -73,43 +82,24 @@ public class ArticleUtil {
     @Test
     public void scanArticle() throws IOException {
         //rootPath = springBootJarUtil.getJarPath()+extStaticSourcesPath;
+        //资源目录绝对路径
         rootPath = springBootJarUtil.getExtStaticSources();
         //1、创建文件对象
         createArticles(rootPath, docPath);
         //2、插入数据库
-        insertArticles(articleMapper,categoryMapper);
+        insertArticles();
 
-        //3、转换swf
-        for (Article article : articleList) {
-            if (".pdf".equals(article.getFileType())){
-              //  turnPdf(article.getSourceFilePath(),article.getTargetFilePath());
-            }
-
-        }
-        //4、创建索引
-        LuceneUtilForArticle.createIndex(rootPath,articleList);
-
+        //4、更新或创建索引
+        articleList = articleMapper.getArticlesForIndex();
+        LuceneIndexUntil.createIndex(articleList, rootPath + articleIndexPath,true);
     }
 
     /**
-     * 插入文章信息
-     * @throws IOException
+     * 保存到数据库
+     *
+     * @throws IOException 连接数据库异常
      */
-    private void insertArticles(ArticleMapper articleMapper,CategoryMapper categoryMapper) throws IOException {
-      /*  //1、加载配置文件
-        InputStream inputStream = Resources.getResourceAsStream("mybatis-config.xml");
-        //2、创建连接工厂
-        SqlSessionFactory build = new SqlSessionFactoryBuilder().build(inputStream);
-        //3、获取连接
-        SqlSession sqlSession = build.openSession();
-        //4、获取mapper
-        if (articleMapper == null){
-            articleMapper = sqlSession.getMapper(ArticleMapper.class);
-        }
-        if (categoryMapper == null){
-            categoryMapper = sqlSession.getMapper(CategoryMapper.class);
-        }*/
-
+    private void insertArticles() {
         for (Article article : articleList) {
             //添加分类，并获取分类id
             HashMap<String, Object> params = new HashMap<>();
@@ -124,21 +114,26 @@ public class ArticleUtil {
                 categoryMapper.insert(category);
                 article.setCategoryId(category.getId());
             }
-            //新增文章
-            Article queryArticle = new Article();
-            queryArticle.setSourceFilePath(article.getSourceFilePath());
-            List<Article> articles = articleMapper.selectByAll(queryArticle);
-            if (articles.isEmpty()) {
-                articleMapper.insert(article);
+
+            //新增或文章
+            articleMapper.insertOrUpdate(article);
+            //3、转换pdf
+            if (".pdf".equals(article.getFileType())) {
+                //turnPdf(article.getSourceFilePath(),article.getTargetFilePath());
             }
 
+
         }
-        articleList = articleMapper.getArticlesForIndex();
-/*        sqlSession.commit();
-        sqlSession.close();*/
+
+
     }
 
-
+    /**
+     * 遍历文档生成文档Bean对象
+     *
+     * @param path   资源目录
+     * @param docDir 文件文件夹
+     */
     private void createArticles(String path, String docDir) {
         //递归遍历path下所有文件
         File dir = new File(path + docDir);
@@ -149,14 +144,14 @@ public class ArticleUtil {
         for (File file : files) {
             if (file.isFile()) {
                 //保存文件信息到数据库
-                //转pdf、swf
                 try {
                     createArticleObject(file);
                 } catch (Exception e) {
+                    log.error(e.getMessage());
                 }
             } else if (file.isDirectory()) {
                 //遍历子目录
-                if (file.getAbsolutePath().endsWith("2020最新Git教程（2小时从入门到精通）")){
+                if (file.getAbsolutePath().endsWith("2020最新Git教程（2小时从入门到精通）")) {
                     continue;
                 }
                 createArticles(file.getAbsolutePath(), "/");
@@ -164,6 +159,11 @@ public class ArticleUtil {
         }
     }
 
+    /**
+     * 生成Article对象
+     *
+     * @param file 文件对象
+     */
     private void createArticleObject(File file) {
 
         /*2020-04-22_后端_JAVA_常用设计模式
@@ -172,9 +172,10 @@ public class ArticleUtil {
          * 第三部分为tag     [2]
          * 第四部分为标题 [4]
          */
-        //获取文件名 不包括扩展名
+
         String filenameAndExt = file.getName();
         int pointLoc = filenameAndExt.lastIndexOf(".");
+        //获取文件名 不包括扩展名
         String filename = filenameAndExt.substring(0, pointLoc);
         //获取扩展名
         String ext = filenameAndExt.substring(pointLoc + 1).trim();
@@ -184,7 +185,6 @@ public class ArticleUtil {
 
         //创建日期
         String createDate = fileInfo[0].trim();
-
         //标签
         String tag = fileInfo[2].trim();
         //long categoryId = insertCategoryName(tag);
@@ -196,17 +196,15 @@ public class ArticleUtil {
         String updateDate = DateUtil.formatDate(new Date(file.lastModified()), "yyyy-MM-dd");
         //源文件目录
         String sourceFilePath = file.getAbsolutePath().substring(file.getAbsolutePath().indexOf(rootPath) + rootPath.length());
-        //目标文件目录 如果是docx或doc转为swf
+        //目标文件目录 如果是。docx或。doc转为 pfg
         String targetFilePath = "/" + ext + "/" + filename + fileType;
-        if ("docx".equalsIgnoreCase(ext) || "doc".equalsIgnoreCase(ext)) {
-                 fileType = ".pdf";
+        if ("docx".equalsIgnoreCase(ext)
+                || "doc".equalsIgnoreCase(ext)) {
+            fileType = ".pdf";
             targetFilePath = "/pdf/" + MD5.md5(filename) + fileType;
-             /* //转html使用
-             fileType = ".html"; bbb
-            targetFilePath = "/html/"+ UUID.randomUUID()+"/"  + MD5.md5(filename) + fileType;*/
         }
 
-        //描述读取文档内容
+        //文档描述：读取文档内容部分内容
         String desc;
         if ("docx".equalsIgnoreCase(ext) || "doc".equalsIgnoreCase(ext)) {
             desc = readWord(rootPath + sourceFilePath).trim();
@@ -236,7 +234,6 @@ public class ArticleUtil {
             articleList.add(article);
         }
 
-
     }
 
 
@@ -244,7 +241,7 @@ public class ArticleUtil {
      * 读取word文件内容
      *
      * @param path word文件路径
-     * @return buffer
+     * @return 读取内容
      */
     private String readWord(String path) {
         // TODO Auto-generated method stub
@@ -284,7 +281,14 @@ public class ArticleUtil {
         return content.toString();
     }
 
-    public  boolean turnPdf(String pathDoc, String pathPdf) {
+    /**
+     * doc转odf
+     *
+     * @param pathDoc doc目录
+     * @param pathPdf pdf目录
+     * @return 转换状态 {@code true},{@code false}
+     */
+    public boolean turnPdf(String pathDoc, String pathPdf) {
         try {
             //jar内部资源存在SWF文件
             if (springBootJarUtil.sourceExists(pathPdf)) {
@@ -308,13 +312,13 @@ public class ArticleUtil {
             return true;
         }
         log.info("源DOC文件:" + pathDoc);
-            log.info("生成pdf文件:" + pathPdf);
-            //docx转pdf
-            int b = Doc2Pdf.turn(pathDoc, pathPdf);
-            if (b != 0) {
-                log.error("生成pdf失败");
-                return false;
-            }
+        log.info("生成pdf文件:" + pathPdf);
+        //docx转pdf
+        int b = Doc2Pdf.turn(pathDoc, pathPdf);
+        if (b != 0) {
+            log.error("生成pdf失败");
+            return false;
+        }
         return true;
     }
 }

@@ -57,7 +57,7 @@ public class SpringBootJarUtil {
     }
     /**
      * 获取配置的springboot jar包外部的资源文件目录
-     * @return
+     * @return 绝对路径
      */
     public  String getExtStaticSources() throws FileNotFoundException {
         String finalPath= getJarPath()+extStaticSourcesPath;
@@ -67,10 +67,10 @@ public class SpringBootJarUtil {
     /**
      * 获取spring boot jar包当前目录 绝对路径
      * @return
-     * @throws FileNotFoundException
+     * @throws FileNotFoundException 找不到文件
      */
     public  String getJarPath() throws FileNotFoundException {
-        String jarPath="";
+        String jarPath;
         if(Pdf2Swf.isWindowsSystem()){
             //去掉 /E://前面的 /
             jarPath=ResourceUtils.getURL("").getPath().substring(1);
@@ -78,7 +78,7 @@ public class SpringBootJarUtil {
             //Linux系统 前面 需要有 /表示绝对路径 否则找不到路径
             jarPath=ResourceUtils.getURL("").getPath();
         }
-        return (jarPath==null||jarPath.equals("null"))?"":jarPath;
+        return (jarPath==null|| "null".equals(jarPath))?"":jarPath;
 
     }
 }
