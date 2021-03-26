@@ -28,8 +28,10 @@ public class ServletContextListener implements javax.servlet.ServletContextListe
         ServletContext context = servletContextEvent.getServletContext();
         String webPath= context.getContextPath();
          context.setAttribute("webPath",webPath);
+        articleUtil.scanArticle();
+        //这里用多线程有问题？因为SpringBootJarUntil
          //扫描文档
-        ThreadPoolExecutor threadPoolExecutor
+/*        ThreadPoolExecutor threadPoolExecutor
                 = new ThreadPoolExecutor(
                         0
                 , 1
@@ -39,7 +41,7 @@ public class ServletContextListener implements javax.servlet.ServletContextListe
                 , Executors.defaultThreadFactory()
                 , new ThreadPoolExecutor.DiscardPolicy());
         threadPoolExecutor.execute(() -> articleUtil.scanArticle());
-        threadPoolExecutor.shutdown();
+        threadPoolExecutor.shutdown();*/
     }
 
     @Override
