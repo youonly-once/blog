@@ -4,7 +4,7 @@
     <resultMap id="BaseResultMap" type="cn.shu.blog.beans.Category">
         <!--@mbg.generated-->
         <!--@Table category-->
-        <id column="id" jdbcType="INTEGER" property="id"/>
+        <id column="id" jdbcType="INTEGER" property="id" typeHandler="cn.shu.blog.EnumTypeHandler" javaType="cn.shu.blog.enums.Test" />
         <result column="categoryName" jdbcType="VARCHAR" property="categoryName"/>
     </resultMap>
     <sql id="Base_Column_List">

@@ -35,7 +35,7 @@ public class ServletContextListener implements javax.servlet.ServletContextListe
                 , 1
                 , 0
                 , TimeUnit.MILLISECONDS
-                , new ArrayBlockingQueue<>(0)
+                , new SynchronousQueue<>()
                 , Executors.defaultThreadFactory()
                 , new ThreadPoolExecutor.DiscardPolicy());
         threadPoolExecutor.execute(() -> articleUtil.scanArticle());
