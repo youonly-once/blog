@@ -53,7 +53,7 @@ public class LuceneIndexUntil {
 
             //遍历词项
             while (tokenStream.incrementToken()) {
-/*             log.info("偏移量起始位置:"+offAttr.startOffset());
+            /*log.info("偏移量起始位置:"+offAttr.startOffset());
              log.info("偏移量结束位置:"+offAttr.endOffset());*/
 
                 // System.out.print(s + ",");
@@ -69,9 +69,6 @@ public class LuceneIndexUntil {
     }
 
 
-    /**
-
-     */
     /**
      * 给文章创建lucene索引
      * 索引存在则更新，不存在则添加

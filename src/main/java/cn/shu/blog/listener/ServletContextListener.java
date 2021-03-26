@@ -9,6 +9,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.annotation.WebListener;
 import java.io.IOException;
+import java.util.concurrent.*;
 
 /**
  * ServletContext是web全局 web启动时启动
@@ -18,30 +19,27 @@ import java.io.IOException;
 @Component
 @WebListener
 public class ServletContextListener implements javax.servlet.ServletContextListener {
+
     @Resource
     private ArticleUtil articleUtil = null;
+
     @Override
     public void contextInitialized(ServletContextEvent servletContextEvent) {
         ServletContext context = servletContextEvent.getServletContext();
-
         String webPath= context.getContextPath();
          context.setAttribute("webPath",webPath);
-        try {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        articleUtil.scanArticle();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }).start();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
+         //扫描文档
+        ThreadPoolExecutor threadPoolExecutor
+                = new ThreadPoolExecutor(
+                        0
+                , 1
+                , 0
+                , TimeUnit.MILLISECONDS
+                , new ArrayBlockingQueue<>(0)
+                , Executors.defaultThreadFactory()
+                , new ThreadPoolExecutor.DiscardPolicy());
+        threadPoolExecutor.execute(() -> articleUtil.scanArticle());
+        threadPoolExecutor.shutdown();
     }
 
     @Override

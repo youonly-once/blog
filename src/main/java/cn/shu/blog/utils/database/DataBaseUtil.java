@@ -37,7 +37,7 @@ public class DataBaseUtil {
             JDBCUtil.close(con,statement,result);
         }
     }
-    /*
+    /**
      * 数据库更新操作
      */
     public static boolean databaseUpdate(String sql,Connection con) {

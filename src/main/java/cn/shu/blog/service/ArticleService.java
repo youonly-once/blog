@@ -5,6 +5,7 @@ import cn.shu.blog.dao.ArticleMapper;
 import cn.shu.blog.dao.CategoryMapper;
 import cn.shu.blog.dao.CommentMapper;
 import cn.shu.blog.dao.UserMapper;
+import cn.shu.blog.utils.ExecutorServiceUtil;
 import cn.shu.blog.utils.GetNetImage;
 import cn.shu.blog.utils.SpringBootJarUtil;
 import cn.shu.blog.utils.StringUtil;
@@ -66,7 +67,7 @@ public class ArticleService implements ArticleServiceInter {
     private CommentMapper commentMapper = null;
 
     /**
-     * 文章比啊omapper
+     * 文章mapper
      */
     @Resource
     private ArticleMapper articleMapper = null;
@@ -76,13 +77,6 @@ public class ArticleService implements ArticleServiceInter {
      */
     @Value("${articleIndexPath}")
     private String savePath = "/article_index";
-
-
-    /**
-     * 下载图片线程池
-     */
-    private ExecutorService downloadImgExecutorService
-            = new ThreadPoolExecutor(20, 30, 20, TimeUnit.SECONDS, new ArrayBlockingQueue<>(10), new ThreadPoolExecutor.AbortPolicy());
 
 
     /**
@@ -194,47 +188,51 @@ public class ArticleService implements ArticleServiceInter {
             }
 
             for (String imgRelativePath : set) {
-                //判断封面图片是否存在
-                //图片绝对路径
-                String imageAbsolutePath;
-                String imgStr;
-                String fileName;
-                String fileNameAndExt;
-                try {
-                    //文章展示图片文件完整路径
-                    imgStr = springBootJarUtil.getExtStaticSources() + imgRelativePath;
-                    File imageFile = new File(imgStr);
-                    //存放文件名，包括后缀
-                    fileNameAndExt = imageFile.getName();
-                    //文件名,没有后缀
-                    fileName = fileNameAndExt.substring(0, fileNameAndExt.lastIndexOf("."));
+                //提交新线程下载
+                ExecutorServiceUtil.getNetImgDownloadThreadPool().execute(()-> {
+                    //判断封面图片是否存在
+                    //图片绝对路径
+                    String imageAbsolutePath;
+                    String imgStr;
+                    String fileName;
+                    String fileNameAndExt;
+                    try {
+                        //文章展示图片文件完整路径
+                        imgStr = springBootJarUtil.getExtStaticSources() + imgRelativePath;
+                        File imageFile = new File(imgStr);
+                        //存放文件名，包括后缀
+                        fileNameAndExt = imageFile.getName();
+                        //文件名,没有后缀
+                        fileName = fileNameAndExt.substring(0, fileNameAndExt.lastIndexOf("."));
 
-                    //图片存放路径，不包括文件名
-                    imageAbsolutePath = imageFile.getParent();
-                    File imagePathFile = new File(imageAbsolutePath);
-                    //保存图片的目录不存在
-                    if (!imagePathFile.exists()) {
-                        boolean mkdirs = imagePathFile.mkdirs();
-                        //创建失败
-                        if (!mkdirs) {
-                            log.warn("图片保存目录创建失败：" + imageAbsolutePath);
-                            return;
+                        //图片存放路径，不包括文件名
+                        imageAbsolutePath = imageFile.getParent();
+                        File imagePathFile = new File(imageAbsolutePath);
+                        //保存图片的目录不存在
+                        if (!imagePathFile.exists()) {
+                            boolean mkdirs = imagePathFile.mkdirs();
+                            //创建失败
+                            if (!mkdirs) {
+                                log.warn("图片保存目录创建失败：" + imageAbsolutePath);
+                                return;
+                            }
                         }
+                        //内部和外部资源都不存在
+                        if (!springBootJarUtil.sourceExists(File.separator + imgRelativePath) && !imageFile.exists()) {
+                            //1代表下载一页，一页一般有30张图片
+                            File imgFile = GetNetImage.getNetImg(fileName, 20, imageAbsolutePath, fileNameAndExt);
+                            if (imgFile != null) {
+                                log.info("图片下载成功：" + imgFile.getAbsolutePath());
+                            }
+                        }
+                    } catch (FileNotFoundException e) {
+                        log.warn(e.getMessage());
+                        e.printStackTrace();
                     }
-                    //内部和外部资源都不存在
-                    if (!springBootJarUtil.sourceExists(File.separator + imgRelativePath) && !imageFile.exists()) {
-                        //1代表下载一页，一页一般有30张图片
-                        File imgFile = GetNetImage.getPictures(fileName, 20, imageAbsolutePath, fileNameAndExt);
-                        log.info("图片下载成功：" + imgFile.getAbsolutePath());
-                    }
-                } catch (FileNotFoundException e) {
-                    log.warn(e.getMessage());
-                    e.printStackTrace();
-                }
-
+                });
             }
         };
-        downloadImgExecutorService.submit(runnable);
+        ExecutorServiceUtil.getNetImgDownloadThreadPool().execute(runnable);
 
     }
 

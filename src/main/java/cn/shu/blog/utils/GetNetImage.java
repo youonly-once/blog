@@ -1,10 +1,9 @@
 package cn.shu.blog.utils;
 
+import com.zaxxer.hikari.util.UtilityElf;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.springframework.util.ClassUtils;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -12,10 +11,7 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Scanner;
+import java.util.concurrent.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,83 +22,74 @@ import java.util.regex.Pattern;
 @Slf4j
 public class GetNetImage {
 
-
-    public static void main(String[] args) throws Exception {
-        String tempPath = "D:/pictures/";
-
-         log.info("输入爬取关键字（可用空格，、号分隔多个想爬的关键字）：");
-        Scanner KeyWord = new Scanner(System.in);
-        String Word = KeyWord.nextLine();
-        List<String> keywordList = nameList(Word);
-        for (String keyword : keywordList) {
-            tempPath = tempPath + keyword + File.separator;
-            File f = new File(tempPath);
-            if (!f.exists()) {
-                boolean mkdirs = f.mkdirs();
-                if (!mkdirs){
-                    return;
-                }
-            }
-            getPictures( keyword,1, tempPath,null); //1代表下载一页，一页一般有30张图片
-        }
-
-    }
-
-
-    public static File getPictures(String keyword,int max, String tempPath,String downloadName) { // key为关键词,max作为爬取的页数
+    /**
+     * 爬取网络图片（百度搜索图片）
+     *
+     * @param keyword      爬取关键字
+     * @param max          爬取最大次数（百度搜索图片的页数，下载多少页，一页一般有30张图片）
+     * @param tempPath     图片保存目录
+     * @param downloadName 文件名
+     * @return 下载的文件
+     */
+    public static File getNetImg(String keyword, int max, String tempPath, String downloadName) { // key为关键词,max作为爬取的页数
         if (!tempPath.endsWith(File.separator)) {
             tempPath = tempPath + File.separator;
         }
-        String finalURL = "";
-        File returnFile=null;
-            int picCount = 1;
-            for (int page = 0; page <= max; page++) {
-                log.info(keyword+":正在下载第" + page + "页面");
-                Document document = null;
-                try {
-                    String url = "http://image.baidu.com/search/avatarjson?tn=resultjsonavatarnew&ie=utf-8&word=" + keyword + "&cg=star&pn=" + page * 30 + "&rn=30&itg=0&z=0&fr=&width=&height=&lm=-1&ic=0&s=0&st=-1&gsm=" + Integer.toHexString(page * 30);
-                    url="http://image.baidu.com/search/index?tn=baiduimage&ps=1&ct=201326592&lm=-1&cl=2&nc=1&ie=utf-8&word="+keyword+"&pn="+page * 30;
-                    document = Jsoup.connect(url).data("query", "Java")//请求参数
-                            .userAgent("Mozilla/4.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)")//设置urer-agent  get();
-                            .timeout(5000)
-                            .get();
-                    String xmlSource = document.toString();
-                   /*  log.info(xmlSource);*/
-                    String reg = "objURL\":\"http://.+?\\.jpg";
-                    Pattern pattern = Pattern.compile(reg);
-                    Matcher m = pattern.matcher(xmlSource);
 
-                    while (m.find()) {
-                        finalURL = m.group().substring(9);
-                     /*    log.info(finalURL);*/
-                        log.info(keyword + picCount++ + ":下载中" );
-                        returnFile = download(finalURL, tempPath,downloadName);
-                        if (returnFile != null) {
-                            delMultyFile(tempPath);
-                            return returnFile ;
-                        }
+        int picCount = 1;
+        for (int page = 0; page <= max; page++) {
+            log.info(keyword + ":正在下载第" + page + "页面");
+            try {
+                //爬取地址
+                String url = "http://image.baidu.com/search/index?tn=baiduimage&ps=1&ct=201326592&lm=-1&cl=2&nc=1&ie=utf-8&word=" + keyword + "&pn=" + page * 30;
+                //请求参数
+                Document document = Jsoup.connect(url).data("query", "Java")
+                        .userAgent("Mozilla/4.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)")
+                        .timeout(5000)
+                        .get();
+                //获取网页源码
+                String xmlSource = document.toString();
+                //正则匹配网页源码中图片的地址
+                String reg = "objURL\":\"http://.+?\\.jpg";
+                Pattern pattern = Pattern.compile(reg);
+                Matcher m = pattern.matcher(xmlSource);
+                //循环下载网页中的图片
+                while (m.find()) {
+                    String finalUrl = m.group().substring(9);
+                    log.info(keyword + picCount++ + ":下载中");
+                    File returnFile = download(finalUrl, tempPath, downloadName);
+                    if (returnFile != null) {
+                        //下载成功返回
+                        delMultiFile(tempPath);
+                        return returnFile;
                     }
-                } catch (IOException e) {
-                    e.printStackTrace();
                 }
+            } catch (IOException e) {
+                e.printStackTrace();
+                log.error(e.getMessage());
             }
-        delMultyFile(tempPath);
-        return returnFile;
+        }
+        delMultiFile(tempPath);
+        return null;
     }
 
-    public static void delMultyFile(String path) {
+    /**
+     * 删除生成的临时文件
+     *
+     * @param path 根目录
+     */
+    private static void delMultiFile(String path) {
         File file = new File(path);
         if (!file.exists()) {
-            throw new RuntimeException("File \"" + path + "\" NotFound when excute the method of delMultyFile()....");
+            return;
         }
         File[] fileList = file.listFiles();
-        File tempFile = null;
-        if (fileList==null) return;
+        if (fileList == null) {
+            return;
+        }
         for (File f : fileList) {
             if (f.isDirectory()) {
-                {
-                    delMultyFile(f.getAbsolutePath());
-                }
+                delMultiFile(f.getAbsolutePath());
             } else {
                 if (f.length() == 0) {
                     log.debug(f.delete() + "---" + f.getName());
@@ -111,38 +98,27 @@ public class GetNetImage {
         }
     }
 
-    public static List<String> nameList(String nameList) {
-        List<String> arr = new ArrayList<String>();
-        String[] list;
-        if (nameList.contains(",")) {
-            list = nameList.split(",");
-        } else if (nameList.contains("、")) {
-            list = nameList.split("、");
-        } else if (nameList.contains(" ")) {
-            list = nameList.split(" ");
-        } else {
-            arr.add(nameList);
-            return arr;
-        }
-        arr.addAll(Arrays.asList(list));
-        return arr;
-    }
 
-
-    //根据图片网络地址下载图片
-    public static File download(String url, String path,String downloadName) {
-        //path = path.substring(0,path.length()-2);
-        File file = null;
-        File dirFile = null;
+    /**
+     * 下载网络图片
+     *
+     * @param url          图片地址
+     * @param path         保存目录
+     * @param downloadName 文件名
+     * @return 下载的文件
+     */
+    public static File download(String url, String path, String downloadName) {
+        File file;
+        File dirFile;
         FileOutputStream fos = null;
-        HttpURLConnection httpCon = null;
-        URLConnection con = null;
-        URL urlObj = null;
+        HttpURLConnection httpCon;
+        URLConnection con;
+        URL urlObj;
         InputStream in = null;
         byte[] size = new byte[1024];
-        int num = 0;
+        int num;
         try {
-            if (downloadName==null){
+            if (downloadName == null) {
                 downloadName = url.substring(url.lastIndexOf(File.separator) + 1);
             }
 
@@ -187,36 +163,38 @@ public class GetNetImage {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            try {
-                if (fos != null) {
+            if (fos != null) {
+                try {
                     fos.close();
+                } catch (Exception e) {
                 }
-            } catch (Exception e) {
-
             }
-            try {
-                if (in != null) {
+            if (in != null) {
+                try {
                     in.close();
+                } catch (IOException e) {
+
                 }
-            } catch (IOException e) {
-
             }
-
-
         }
         return null;
     }
 
+    /**
+     * 获取网络图片的宽高比
+     * @param url 图片地址
+     * @return 宽高比
+     * @throws IOException 连接失败
+     */
     private static double getImageWH(String url) throws IOException {
-        URLConnection con = null;
-        HttpURLConnection httpCon = null;
+        URLConnection con;
+        HttpURLConnection httpCon;
         InputStream in = null;
         try {
             URL urlObj = new URL(url);
             con = urlObj.openConnection();
             httpCon = (HttpURLConnection) con;
             in = httpCon.getInputStream();
-            //
             BufferedImage r = ImageIO.read(in);
             double height = r.getHeight();
 
@@ -231,8 +209,6 @@ public class GetNetImage {
             } catch (IOException e) {
 
             }
-
         }
-
     }
 }

@@ -1,10 +1,5 @@
 package cn.shu.blog.aspect;
 
-/**
- * @作者 舒新胜
- * @项目 MyBlog
- * @创建时间 2020-5-6 11:13
- */
 
 import cn.shu.blog.beans.User;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -14,6 +9,9 @@ import org.springframework.stereotype.Component;
 
 /**
  * 权限控制 暂未实现 现在网站没有要实现权限控制的内容
+ * @作者 舒新胜
+ * @项目 MyBlog
+ * @创建时间 2020-5-6 11:13
  */
 @Component
 @Aspect

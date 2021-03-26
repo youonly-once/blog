@@ -12,13 +12,13 @@ public class IKAnalyzer6x extends Analyzer{
 		this.useSmart=useSmart;
 	}
 	public IKAnalyzer6x(){
-		this(false);//IK分词器lucene analyzer接口实现类，默认细粒度切分算法
+		this(false);
 	}
-	//重写最新版本createComponents；重载analyzer接口，构造分词组件
+
 	@Override
 	protected TokenStreamComponents createComponents(String filedName) {
-		Tokenizer _IKTokenizer=new IKTokenizer6x(this.useSmart);
-		return new TokenStreamComponents(_IKTokenizer);
+		Tokenizer ikTokenizer6x=new IKTokenizer6x(this.useSmart);
+		return new TokenStreamComponents(ikTokenizer6x);
 	}
 	public IKAnalyzer6x(boolean useSmart){
 		super();

@@ -17,75 +17,77 @@ public class HtmlUtil {
 
     /**
      * 读取Html文件的内容
+     *
      * @param filePath 文件路径
-     * @param length 读取长度
+     * @param length   读取长度
      * @return 读取内容
      */
-    public static String readHtml(String filePath,int length) {
-        StringBuilder resultBuilder=new StringBuilder();
-        FileInputStream fi=null;
-        BufferedInputStream bi=null;
+    public static String readHtml(String filePath, int length) {
+        StringBuilder resultBuilder = new StringBuilder();
+        FileInputStream fi = null;
+        BufferedInputStream bi = null;
         try {
-            fi=new FileInputStream(new File(filePath));
-            bi=new BufferedInputStream(fi);
+            fi = new FileInputStream(new File(filePath));
+            bi = new BufferedInputStream(fi);
             int readLen;
-            byte[] bytes=new byte[1024];
+            byte[] bytes = new byte[1024];
 
-            StringBuilder stringBuilder=new StringBuilder();
-            while ((readLen=bi.read(bytes,0,1024))!=-1){
-                String  str= new String(bytes,0,readLen, StandardCharsets.UTF_8);
-                stringBuilder.append(str.replaceAll("\\s",""));
+            StringBuilder stringBuilder = new StringBuilder();
+            while ((readLen = bi.read(bytes, 0, 1024)) != -1) {
+                String str = new String(bytes, 0, readLen, StandardCharsets.UTF_8);
+                stringBuilder.append(str.replaceAll("\\s", ""));
             }
             //查找p标签中的内容
-            Pattern pattern=Pattern.compile("<[pPhH][1]?>[^<>]+</[pPhH][1]?>");
+            Pattern pattern = Pattern.compile("<[pPhH][1]?>[^<>]+</[pPhH][1]?>");
             Matcher matcher = pattern.matcher(stringBuilder);
             //循环取出
-            int i=1;
-            while (matcher.find()){
+            int i = 1;
+            while (matcher.find()) {
                 //只显示3行
-                if (i == 4){
+                if (i == 4) {
                     break;
                 }
                 String group = matcher.group();
                 //获取p中的内容
-                String substring="";
+                String substring = "";
                 if (group.contains("<p>")) {
                     substring = group.substring("<p>".length(), group.length() - "</p>".length());
-                }else{
+                } else {
                     substring = group.substring(4, group.length() - 5);
                 }
                 resultBuilder.append(substring);
-                if (i!=3){
-                    resultBuilder .append("<br/>");
+                if (i != 3) {
+                    resultBuilder.append("<br/>");
                 }
                 i++;
             }
         } catch (IOException e) {
             e.printStackTrace();
-        }finally {
-            try {
-                if (fi!=null){
+        } finally {
+            if (fi != null) {
+                try {
+
                     fi.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
+                if (bi != null) {
+                    try {
 
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            try {
-                if (bi!=null){
-                    bi.close();
+                        bi.close();
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
             }
-
         }
         //获取200个
-        if (resultBuilder.length()>length){
-            return resultBuilder.toString().substring(0,length);
-        }else{
+        if (resultBuilder.length() > length) {
+            return resultBuilder.toString().substring(0, length);
+        } else {
             return resultBuilder.toString();
         }
-
     }
 }

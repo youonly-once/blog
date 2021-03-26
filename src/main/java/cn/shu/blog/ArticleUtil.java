@@ -80,10 +80,16 @@ public class ArticleUtil {
     private List<Article> articleList = new ArrayList<>();
 
     @Test
-    public void scanArticle() throws IOException {
+    public void scanArticle()  {
         //rootPath = springBootJarUtil.getJarPath()+extStaticSourcesPath;
         //资源目录绝对路径
-        rootPath = springBootJarUtil.getExtStaticSources();
+        try {
+            rootPath = springBootJarUtil.getExtStaticSources();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            log.error(e.getMessage());
+            return;
+        }
         //1、创建文件对象
         createArticles(rootPath, docPath);
         //2、插入数据库

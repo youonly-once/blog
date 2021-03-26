@@ -1,10 +1,5 @@
 package cn.shu.blog.aspect;
 
-/**
- * @作者 舒新胜
- * @项目 MyBlog
- * @创建时间 2020/4/30
- */
 
 
 import lombok.extern.slf4j.Slf4j;
@@ -18,10 +13,13 @@ import java.util.HashMap;
 /**
  * 配置切面
  * 记录 Dao层及 Service层日志
+ * @作者 舒新胜
+ * @项目 MyBlog
+ * @创建时间 2020/4/30
  */
 @Slf4j
-@Component //交给Spring管理
-@Aspect //定义为代理类(切面)
+@Component
+@Aspect
 public class LogAspect {
     @Pointcut("execution( * cn.shu.blog..*(..))")
     public void pointCut(){
