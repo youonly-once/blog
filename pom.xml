@@ -16,6 +16,7 @@
 
     <properties>
         <java.version>1.8</java.version>
+        <output.basedir>D:/</output.basedir>
     </properties>
 
     <dependencies>
@@ -217,19 +218,19 @@
     <build>
         <!--指定打包时，包括JSP文件-->
         <resources>
-            <resource>
+<!--            <resource>
                 <directory>${basedir}/src/main/webapp</directory>
-                <!-- 注意此次必须要放在此目录下才能被访问到 -->
-                <targetPath>META-INF/resources</targetPath>
+                &lt;!&ndash; 注意此次必须要放在此目录下才能被访问到 &ndash;&gt;
+             &lt;!&ndash;   <targetPath>META-INF/resources</targetPath>
                 <includes>
                     <include>**/**</include>
-                </includes>
-            </resource>
+                </includes>&ndash;&gt;
+            </resource>-->
             <resource>
                 <directory>${basedir}/src/main/resources</directory>
-                <includes>
+        <!--        <includes>
                     <include>**/**</include>
-                </includes>
+                </includes>-->
             </resource>
 
         </resources>
@@ -237,19 +238,98 @@
         <plugins>
             <!--打包JAR插件-->
 
-            <plugin>
+      <!--      <plugin>
 
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <!--如果打包打包 包括JSP的项目 则必须用1.4.2.RELEASE-->
+                &lt;!&ndash;如果打包打包 包括JSP的项目 则必须用1.4.2.RELEASE&ndash;&gt;
                 <version>1.4.2.RELEASE</version>
                 <configuration>
                     <mainClass>cn.shu.blog.MyBlogMain</mainClass>
                 </configuration>
 
 
+            </plugin>-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <outputDirectory>${output-directory}</outputDirectory>
+                    <excludes>
+                        <exclude>*.properties</exclude>
+                        <exclude>*.yml</exclude>
+                        <exclude>*.xml</exclude>
+                    </excludes>
+                    <archive>
+                        <manifest>
+                            <!-- 为依赖包添加路径, 这些路径会写在MANIFEST文件的Class-Path下 -->
+                            <mainClass>cn.shu.blog.MyBlogMain</mainClass>
+                            <addClasspath>true</addClasspath>
+                            <classpathPrefix>lib/</classpathPrefix>
+                            <!-- 打包时 MANIFEST.MF文件不记录的时间戳版本 -->
+                            <useUniqueVersions>false</useUniqueVersions>
+                        </manifest>
+                        <manifestEntries>
+                            <!-- 在Class-Path下添加配置文件的路径 -->
+                            <Class-Path>conf/</Class-Path>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-xmls</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${output-directory}/conf</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${basedir}/target/classes</directory>
+                                    <includes>
+                                        <include>*.properties</include>
+                                        <include>*.yml</include>
+                                        <include>*.xml</include>
+                                        <include>*.dic</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${output-directory}/lib/</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
+    <profiles>
+        <profile>
+            <id>1-dev</id>
+            <properties>
+                <spring-active-profile>dev</spring-active-profile>
+                <output-directory>${output.basedir}${spring-active-profile}</output-directory>
+            </properties>
+        </profile>
+    </profiles>
 
 </project>
