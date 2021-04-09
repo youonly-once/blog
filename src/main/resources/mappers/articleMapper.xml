@@ -359,14 +359,14 @@
              #{item.sourceFilePath,jdbcType=VARCHAR},
              #{item.description,jdbcType=VARCHAR}, #{item.imagePath,jdbcType=VARCHAR})
         </foreach>
-         ON DUPLICATE KEY UPDATE
-        createDate = values (createDate),
-        updateDate = values (updateDate),
-        fileType = values (fileType),
-        targetFilePath = values (targetFilePath),
-        description = values (description),
-        sourceFilePath = values (sourceFilePath),
-        imagePath = values (imagePath)
+        ON DUPLICATE KEY UPDATE
+                createDate = values (createDate),
+                                     updateDate = values (updateDate),
+                                                          fileType = values (fileType),
+                                                                             targetFilePath = values (targetFilePath),
+                                                                                                      description = values (description),
+                                                                                                                            sourceFilePath = values (sourceFilePath),
+                                                                                                                                                     imagePath = values (imagePath)
     </insert>
     <insert id="insertOrUpdate" keyColumn="id" keyProperty="id" parameterType="cn.shu.blog.beans.Article"
             useGeneratedKeys="true">
@@ -694,10 +694,25 @@
         </if>
     </select>
     <select id="getArticlesForIndex" resultType="cn.shu.blog.beans.Article">
-    SELECT xx.id,title,createDate,updateDate,userId,visitors,fileType,targetFilePath,sourceFilePath,description,imagePath,commNum,categoryName
-                     FROM (SELECT *,CASE WHEN  num IS NULL THEN 0 ELSE num END AS commNum
-                   FROM article LEFT JOIN (SELECT COUNT(*)AS num,articleId FROM comment GROUP BY articleId) AS comments_count
-                    ON comments_count. articleId= article.id
-                    ORDER BY updatedate DESC ) AS xx,category WHERE xx.categoryId=category.id;
-</select>
+        SELECT xx.id,
+               title,
+               createDate,
+               updateDate,
+               userId,
+               visitors,
+               fileType,
+               targetFilePath,
+               sourceFilePath,
+               description,
+               imagePath,
+               commNum,
+               categoryName
+        FROM (SELECT *, CASE WHEN num IS NULL THEN 0 ELSE num END AS commNum
+              FROM article
+                           LEFT JOIN (SELECT COUNT(*) AS num, articleId FROM comment GROUP BY articleId) AS comments_count
+                      ON comments_count.articleId = article.id
+              ORDER BY updatedate DESC) AS xx,
+             category
+        WHERE xx.categoryId = category.id;
+    </select>
 </mapper>

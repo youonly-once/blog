@@ -24,6 +24,11 @@ spring:
     static-locations: classpath:/static/,file:ext_resources/
 #自定义的属性
   #外部资源文件的相对路径
+  boot:
+    #admin客户端注册到admin 服务
+    admin:
+      client:
+        url: http://localhost:8999
 extStaticSourcesPath: ext_resources/
   #文档的路径
 docPath: /note
@@ -43,7 +48,12 @@ logging:
   file:
     #当前打包jar目录
     path: log
-
+management:
+  endpoints:
+    web:
+      base-path: /
+      exposure:
+        include: ["*"]
 #每页显示的文章数
 home:
   article-page-num: 10
