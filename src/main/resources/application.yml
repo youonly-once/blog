@@ -22,13 +22,14 @@ spring:
     #指定静态文件存放位置 因为这里需要添加外部路径，所以需要手动指定,包括static
     #不指定则默认为 classpath:/static/
     static-locations: classpath:/static/,file:ext_resources/
-#自定义的属性
-  #外部资源文件的相对路径
   boot:
     #admin客户端注册到admin 服务
     admin:
       client:
         url: http://localhost:8999
+#自定义的属性
+
+  #外部资源文件的相对路径
 extStaticSourcesPath: ext_resources/
   #文档的路径
 docPath: /note

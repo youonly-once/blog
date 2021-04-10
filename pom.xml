@@ -16,7 +16,7 @@
 
     <properties>
         <java.version>1.8</java.version>
-        <output.basedir>D:/</output.basedir>
+        <output.basedir>E:\JAVA\eee/</output.basedir>
     </properties>
 
     <dependencies>
@@ -337,7 +337,7 @@
         <profile>
             <id>1-dev</id>
             <properties>
-                <spring-active-profile>dev</spring-active-profile>
+                <spring-active-profile></spring-active-profile>
                 <output-directory>${output.basedir}${spring-active-profile}</output-directory>
             </properties>
         </profile>
