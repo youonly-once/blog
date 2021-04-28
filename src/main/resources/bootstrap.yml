@@ -32,6 +32,14 @@ spring:
 #自定义的属性
 
   #外部资源文件的相对路径
+  cloud:
+    nacos:
+      config:
+        server-addr: http://localhost:8848
+        file-extension: yml
+
+      discovery:
+        server-addr: http://localhost:8848
 extStaticSourcesPath: ext_resources/
   #文档的路径
 docPath: /note

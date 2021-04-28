@@ -3,6 +3,7 @@ import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.ServletComponentScan;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 /**
  * @author Administrator
@@ -13,6 +14,7 @@ import org.springframework.boot.web.servlet.ServletComponentScan;
 @SpringBootApplication
 @MapperScan("cn.shu.blog.dao")
 @ServletComponentScan(basePackages = "cn.shu.blog.listener.*")
+@EnableDiscoveryClient
 public class MyBlogMain {
 
     public static void main(String[] args) {
